@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>傅里叶变换的基本概念</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom right, #ffffff, #f0f8ff);
+        }
+        .header {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+        }
+        .content-box {
+            border-left: 4px solid #0056b3;
+            background-color: rgba(240, 248, 255, 0.6);
+        }
+        .math-formula {
+            background-color: rgba(240, 248, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .concept-card {
+            background-color: #f8f9fa;
+            border-left: 3px solid #0056b3;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .time-freq-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .time-freq-arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #0056b3;
+            font-size: 2.5rem;
+            z-index: 10;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        .animation-fade {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .domain-box {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .domain-box:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="slide rounded-lg overflow-hidden flex flex-col">
+        <!-- Header -->
+        <div class="header py-4 px-8 text-white animation-fade">
+            <h1 class="text-4xl font-bold">傅里叶变换的基本概念</h1>
+            <p class="text-xl mt-2">从时域到频域的转换 - 解析信号的频率结构</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 px-8 py-6 flex flex-col">
+            <!-- Introduction -->
+            <div class="content-box pl-4 py-3 mb-4 rounded animation-fade" style="animation-delay: 0.2s">
+                <p class="text-xl leading-relaxed text-gray-800">
+                    傅里叶变换是一种将<span class="font-semibold text-blue-700">时域信号</span>（随时间变化的信号）转换为<span class="font-semibold text-blue-700">频域表示</span>（不同频率的叠加）的数学工具，
+                    揭示了信号中隐藏的频率成分，为我们提供了观察信号的全新视角。
+                </p>
+            </div>
+
+            <!-- Mathematical Formula -->
+            <div class="math-formula px-5 py-3 mx-auto mt-2 mb-4 animation-fade" style="animation-delay: 0.4s">
+                <div class="flex items-center justify-between">
+                    <div class="mr-4">
+                        <h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-square-root-alt mr-2"></i>连续傅里叶变换</h3>
+                        <p class="text-lg font-serif">F(ω) = ∫<sub>-∞</sub><sup>∞</sup> f(t)e<sup>-jωt</sup> dt</p>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-calculator mr-2"></i>离散傅里叶变换</h3>
+                        <p class="text-lg font-serif">X[k] = Σ<sub>n=0</sub><sup>N-1</sup> x[n]e<sup>-j2πkn/N</sup></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Representation -->
+            <div class="flex items-center justify-center mb-4 animation-fade" style="animation-delay: 0.6s">
+                <div class="time-freq-container flex items-center justify-between w-full px-6">
+                    <div class="domain-box time-domain w-2/5 p-4 bg-blue-50 rounded-lg">
+                        <h3 class="text-xl font-bold text-blue-800 mb-2 text-center">时域 (Time Domain)</h3>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Fourier_transform_time_and_frequency_domains_%28small%29.gif"
+                             alt="时域信号" class="mx-auto h-36 object-contain">
+                        <div class="text-center mt-2 text-gray-700">
+                            <p>随时间变化的信号</p>
+                            <p class="text-sm text-gray-500 mt-1">f(t) 表示信号随时间t的变化</p>
+                        </div>
+                    </div>
+
+                    <div class="time-freq-arrow">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+
+                    <div class="domain-box freq-domain w-2/5 p-4 bg-blue-50 rounded-lg">
+                        <h3 class="text-xl font-bold text-blue-800 mb-2 text-center">频域 (Frequency Domain)</h3>
+                        <img src="https://www.ntiaudio.cn/wp-content/uploads/FFT-Time-Frequency-View-540.png"
+                             alt="频域表示" class="mx-auto h-36 object-contain">
+                        <div class="text-center mt-2 text-gray-700">
+                            <p>信号的频率组成</p>
+                            <p class="text-sm text-gray-500 mt-1">F(ω) 展示各频率ω上的能量分布</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Concepts -->
+            <div class="grid grid-cols-2 gap-4 mt-1 animation-fade" style="animation-delay: 0.8s">
+                <div class="concept-card p-3 rounded">
+                    <h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-lightbulb mr-2"></i>核心思想</h3>
+                    <p>任何周期信号都可以分解为一系列不同频率、振幅和相位的正弦波的叠加，类似于将一首交响乐分解为各种乐器的声音</p>
+                </div>
+
+                <div class="concept-card p-3 rounded">
+                    <h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-cogs mr-2"></i>数学意义</h3>
+                    <p>通过积分变换，将时域函数映射到频域，使复杂的时域问题在频域中变得简单，如将卷积运算转化为简单的乘法</p>
+                </div>
+
+                <div class="concept-card p-3 rounded">
+                    <h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-chart-line mr-2"></i>变换对象</h3>
+                    <p>可应用于连续信号（连续傅里叶变换）、离散信号（离散傅里叶变换）及有限采样序列（离散傅里叶变换DFT及其快速算法FFT）</p>
+                </div>
+
+                <div class="concept-card p-3 rounded">
+                    <h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-magic mr-2"></i>变换意义</h3>
+                    <p>揭示信号的频谱特性，使我们能够识别信号中的重要频率成分、滤除噪声、压缩信息，为信号处理奠定理论基础</p>
+                </div>
+            </div>
+
+            <!-- Footer Note -->
+            <div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1s">
+                <p>"大自然说话用的是数学语言，而其字母就是圆、三角形以及其他数学图形" — 伽利略</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

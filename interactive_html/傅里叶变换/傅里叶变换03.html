@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>傅里叶变换的数学原理</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom right, #ffffff, #f0f8ff);
+        }
+        .header {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+        }
+        .formula-card {
+            background-color: rgba(240, 248, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #0056b3;
+        }
+        .formula-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .property-box {
+            background-color: #f8f9fa;
+            border-left: 3px solid #0056b3;
+            transition: all 0.3s ease;
+        }
+        .property-box:hover {
+            transform: translateX(3px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: white;
+            transition: all 0.3s ease;
+            height: 200px;
+        }
+        .chart-container:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        .animation-fade {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animation-slide-right {
+            animation: slideRight 1s ease-in-out;
+        }
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .formula-component {
+            transition: all 0.3s ease;
+        }
+        .formula-component:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="slide rounded-lg overflow-hidden flex flex-col">
+        <!-- Header -->
+        <div class="header py-4 px-8 text-white animation-fade">
+            <h1 class="text-4xl font-bold">傅里叶变换的数学原理</h1>
+            <p class="text-xl mt-2">基本公式与图形化解释</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 px-8 py-6 flex flex-col">
+            <!-- Introduction -->
+            <div class="animation-fade" style="animation-delay: 0.2s">
+                <p class="text-lg text-gray-800 mb-4">
+                    傅里叶变换的核心是将时域信号分解为频域中的正弦波组合，以下是傅里叶变换的数学表达与原理解析：
+                </p>
+            </div>
+
+            <!-- Formulas Section -->
+            <div class="grid grid-cols-2 gap-6 mb-4 animation-fade" style="animation-delay: 0.4s">
+                <!-- Continuous Fourier Transform -->
+                <div class="formula-card p-4">
+                    <h3 class="text-xl font-bold text-blue-700 mb-3"><i class="fas fa-integral mr-2"></i>连续傅里叶变换</h3>
+                    <div class="bg-white p-3 rounded-lg shadow-inner">
+                        <div class="formula-component p-2 rounded-lg">
+                            <p class="text-lg font-serif text-center">F(ω) = ∫<sub>-∞</sub><sup>∞</sup> f(t)e<sup>-jωt</sup> dt</p>
+                            <p class="text-sm text-gray-600 mt-1">正变换：从时域 f(t) 到频域 F(ω)</p>
+                        </div>
+
+                        <div class="formula-component p-2 rounded-lg mt-3">
+                            <p class="text-lg font-serif text-center">f(t) = <span class="text-sm">1</span>/<span class="text-sm">2π</span> ∫<sub>-∞</sub><sup>∞</sup> F(ω)e<sup>jωt</sup> dω</p>
+                            <p class="text-sm text-gray-600 mt-1">逆变换：从频域 F(ω) 回到时域 f(t)</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <h4 class="text-md font-semibold text-blue-600">核心要点：</h4>
+                        <ul class="text-sm text-gray-700 list-disc pl-5 mt-1">
+                            <li>j 为虚数单位，e<sup>-jωt</sup> 表示欧拉公式：cos(ωt) - j·sin(ωt)</li>
+                            <li>F(ω) 的模值 |F(ω)| 表示频率 ω 处的振幅谱</li>
+                            <li>F(ω) 的相角 arg[F(ω)] 表示频率 ω 处的相位谱</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Discrete Fourier Transform -->
+                <div class="formula-card p-4">
+                    <h3 class="text-xl font-bold text-blue-700 mb-3"><i class="fas fa-calculator mr-2"></i>离散傅里叶变换 (DFT)</h3>
+                    <div class="bg-white p-3 rounded-lg shadow-inner">
+                        <div class="formula-component p-2 rounded-lg">
+                            <p class="text-lg font-serif text-center">X[k] = Σ<sub>n=0</sub><sup>N-1</sup> x[n]e<sup>-j2πkn/N</sup></p>
+                            <p class="text-sm text-gray-600 mt-1">正变换：从离散时域序列 x[n] 到频域序列 X[k]</p>
+                        </div>
+
+                        <div class="formula-component p-2 rounded-lg mt-3">
+                            <p class="text-lg font-serif text-center">x[n] = <span class="text-sm">1</span>/<span class="text-sm">N</span> Σ<sub>k=0</sub><sup>N-1</sup> X[k]e<sup>j2πkn/N</sup></p>
+                            <p class="text-sm text-gray-600 mt-1">逆变换：从频域序列 X[k] 回到时域序列 x[n]</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <h4 class="text-md font-semibold text-blue-600">计算效率：</h4>
+                        <ul class="text-sm text-gray-700 list-disc pl-5 mt-1">
+                            <li>直接计算 DFT 需要 O(N²) 运算复杂度</li>
+                            <li>快速傅里叶变换 (FFT) 将复杂度降至 O(N·log N)</li>
+                            <li>FFT 是现代数字信号处理的基础算法之一</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Representation -->
+            <div class="flex items-stretch justify-between gap-6 mb-4 animation-fade" style="animation-delay: 0.6s">
+                <!-- Graph Explanation -->
+                <div class="w-7/12 bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-chart-line mr-2"></i>图形化解释</h3>
+                    <div class="chart-container h-56">
+                        <canvas id="fourierChart"></canvas>
+                    </div>
+                    <div class="text-sm text-gray-600 mt-3">
+                        <p>上图展示了一个复杂信号（黑色）如何由多个不同频率的正弦波（彩色）组合而成。
+                        傅里叶变换正是揭示了这些组成成分的频率、振幅和相位。</p>
+                    </div>
+                </div>
+
+                <!-- Mathematical Properties -->
+                <div class="w-5/12 flex flex-col">
+                    <h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-cogs mr-2"></i>重要数学性质</h3>
+
+                    <div class="flex-1 flex flex-col gap-2">
+                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.6s">
+                            <h4 class="text-md font-semibold text-blue-600">线性性质</h4>
+                            <p class="text-sm text-gray-700">α·f₁(t) + β·f₂(t) ⟷ α·F₁(ω) + β·F₂(ω)</p>
+                        </div>
+
+                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.7s">
+                            <h4 class="text-md font-semibold text-blue-600">时移性质</h4>
+                            <p class="text-sm text-gray-700">f(t-t₀) ⟷ F(ω)·e<sup>-jωt₀</sup></p>
+                        </div>
+
+                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.8s">
+                            <h4 class="text-md font-semibold text-blue-600">频移性质</h4>
+                            <p class="text-sm text-gray-700">f(t)·e<sup>jω₀t</sup> ⟷ F(ω-ω₀)</p>
+                        </div>
+
+                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.9s">
+                            <h4 class="text-md font-semibold text-blue-600">时域卷积定理</h4>
+                            <p class="text-sm text-gray-700">f₁(t) * f₂(t) ⟷ F₁(ω) · F₂(ω)</p>
+                            <p class="text-xs text-gray-500 mt-1">时域卷积对应频域相乘</p>
+                        </div>
+
+                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 1s">
+                            <h4 class="text-md font-semibold text-blue-600">频域卷积定理</h4>
+                            <p class="text-sm text-gray-700">f₁(t) · f₂(t) ⟷ (1/2π) · F₁(ω) * F₂(ω)</p>
+                            <p class="text-xs text-gray-500 mt-1">时域相乘对应频域卷积</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fourier Transform Pairs -->
+            <div class="bg-blue-50 p-4 rounded-lg shadow mb-4 animation-fade" style="animation-delay: 0.8s">
+                <h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-exchange-alt mr-2"></i>经典傅里叶变换对</h3>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-white p-2 rounded shadow-sm">
+                        <p class="text-center text-sm font-medium">矩形脉冲 rect(t)</p>
+                        <p class="text-center text-sm">⟷</p>
+                        <p class="text-center text-sm font-medium">sinc 函数 (sin(ωT/2)/(ωT/2))</p>
+                    </div>
+                    <div class="bg-white p-2 rounded shadow-sm">
+                        <p class="text-center text-sm font-medium">高斯函数 e<sup>-at²</sup></p>
+                        <p class="text-center text-sm">⟷</p>
+                        <p class="text-center text-sm font-medium">高斯函数 (√(π/a))·e<sup>-ω²/(4a)</sup></p>
+                    </div>
+                    <div class="bg-white p-2 rounded shadow-sm">
+                        <p class="text-center text-sm font-medium">单位冲激函数 δ(t)</p>
+                        <p class="text-center text-sm">⟷</p>
+                        <p class="text-center text-sm font-medium">常数 1</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Insights -->
+            <div class="flex items-center justify-between bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg animation-fade" style="animation-delay: 1s">
+                <div class="w-3/5 pr-4">
+                    <h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-lightbulb mr-2"></i>深刻洞见</h3>
+                    <p class="text-base text-gray-800">
+                        傅里叶变换揭示了信号在时域和频域之间的对偶性，二者是同一信息的不同表现形式。它使我们可以在最适合的域中处理信号——许多复杂的时域操作（如卷积）在频域中变成简单的运算（如乘法）。这一特性使傅里叶变换成为信号处理、波动方程求解和量子力学中不可或缺的数学工具。
+                    </p>
+                </div>
+                <div class="w-2/5 flex justify-center">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Fourier_transform_time_and_frequency_domains_%28small%29.gif"
+                         alt="时域频域表示" class="h-32 object-contain rounded shadow-lg">
+                </div>
+            </div>
+
+            <!-- Footer Quote -->
+            <div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1.2s">
+                <p>"在数学的花园里，傅里叶变换是最美丽的花朵之一。" — 拉普拉斯</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render KaTeX formulas
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+
+            // Create the Fourier demonstration chart
+            const ctx = document.getElementById('fourierChart').getContext('2d');
+
+            // Generate data for the chart
+            const generateData = (func, color, label, pointCount = 100) => {
+                const data = [];
+                for (let i = 0; i < pointCount; i++) {
+                    const x = i / (pointCount - 1) * 4 * Math.PI;
+                    data.push({x: x, y: func(x)});
+                }
+                return {
+                    label: label,
+                    data: data,
+                    borderColor: color,
+                    borderWidth: label === '原始信号' ? 2.5 : 1.5,
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 0
+                };
+            };
+
+            // Component sine waves and the composite signal
+            const sin1 = x => 2 * Math.sin(x);
+            const sin2 = x => Math.sin(2*x);
+            const sin3 = x => 0.5 * Math.sin(3*x);
+            const composite = x => sin1(x) + sin2(x) + sin3(x);
+
+            // Create the chart
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        generateData(sin1, 'rgba(255, 99, 132, 0.7)', '频率成分 1'),
+                        generateData(sin2, 'rgba(54, 162, 235, 0.7)', '频率成分 2'),
+                        generateData(sin3, 'rgba(75, 192, 192, 0.7)', '频率成分 3'),
+                        generateData(composite, 'rgba(0, 0, 0, 0.8)', '原始信号')
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: '时间 t'
+                            },
+                            ticks: {
+                                stepSize: Math.PI,
+                                callback: function(value) {
+                                    if (value === 0) return '0';
+                                    if (value === Math.PI) return 'π';
+                                    if (value === 2 * Math.PI) return '2π';
+                                    if (value === 3 * Math.PI) return '3π';
+                                    if (value === 4 * Math.PI) return '4π';
+                                    return '';
+                                }
+                            }
+                        },
+                        y: {
+                            min: -4,
+                            max: 4
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

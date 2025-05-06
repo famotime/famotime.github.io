@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型在PageRank算法中的应用</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: absolute;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        .edge {
+            position: absolute;
+            height: 2px;
+            background-color: #fbbf24;
+            transform-origin: 0 50%;
+            z-index: 1;
+        }
+        .edge::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #fbbf24;
+        }
+        .concept-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .concept-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .page-rank-chart-container {
+            height: 200px;
+            width: 100%;
+            position: relative;
+        }
+        .application-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+        }
+        .application-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col p-6 relative">
+        <!-- 几何背景 -->
+        <div class="geometric-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#fbbf24" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="z-10 text-center mb-4 fade-in" id="title">
+            <h2 class="text-3xl font-bold text-yellow-800 mb-2">马尔科夫模型在PageRank算法中的应用</h2>
+            <div class="w-32 h-1 bg-yellow-500 mx-auto mb-2"></div>
+            <p class="text-gray-600 text-sm max-w-3xl mx-auto">Google搜索引擎的基石技术：将网页间的链接关系建模为马尔科夫链，通过随机游走理论确定网页重要性</p>
+        </div>
+
+        <div class="flex flex-row gap-5 z-10 mb-4">
+            <!-- 左侧：原理解释 -->
+            <div class="w-1/2">
+                <!-- PageRank原理 -->
+                <div class="concept-box p-4 mb-4 border-l-4 border-yellow-500 fade-in" id="principles">
+                    <h3 class="font-bold text-yellow-700 text-lg mb-2 flex items-center">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>原理与马尔科夫链映射
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-2">PageRank算法将整个互联网视为一个有向图，每个网页是一个节点，链接是有向边，用马尔科夫链建模用户浏览行为：</p>
+
+                    <div class="grid grid-cols-2 gap-3 mt-3">
+                        <div class="bg-yellow-50 rounded-lg p-2">
+                            <h4 class="text-sm font-semibold text-yellow-700">随机游走模型</h4>
+                            <p class="text-xs text-gray-600">用户从一个页面随机点击链接到达另一个页面，类似马尔科夫链中的状态转移过程</p>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-2">
+                            <h4 class="text-sm font-semibold text-yellow-700">链接即投票</h4>
+                            <p class="text-xs text-gray-600">网页A链接到网页B，相当于A对B投出一票，体现为状态转移概率</p>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-2">
+                            <h4 class="text-sm font-semibold text-yellow-700">平稳分布</h4>
+                            <p class="text-xs text-gray-600">网页重要性值是用户无限随机浏览最终停留在各页面的概率分布，即马尔科夫链的平稳分布</p>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-2">
+                            <h4 class="text-sm font-semibold text-yellow-700">阻尼系数</h4>
+                            <p class="text-xs text-gray-600">模拟用户随机跳转到任意页面的概率（通常为0.85），保证马尔科夫链收敛性</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数学公式 -->
+                <div class="concept-box p-4 border-l-4 border-blue-500 fade-in" id="formula">
+                    <h3 class="font-bold text-blue-700 text-lg mb-2 flex items-center">
+                        <i class="fas fa-square-root-alt text-blue-500 mr-2"></i>数学表示与矩阵计算
+                    </h3>
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <p class="text-sm text-gray-700 mb-2">PageRank计算的核心公式：</p>
+                        <div class="text-center font-mono text-blue-800 p-2 bg-white rounded-lg shadow-sm">
+                            PR(pi) = (1-d)/N + d × ∑(PR(pj)/L(pj))
+                        </div>
+                        <p class="text-xs text-gray-600 mt-2">其中：d为阻尼系数，N为总网页数，L(pj)为页面j的出链数量，求和对象为所有链接到页面i的页面j</p>
+                    </div>
+
+                    <div class="mt-3">
+                        <p class="text-sm text-gray-700">从马尔科夫链角度理解，这是求解方程：</p>
+                        <div class="text-center font-mono text-blue-800 p-2 bg-white rounded-lg shadow-sm mt-1">
+                            π = π·P
+                        </div>
+                        <p class="text-xs text-gray-600 mt-1">其中π是平稳分布，P是转移概率矩阵，迭代计算至收敛即得到网页重要性评分</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：网页链接图和应用案例 -->
+            <div class="w-1/2">
+                <!-- 网页链接演示 -->
+                <div class="concept-box p-4 mb-4 fade-in h-80" id="pagerank-demo">
+                    <h3 class="font-bold text-gray-700 text-lg mb-2">网页链接马尔科夫模型示意图</h3>
+                    <div class="relative h-64 bg-gray-50 rounded-lg" id="network-graph">
+                        <!-- 网页节点 -->
+                        <div class="node bg-red-100 text-red-600 border-2 border-red-300" style="top: 40px; left: 200px;" id="page-A">A</div>
+                        <div class="node bg-blue-100 text-blue-600 border-2 border-blue-300" style="top: 150px; left: 80px;" id="page-B">B</div>
+                        <div class="node bg-green-100 text-green-600 border-2 border-green-300" style="top: 150px; left: 320px;" id="page-C">C</div>
+                        <div class="node bg-purple-100 text-purple-600 border-2 border-purple-300" style="top: 60px; left: 380px;" id="page-D">D</div>
+                        <div class="node bg-yellow-100 text-yellow-600 border-2 border-yellow-300" style="top: 240px; left: 200px;" id="page-E">E</div>
+
+                        <!-- 链接边将通过JavaScript绘制 -->
+                    </div>
+                    <div class="flex justify-center mt-2 gap-8">
+                        <div class="text-sm">
+                            <span class="font-bold text-yellow-600">重要页面</span>
+                            <div class="text-xs text-gray-600">更多入链，得到更高PageRank值</div>
+                        </div>
+                        <div class="text-sm">
+                            <span class="font-bold text-gray-600">权重传递</span>
+                            <div class="text-xs text-gray-600">重要页面的出链传递更多权重</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 应用案例 -->
+                <div class="fade-in" id="applications">
+                    <h3 class="font-bold text-gray-700 text-lg mb-2">实际应用案例</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="application-card">
+                            <div class="flex items-center mb-2">
+                                <div class="app-icon bg-blue-100 text-blue-600">
+                                    <i class="fab fa-google text-2xl"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800">Google搜索引擎</h4>
+                            </div>
+                            <p class="text-xs text-gray-600">PageRank是Google创始性技术，将搜索结果按页面重要性排序，大幅提升搜索质量</p>
+                        </div>
+                        <div class="application-card">
+                            <div class="flex items-center mb-2">
+                                <div class="app-icon bg-green-100 text-green-600">
+                                    <i class="fas fa-graduation-cap text-lg"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800">学术影响力评估</h4>
+                            </div>
+                            <p class="text-xs text-gray-600">引用网络中应用相似算法评估学术论文和作者影响力，如Scopus和Google Scholar</p>
+                        </div>
+                        <div class="application-card">
+                            <div class="flex items-center mb-2">
+                                <div class="app-icon bg-purple-100 text-purple-600">
+                                    <i class="fas fa-users text-lg"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800">社交网络分析</h4>
+                            </div>
+                            <p class="text-xs text-gray-600">识别社交网络中的关键意见领袖和影响者，优化信息传播策略</p>
+                        </div>
+                        <div class="application-card">
+                            <div class="flex items-center mb-2">
+                                <div class="app-icon bg-red-100 text-red-600">
+                                    <i class="fas fa-project-diagram text-lg"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800">推荐系统</h4>
+                            </div>
+                            <p class="text-xs text-gray-600">基于物品关联网络的个性化推荐，提升内容发现和用户体验</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 算法效果 -->
+        <div class="z-10 fade-in" id="performance">
+            <div class="concept-box p-3">
+                <h3 class="font-bold text-gray-700 text-lg mb-1">PageRank迭代收敛过程</h3>
+                <div class="page-rank-chart-container">
+                    <canvas id="pageRankChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部总结 -->
+        <div class="mt-auto pt-3 z-10 fade-in" id="summary">
+            <div class="bg-yellow-50 p-3 rounded-lg border-t-4 border-yellow-500">
+                <div class="flex items-center">
+                    <div class="bg-yellow-100 rounded-full p-2 mr-3 text-yellow-600">
+                        <i class="fas fa-lightbulb text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-md font-bold text-yellow-700">马尔科夫模型与网页排序的完美结合</h3>
+                        <p class="text-sm text-gray-700">PageRank展示了马尔科夫链在复杂网络分析中的强大能力，通过将互联网建模为状态转移系统，从而用数学方法解决了"哪些网页最重要"这一核心问题，奠定了现代搜索引擎的理论基础，也成为图结构数据分析的经典范例。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 绘制网页链接
+            function drawEdges() {
+                const graph = document.getElementById('network-graph');
+                const pageA = document.getElementById('page-A');
+                const pageB = document.getElementById('page-B');
+                const pageC = document.getElementById('page-C');
+                const pageD = document.getElementById('page-D');
+                const pageE = document.getElementById('page-E');
+
+                // 定义链接
+                const links = [
+                    { from: pageA, to: pageB },
+                    { from: pageA, to: pageC },
+                    { from: pageB, to: pageC },
+                    { from: pageB, to: pageA },
+                    { from: pageC, to: pageE },
+                    { from: pageD, to: pageA },
+                    { from: pageD, to: pageC },
+                    { from: pageE, to: pageD },
+                    { from: pageE, to: pageB }
+                ];
+
+                links.forEach(link => {
+                    const fromRect = link.from.getBoundingClientRect();
+                    const toRect = link.to.getBoundingClientRect();
+                    const graphRect = graph.getBoundingClientRect();
+
+                    const fromX = fromRect.left - graphRect.left + fromRect.width/2;
+                    const fromY = fromRect.top - graphRect.top + fromRect.height/2;
+                    const toX = toRect.left - graphRect.left + toRect.width/2;
+                    const toY = toRect.top - graphRect.top + toRect.height/2;
+
+                    const dx = toX - fromX;
+                    const dy = toY - fromY;
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                    const radius = 30; // 节点半径
+                    const fromAngle = angle * Math.PI / 180;
+                    const startX = fromX + Math.cos(fromAngle) * radius;
+                    const startY = fromY + Math.sin(fromAngle) * radius;
+
+                    const toAngle = (angle + 180) * Math.PI / 180;
+                    const endX = toX + Math.cos(toAngle) * radius;
+                    const endY = toY + Math.sin(toAngle) * radius;
+
+                    const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+
+                    const edge = document.createElement('div');
+                    edge.className = 'edge';
+                    edge.style.width = length + 'px';
+                    edge.style.left = startX + 'px';
+                    edge.style.top = startY + 'px';
+                    edge.style.transform = `rotate(${angle}deg)`;
+                    graph.appendChild(edge);
+                });
+            }
+
+            // PageRank迭代收敛图表
+            const ctx = document.getElementById('pageRankChart').getContext('2d');
+            const pageRankChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['初始', '迭代1', '迭代2', '迭代3', '迭代4', '迭代5', '迭代6', '迭代7', '迭代8', '收敛'],
+                    datasets: [
+                        {
+                            label: '页面A',
+                            data: [0.2, 0.28, 0.33, 0.36, 0.38, 0.39, 0.396, 0.398, 0.399, 0.4],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '页面B',
+                            data: [0.2, 0.18, 0.22, 0.26, 0.29, 0.31, 0.32, 0.326, 0.329, 0.33],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '页面C',
+                            data: [0.2, 0.22, 0.25, 0.26, 0.265, 0.268, 0.269, 0.27, 0.27, 0.27],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '页面D',
+                            data: [0.2, 0.15, 0.12, 0.10, 0.09, 0.085, 0.08, 0.078, 0.077, 0.075],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '页面E',
+                            data: [0.2, 0.17, 0.13, 0.12, 0.115, 0.11, 0.105, 0.103, 0.102, 0.1],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 10,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#1f2937',
+                            bodyColor: '#4b5563',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 8,
+                            boxWidth: 8,
+                            usePointStyle: true,
+                            titleFont: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 11
+                            },
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    return `迭代${tooltipItems[0].label}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 0.5,
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'PageRank值',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 3
+                        },
+                        line: {
+                            borderWidth: 2
+                        }
+                    }
+                }
+            });
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#principles", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#formula", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#pagerank-demo", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#applications", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#performance", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 在合适的时机调用绘制链接函数
+            setTimeout(drawEdges, 1000);
+
+            // 添加节点动画效果
+            const nodes = document.querySelectorAll('.node');
+            nodes.forEach(node => {
+                node.addEventListener('mouseover', function() {
+                    gsap.to(this, {scale: 1.1, boxShadow: '0 6px 15px rgba(0,0,0,0.2)', duration: 0.3});
+
+                    // 高亮相关链接
+                    const nodeId = this.id.split('-')[1];
+                    highlightConnections(nodeId);
+                });
+
+                node.addEventListener('mouseout', function() {
+                    gsap.to(this, {scale: 1, boxShadow: '0 4px 10px rgba(0,0,0,0.1)', duration: 0.3});
+
+                    // 重置链接样式
+                    resetEdges();
+                });
+            });
+
+            function highlightConnections(nodeId) {
+                // 这里可以添加高亮相关连接的逻辑
+            }
+
+            function resetEdges() {
+                // 这里可以添加重置连接样式的逻辑
+            }
+        });
+    </script>
+</body>
+</html>

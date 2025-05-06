@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型在图像处理中的应用</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .app-example {
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+        .app-example:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            width: 180px;
+            height: 180px;
+        }
+        .pixel {
+            background: #ddd;
+            border-radius: 2px;
+            transition: background-color 0.3s ease;
+        }
+        .pixel:hover {
+            background: #10b981;
+        }
+        .pixel-neighborhood {
+            background: #10b981;
+        }
+        .pixel-center {
+            background: #059669;
+            border: 2px solid #047857;
+        }
+        .neighborhood-indicator {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #10b981;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+        .comparison-chart-container {
+            height: 200px;
+            width: 100%;
+        }
+        .process-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(90deg);
+            font-size: 24px;
+            color: #10b981;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col p-6 relative">
+        <!-- 几何背景 -->
+        <div class="geometric-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#10b981" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="z-10 text-center mb-4 fade-in" id="title">
+            <h2 class="text-3xl font-bold text-green-800 mb-2">马尔科夫模型在图像处理中的应用</h2>
+            <div class="w-32 h-1 bg-green-600 mx-auto mb-2"></div>
+            <p class="text-gray-600 text-sm max-w-3xl mx-auto">马尔科夫随机场(MRF)在图像处理中建立像素间的空间关系，优化图像结构和内容</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-5 flex-grow z-10">
+            <!-- 原理和映射 -->
+            <div class="section-card p-4 fade-in" id="principles">
+                <h3 class="font-bold text-green-700 text-lg mb-2 flex items-center">
+                    <i class="fas fa-lightbulb text-green-500 mr-2"></i>原理与特点
+                </h3>
+
+                <div class="mb-3">
+                    <p class="text-sm text-gray-600">马尔科夫随机场将图像像素建模为无向图网络，每个像素基于周围邻域状态形成局部依赖关系</p>
+
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        <div class="feature-badge bg-green-50 text-green-700 border-green-200">无向图结构</div>
+                        <div class="feature-badge bg-green-50 text-green-700 border-green-200">局部马尔科夫性</div>
+                        <div class="feature-badge bg-green-50 text-green-700 border-green-200">吉布斯分布</div>
+                        <div class="feature-badge bg-green-50 text-green-700 border-green-200">能量函数</div>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 p-3 rounded-lg mb-3">
+                    <h4 class="text-sm font-semibold text-green-700 mb-1">像素邻域关系</h4>
+                    <div class="relative flex justify-center">
+                        <div class="pixel-grid">
+                            <!-- 像素网格，注意：这里只展示部分关键像素，其余由JavaScript生成 -->
+                            <div class="pixel pixel-neighborhood" id="p-2-2"></div>
+                            <div class="pixel pixel-neighborhood" id="p-2-3"></div>
+                            <div class="pixel pixel-neighborhood" id="p-2-4"></div>
+                            <div class="pixel pixel-neighborhood" id="p-3-2"></div>
+                            <div class="pixel pixel-center" id="p-3-3"></div>
+                            <div class="pixel pixel-neighborhood" id="p-3-4"></div>
+                            <div class="pixel pixel-neighborhood" id="p-4-2"></div>
+                            <div class="pixel pixel-neighborhood" id="p-4-3"></div>
+                            <div class="pixel pixel-neighborhood" id="p-4-4"></div>
+                            <!-- 其他像素将通过JavaScript生成 -->
+                        </div>
+                        <div class="neighborhood-indicator" style="top: 55px; left: 60px;"></div>
+                    </div>
+                    <p class="text-xs text-center text-gray-600 mt-2">像素值依赖于其邻域状态</p>
+                </div>
+
+                <div class="text-xs text-gray-700">
+                    <div class="font-semibold mb-1">马尔科夫-吉布斯等价性：</div>
+                    <p>MRF可以通过能量函数表示，最优图像配置对应能量最小状态</p>
+                    <div class="font-mono bg-white p-2 rounded mt-1 text-green-700 text-center">
+                        E(x) = ∑ U<sub>c</sub>(x)
+                    </div>
+                </div>
+            </div>
+
+            <!-- 应用领域 -->
+            <div class="section-card p-4 fade-in" id="applications">
+                <h3 class="font-bold text-green-700 text-lg mb-3 flex items-center">
+                    <i class="fas fa-tasks text-green-500 mr-2"></i>主要应用任务
+                </h3>
+
+                <div class="space-y-3">
+                    <!-- 图像分割 -->
+                    <div class="bg-white rounded-lg p-2 shadow-sm">
+                        <div class="flex items-center mb-1">
+                            <div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mr-2 text-green-600">
+                                <i class="fas fa-object-ungroup text-sm"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 text-sm">图像分割</h4>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-1">将图像区分为有意义的区域或对象</p>
+                        <div class="flex justify-between">
+                            <div class="text-xs font-semibold text-green-600">医学图像分析</div>
+                            <div class="text-xs font-semibold text-green-600">卫星图像解析</div>
+                        </div>
+                    </div>
+
+                    <!-- 图像降噪 -->
+                    <div class="bg-white rounded-lg p-2 shadow-sm">
+                        <div class="flex items-center mb-1">
+                            <div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mr-2 text-green-600">
+                                <i class="fas fa-broom text-sm"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 text-sm">图像降噪与修复</h4>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-1">根据周围像素关系去除噪声，修复损坏区域</p>
+                        <div class="flex justify-between">
+                            <div class="text-xs font-semibold text-green-600">数码照片优化</div>
+                            <div class="text-xs font-semibold text-green-600">历史图像复原</div>
+                        </div>
+                    </div>
+
+                    <!-- 纹理分析 -->
+                    <div class="bg-white rounded-lg p-2 shadow-sm">
+                        <div class="flex items-center mb-1">
+                            <div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mr-2 text-green-600">
+                                <i class="fas fa-layer-group text-sm"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 text-sm">纹理分析与合成</h4>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-1">捕捉和生成符合特定纹理特征的图像</p>
+                        <div class="flex justify-between">
+                            <div class="text-xs font-semibold text-green-600">材质生成</div>
+                            <div class="text-xs font-semibold text-green-600">图像风格迁移</div>
+                        </div>
+                    </div>
+
+                    <!-- 超分辨率 -->
+                    <div class="bg-white rounded-lg p-2 shadow-sm">
+                        <div class="flex items-center mb-1">
+                            <div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mr-2 text-green-600">
+                                <i class="fas fa-expand-arrows-alt text-sm"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 text-sm">图像超分辨率</h4>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-1">从低分辨率图像恢复高分辨率细节</p>
+                        <div class="flex justify-between">
+                            <div class="text-xs font-semibold text-green-600">监控提升</div>
+                            <div class="text-xs font-semibold text-green-600">医学影像增强</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实际案例 -->
+            <div class="section-card p-4 fade-in" id="examples">
+                <h3 class="font-bold text-green-700 text-lg mb-3 flex items-center">
+                    <i class="fas fa-microscope text-green-500 mr-2"></i>实际案例与效果
+                </h3>
+
+                <!-- 图像处理对比 -->
+                <div class="mb-4">
+                    <h4 class="text-sm font-semibold text-green-700 mb-2">MRF图像分割示例</h4>
+                    <div class="flex items-center justify-center">
+                        <div class="bg-gray-100 rounded-lg overflow-hidden w-32 h-32 flex items-center justify-center">
+                            <i class="fas fa-image text-3xl text-gray-400"></i>
+                            <span class="text-xs text-gray-600 absolute bottom-1">原始图像</span>
+                        </div>
+                        <div class="process-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg overflow-hidden w-32 h-32 flex items-center justify-center">
+                            <i class="fas fa-object-group text-3xl text-green-400"></i>
+                            <span class="text-xs text-gray-600 absolute bottom-1">MRF分割结果</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 性能对比 -->
+                <div>
+                    <h4 class="text-sm font-semibold text-green-700 mb-2">不同方法性能对比</h4>
+                    <div class="comparison-chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部：成功案例 -->
+        <div class="mt-4 z-10 fade-in" id="case-studies">
+            <h3 class="font-bold text-green-700 text-lg mb-2 flex items-center">
+                <i class="fas fa-star text-green-500 mr-2"></i>成功应用产品与服务
+            </h3>
+
+            <div class="grid grid-cols-4 gap-3">
+                <div class="app-example flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+                        <i class="fas fa-brain text-green-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">医学影像分析系统</h4>
+                        <p class="text-xs text-gray-600">MRF用于肿瘤边界精确分割</p>
+                    </div>
+                </div>
+
+                <div class="app-example flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+                        <i class="fas fa-satellite text-green-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">遥感影像处理</h4>
+                        <p class="text-xs text-gray-600">土地用途分类与变化检测</p>
+                    </div>
+                </div>
+
+                <div class="app-example flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+                        <i class="fas fa-camera text-green-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">Adobe Photoshop</h4>
+                        <p class="text-xs text-gray-600">内容感知填充和智能修复工具</p>
+                    </div>
+                </div>
+
+                <div class="app-example flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+                        <i class="fas fa-video text-green-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">计算机视觉系统</h4>
+                        <p class="text-xs text-gray-600">微软Kinect体感前景分割</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部总结 -->
+        <div class="mt-auto pt-2 z-10 fade-in" id="summary">
+            <div class="bg-green-50 p-3 rounded-lg border-t-4 border-green-500">
+                <div class="flex items-center">
+                    <div class="bg-green-100 rounded-full p-2 mr-3 text-green-600">
+                        <i class="fas fa-lightbulb text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-md font-bold text-green-700">马尔科夫随机场的图像处理优势</h3>
+                        <p class="text-sm text-gray-700">马尔科夫随机场将图像建模为具有局部依赖关系的统计系统，既能保持像素间的空间关联性，又能有效处理图像中的不确定性和噪声干扰，成为图像处理、计算机视觉领域的重要理论基础，为现代深度学习图像分析奠定了概率框架。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 生成像素网格
+            function generatePixelGrid() {
+                const pixelGrid = document.querySelector('.pixel-grid');
+
+                // 清除现有像素
+                pixelGrid.innerHTML = '';
+
+                // 生成6x6像素网格
+                for (let i = 1; i <= 6; i++) {
+                    for (let j = 1; j <= 6; j++) {
+                        const pixel = document.createElement('div');
+                        pixel.className = 'pixel';
+                        pixel.id = `p-${i}-${j}`;
+
+                        // 设置中心和邻域像素颜色
+                        if (i === 3 && j === 3) {
+                            pixel.classList.add('pixel-center');
+                        } else if ((i >= 2 && i <= 4) && (j >= 2 && j <= 4)) {
+                            pixel.classList.add('pixel-neighborhood');
+                        }
+
+                        pixelGrid.appendChild(pixel);
+                    }
+                }
+
+                // 添加像素交互效果
+                const pixels = document.querySelectorAll('.pixel:not(.pixel-center)');
+                pixels.forEach(pixel => {
+                    pixel.addEventListener('mouseover', function() {
+                        if (!this.classList.contains('pixel-neighborhood')) {
+                            this.style.backgroundColor = '#d1fae5';
+                        }
+                    });
+
+                    pixel.addEventListener('mouseout', function() {
+                        if (!this.classList.contains('pixel-neighborhood')) {
+                            this.style.backgroundColor = '';
+                        }
+                    });
+                });
+            }
+
+            // 性能对比图表
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const performanceChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        '准确率',
+                        '抗噪性',
+                        '边缘保留',
+                        '计算效率',
+                        '自适应性'
+                    ],
+                    datasets: [
+                        {
+                            label: '马尔科夫随机场',
+                            data: [85, 90, 80, 60, 75],
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: 'rgb(16, 185, 129)',
+                            pointBackgroundColor: 'rgb(16, 185, 129)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(16, 185, 129)'
+                        },
+                        {
+                            label: '传统方法',
+                            data: [60, 55, 50, 85, 45],
+                            backgroundColor: 'rgba(156, 163, 175, 0.2)',
+                            borderColor: 'rgb(156, 163, 175)',
+                            pointBackgroundColor: 'rgb(156, 163, 175)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(156, 163, 175)'
+                        },
+                        {
+                            label: '深度学习',
+                            data: [95, 80, 90, 40, 90],
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            borderColor: 'rgb(79, 70, 229)',
+                            pointBackgroundColor: 'rgb(79, 70, 229)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(79, 70, 229)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 10,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#principles", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#applications", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#examples", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#case-studies", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 生成像素网格
+            generatePixelGrid();
+
+            // 卡片悬停效果
+            const cards = document.querySelectorAll('.section-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -5, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                card.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+
+            // 应用案例悬停效果
+            const examples = document.querySelectorAll('.app-example');
+            examples.forEach(example => {
+                example.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -3, boxShadow: '0 6px 15px rgba(0,0,0,0.1)', duration: 0.2});
+                });
+
+                example.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 2px 5px rgba(0,0,0,0.05)', duration: 0.2});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

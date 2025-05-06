@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型：局限性与不适用场景</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .limitation-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .limitation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .warning-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .comparison-chart-container {
+            height: 250px;
+            width: 100%;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .alternative-item {
+            transition: transform 0.2s ease;
+        }
+        .alternative-item:hover {
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col p-8 relative">
+        <!-- 几何背景 -->
+        <div class="geometric-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="z-10 text-center mb-6 fade-in" id="title">
+            <h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的局限性与不适用场景</h2>
+            <div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+        </div>
+
+        <div class="flex flex-row gap-6 z-10">
+            <!-- 左侧：局限性列表 -->
+            <div class="w-1/2">
+                <div class="mb-4 fade-in" id="limitations-title">
+                    <h3 class="text-xl font-bold text-blue-700 flex items-center">
+                        <i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i>主要局限性
+                    </h3>
+                </div>
+
+                <!-- 马尔科夫性质限制 -->
+                <div class="limitation-card p-4 mb-3 border-l-4 border-amber-500 fade-in" id="limitation-1">
+                    <div class="flex">
+                        <div class="warning-icon bg-amber-100 text-amber-600">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">无记忆性限制</h4>
+                            <p class="text-sm text-gray-600">仅考虑当前状态，忽略历史路径信息，无法处理需要较长历史信息的问题</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 长程依赖问题 -->
+                <div class="limitation-card p-4 mb-3 border-l-4 border-red-500 fade-in" id="limitation-2">
+                    <div class="flex">
+                        <div class="warning-icon bg-red-100 text-red-600">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">长程依赖问题</h4>
+                            <p class="text-sm text-gray-600">难以有效捕捉远距离事件之间的关系，对需要长期记忆的序列模式表现不佳</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 状态爆炸问题 -->
+                <div class="limitation-card p-4 mb-3 border-l-4 border-purple-500 fade-in" id="limitation-3">
+                    <div class="flex">
+                        <div class="warning-icon bg-purple-100 text-purple-600">
+                            <i class="fas fa-bomb"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">状态爆炸问题</h4>
+                            <p class="text-sm text-gray-600">随着状态数量或高阶依赖关系增加，模型复杂度呈指数级增长，计算成本大幅提高</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 平稳过程假设 -->
+                <div class="limitation-card p-4 border-l-4 border-blue-500 fade-in" id="limitation-4">
+                    <div class="flex">
+                        <div class="warning-icon bg-blue-100 text-blue-600">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">平稳过程假设</h4>
+                            <p class="text-sm text-gray-600">假设转移概率在整个过程中保持不变，难以适应动态变化的环境和非平稳过程</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 训练数据需求 -->
+                <div class="limitation-card p-4 mt-3 border-l-4 border-green-500 fade-in" id="limitation-5">
+                    <div class="flex">
+                        <div class="warning-icon bg-green-100 text-green-600">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">数据稀疏性问题</h4>
+                            <p class="text-sm text-gray-600">需要大量数据才能准确估计转移概率，在数据稀疏情况下容易过拟合</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：不适用场景和替代方案 -->
+            <div class="w-1/2">
+                <!-- 不适用场景 -->
+                <div class="mb-4 fade-in" id="unsuitable-title">
+                    <h3 class="text-xl font-bold text-blue-700 flex items-center">
+                        <i class="fas fa-ban text-red-500 mr-2"></i>不适用场景
+                    </h3>
+                </div>
+
+                <div class="limitation-card p-4 mb-4 fade-in" id="unsuitable-scenarios">
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+                            <div>
+                                <span class="font-semibold text-gray-800">需要长期记忆的任务</span>
+                                <p class="text-xs text-gray-600">如长文本理解、复杂对话系统、用户行为长期趋势分析</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+                            <div>
+                                <span class="font-semibold text-gray-800">非平稳动态系统</span>
+                                <p class="text-xs text-gray-600">转移概率随时间变化的系统，如快速变化的用户兴趣、金融市场剧烈波动期</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+                            <div>
+                                <span class="font-semibold text-gray-800">连续状态空间问题</span>
+                                <p class="text-xs text-gray-600">需要精确模拟连续数值变化的场景，如精确的传感器数据分析</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+                            <div>
+                                <span class="font-semibold text-gray-800">需要因果关系推理的场景</span>
+                                <p class="text-xs text-gray-600">需要理解事件之间因果关系而非仅相关性的分析任务</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 模型性能对比图表 -->
+                <div class="limitation-card p-4 mb-4 fade-in" id="comparison-chart">
+                    <h3 class="text-md font-bold text-gray-700 mb-2">不同模型在长期依赖任务中的性能</h3>
+                    <div class="comparison-chart-container">
+                        <canvas id="modelComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 替代方案 -->
+                <div class="limitation-card p-4 fade-in" id="alternatives">
+                    <h3 class="text-md font-bold text-gray-700 mb-2 flex items-center">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>替代方案
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="alternative-item p-2 bg-blue-50 rounded-md">
+                            <div class="font-semibold text-blue-700 text-sm">循环神经网络 (RNN/LSTM)</div>
+                            <p class="text-xs text-gray-600">适用于长期依赖关系的序列数据</p>
+                        </div>
+                        <div class="alternative-item p-2 bg-purple-50 rounded-md">
+                            <div class="font-semibold text-purple-700 text-sm">变阶马尔科夫模型</div>
+                            <p class="text-xs text-gray-600">根据上下文动态调整马尔科夫链的阶数</p>
+                        </div>
+                        <div class="alternative-item p-2 bg-green-50 rounded-md">
+                            <div class="font-semibold text-green-700 text-sm">Transformer 模型</div>
+                            <p class="text-xs text-gray-600">通过自注意力机制捕获长距离依赖</p>
+                        </div>
+                        <div class="alternative-item p-2 bg-red-50 rounded-md">
+                            <div class="font-semibold text-red-700 text-sm">贝叶斯网络</div>
+                            <p class="text-xs text-gray-600">适用于需要明确因果关系的场景</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部：总结提示 -->
+        <div class="mt-auto pt-4 z-10">
+            <div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 fade-in" id="summary">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-lightbulb text-amber-500 text-2xl mr-3"></i>
+                        <div>
+                            <h3 class="text-md font-bold text-blue-700">选择正确的工具</h3>
+                            <p class="text-sm text-gray-700">马尔科夫模型在简单状态转移场景中效果出色，但对于复杂任务需谨慎评估其局限性</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-balance-scale text-blue-500 text-2xl mr-3"></i>
+                        <div>
+                            <h3 class="text-md font-bold text-blue-700">权衡利弊</h3>
+                            <p class="text-sm text-gray-700">在模型简洁性、计算效率与捕捉复杂依赖关系之间寻找平衡点</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 模型性能对比图表
+            const ctx = document.getElementById('modelComparisonChart').getContext('2d');
+            const modelComparisonChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        '长期依赖能力',
+                        '计算效率',
+                        '训练难度',
+                        '模型简洁性',
+                        '可解释性'
+                    ],
+                    datasets: [
+                        {
+                            label: '马尔科夫模型',
+                            data: [20, 90, 85, 95, 80],
+                            fill: true,
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            pointBackgroundColor: 'rgb(59, 130, 246)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(59, 130, 246)'
+                        },
+                        {
+                            label: 'LSTM/RNN',
+                            data: [85, 40, 30, 45, 35],
+                            fill: true,
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: 'rgb(16, 185, 129)',
+                            pointBackgroundColor: 'rgb(16, 185, 129)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(16, 185, 129)'
+                        },
+                        {
+                            label: 'Transformer',
+                            data: [95, 30, 20, 30, 40],
+                            fill: true,
+                            backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                            borderColor: 'rgb(139, 92, 246)',
+                            pointBackgroundColor: 'rgb(139, 92, 246)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(139, 92, 246)'
+                        }
+                    ]
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 2
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 10,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#limitations-title", {opacity: 1, y: 0})
+                   .to("#limitation-1", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#limitation-2", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#limitation-3", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#limitation-4", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#limitation-5", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#unsuitable-title", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#unsuitable-scenarios", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#comparison-chart", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#alternatives", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 卡片悬停效果
+            const limitationCards = document.querySelectorAll('.limitation-card');
+            limitationCards.forEach(card => {
+                card.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -3, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                card.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

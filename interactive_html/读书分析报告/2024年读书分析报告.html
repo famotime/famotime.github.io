@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024年读书分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .header {
+            background-color: #4f46e5;
+            color: white;
+            padding: 24px 0;
+            margin-bottom: 24px;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background-color: #f3f4f6;
+        }
+        .insight {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        @media print {
+            .page-break {
+                margin-top: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header text-center">
+            <h1 class="text-3xl font-bold">2024年读书分析报告</h1>
+            <p class="mt-2">总阅读量：50本</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 月度阅读量分析 -->
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4">月度阅读量分析</h2>
+                <div class="chart-container">
+                    <canvas id="monthlyReadingChart"></canvas>
+                </div>
+                <div class="insight">
+                    <p><strong>洞察：</strong>2024年的阅读分布较为均匀，平均每月阅读4.17本。其中11月和12月阅读量较高，分别达到了6本和8本，可能是年底冲刺阅读目标的结果。2月和10月也有较高的阅读量（5本），而1月阅读量最少（2本）。</p>
+                </div>
+            </div>
+
+            <!-- 评分分布情况 -->
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4">评分分布情况</h2>
+                <div class="chart-container">
+                    <canvas id="ratingChart"></canvas>
+                </div>
+                <div class="insight">
+                    <p><strong>洞察：</strong>您的评分倾向于较高评价，★★★★（4星）是最常给出的评分，占比36%（18本）。其次是★★★（3星），占比38%（19本）。★★★★★（5星）占比10%（5本），★★（2星）占比4%（2本），★（1星）最少，仅占2%（1本）。由此可见，您所选读的书籍大多能达到您的期望。</p>
+                </div>
+            </div>
+
+            <!-- 国内外作者比例 -->
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4">国内外作者比例</h2>
+                <div class="chart-container">
+                    <canvas id="authorChart"></canvas>
+                </div>
+                <div class="insight">
+                    <p><strong>洞察：</strong>您的阅读偏好在国内外作者间取得了平衡，国内作者占比52%（26本），国外作者占比48%（24本）。这表明您既关注本土文化与思想，也积极吸收国际视野与观点，阅读习惯相当多元化。</p>
+                </div>
+            </div>
+
+            <!-- 阅读累计趋势 -->
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4">阅读累计趋势</h2>
+                <div class="chart-container">
+                    <canvas id="cumulativeChart"></canvas>
+                </div>
+                <div class="insight">
+                    <p><strong>洞察：</strong>您的阅读进度呈稳定线性增长，平均每月完成4-5本书。上半年（1-6月）完成了21本，下半年（7-12月）完成了29本，显示下半年的阅读速度略有提升。全年阅读节奏相对均衡，没有出现明显的停滞期。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 阅读时间分布 -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">阅读时间分布</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="chart-container">
+                    <canvas id="weekdayChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthDayChart"></canvas>
+                </div>
+            </div>
+            <div class="insight">
+                <p><strong>洞察：</strong>您的阅读完成时间多集中在周末，尤其是周日（10本），这可能是因为周末有更充裕的时间用于阅读。在一个月内，您的阅读完成时间分布较为随机，但月中（10-20日）完成的书籍略多于月初和月末，说明您的阅读习惯较为规律，没有明显的赶进度现象。</p>
+            </div>
+        </div>
+
+        <!-- 阅读主题分析 -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">阅读主题分析</h2>
+            <div class="chart-container">
+                <canvas id="topicChart"></canvas>
+            </div>
+            <div class="insight">
+                <p><strong>洞察：</strong>根据书籍主题分析，您的阅读兴趣多元化，但有几个明显倾向：文学作品（占28%）是您的主要阅读方向，其次是写作与阅读技巧类书籍（18%）和个人成长类（14%）。此外，科技（AI/科学）类占12%，哲学思想类占10%，历史文化类占10%，社会观察类占8%。这表明您在专业提升与人文素养之间取得了良好平衡。</p>
+            </div>
+        </div>
+
+        <!-- 年度阅读亮点 -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">年度阅读亮点</h2>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>类别</th>
+                            <th>书名</th>
+                            <th>作者</th>
+                            <th>评分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>最高评分</td>
+                            <td>AI 3.0</td>
+                            <td>[美] 梅拉妮·米歇尔</td>
+                            <td>★★★★★</td>
+                        </tr>
+                        <tr>
+                            <td>最高评分</td>
+                            <td>鹿川有许多粪</td>
+                            <td>李沧东</td>
+                            <td>★★★★★</td>
+                        </tr>
+                        <tr>
+                            <td>最高评分</td>
+                            <td>房思琪的初恋乐园</td>
+                            <td>林奕含</td>
+                            <td>★★★★★</td>
+                        </tr>
+                        <tr>
+                            <td>最高评分</td>
+                            <td>音乐影响了我的写作</td>
+                            <td>余华</td>
+                            <td>★★★★★</td>
+                        </tr>
+                        <tr>
+                            <td>最高评分</td>
+                            <td>秧歌</td>
+                            <td>張愛玲</td>
+                            <td>★★★★★</td>
+                        </tr>
+                        <tr>
+                            <td>最低评分</td>
+                            <td>微晕的树林</td>
+                            <td>简媜</td>
+                            <td>★</td>
+                        </tr>
+                        <tr>
+                            <td>最厚重</td>
+                            <td>基督山伯爵: 全3册</td>
+                            <td>[法]大仲马</td>
+                            <td>★★★★</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 综合分析与建议 -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">综合分析与建议</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-bold">阅读成就</h3>
+                    <p>2024年您总共完成了50本书的阅读，平均每月4.17本，是一个相当不错的阅读量。您的阅读内容丰富多元，涵盖文学、科技、哲学、写作技巧等多个领域，表现出全面的知识吸收能力和开放的思想态度。</p>
+                </div>
+                <div>
+                    <h3 class="font-bold">阅读特点</h3>
+                    <p>您的阅读特点是均衡且多元。从时间分布看，全年阅读节奏稳定；从内容选择看，国内外作者比例接近，且涉猎领域广泛；从评分分布看，您对大部分书籍给予了积极评价，说明您的书籍选择眼光较为准确。</p>
+                </div>
+                <div>
+                    <h3 class="font-bold">提升建议</h3>
+                    <ul class="list-disc pl-5">
+                        <li>可以考虑增加一些特定领域的深度阅读，建立系统化的知识体系</li>
+                        <li>尝试对高评分书籍进行笔记整理和二次思考，提高阅读吸收效率</li>
+                        <li>可以适当增加一些挑战性较高的经典著作，拓展阅读深度</li>
+                        <li>考虑建立阅读社交圈，通过讨论交流加深对书籍的理解</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold">2025年阅读展望</h3>
+                    <p>基于您2024年的阅读情况，2025年可以考虑设定60本的阅读目标，并尝试在您已经感兴趣的领域（如写作技巧和人工智能）进行更有深度的探索。同时，可以适当拓展一些新的阅读方向，保持阅读的新鲜感和多样性。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 处理数据
+        const monthlyData = {
+            "1月": 2, "2月": 4, "3月": 2, "4月": 5,
+            "5月": 4, "6月": 4, "7月": 4, "8月": 3,
+            "9月": 4, "10月": 4, "11月": 6, "12月": 8
+        };
+
+        const ratingData = {
+            "★★★★★": 5,
+            "★★★★": 18,
+            "★★★": 19,
+            "★★": 7,
+            "★": 1
+        };
+
+        const authorOriginData = {
+            "国内": 26,
+            "国外": 24
+        };
+
+        const cumulativeData = {
+            "1月": 2, "2月": 6, "3月": 8,
+            "4月": 13, "5月": 17, "6月": 21,
+            "7月": 25, "8月": 28, "9月": 32,
+            "10月": 36, "11月": 42, "12月": 50
+        };
+
+        const weekdayData = {
+            "周一": 5, "周二": 6, "周三": 6,
+            "周四": 5, "周五": 6, "周六": 12,
+            "周日": 10
+        };
+
+        const monthDayData = {
+            "1-10日": 16,
+            "11-20日": 19,
+            "21-31日": 15
+        };
+
+        const topicData = {
+            "文学作品": 14,
+            "写作与阅读": 9,
+            "个人成长": 7,
+            "科技/AI/科学": 6,
+            "哲学思想": 5,
+            "历史文化": 5,
+            "社会观察": 4
+        };
+
+        // 月度阅读量图表
+        const monthlyCtx = document.getElementById('monthlyReadingChart').getContext('2d');
+        const monthlyChart = new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(monthlyData),
+                datasets: [{
+                    label: '月度阅读量',
+                    data: Object.values(monthlyData),
+                    backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // 评分分布图表
+        const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+        const ratingChart = new Chart(ratingCtx, {
+            type: 'pie',
+            data: {
+                labels: ["五星", "四星", "三星", "二星", "一星"],
+                datasets: [{
+                    data: Object.values(ratingData),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // 国内外作者比例图表
+        const authorCtx = document.getElementById('authorChart').getContext('2d');
+        const authorChart = new Chart(authorCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(authorOriginData),
+                datasets: [{
+                    data: Object.values(authorOriginData),
+                    backgroundColor: [
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(75, 192, 192, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // 阅读累计趋势图表
+        const cumulativeCtx = document.getElementById('cumulativeChart').getContext('2d');
+        const cumulativeChart = new Chart(cumulativeCtx, {
+            type: 'line',
+            data: {
+                labels: Object.keys(cumulativeData),
+                datasets: [{
+                    label: '累计阅读量',
+                    data: Object.values(cumulativeData),
+                    fill: false,
+                    backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 5
+                        }
+                    }
+                }
+            }
+        });
+
+        // 阅读时间-星期分布图表
+        const weekdayCtx = document.getElementById('weekdayChart').getContext('2d');
+        const weekdayChart = new Chart(weekdayCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(weekdayData),
+                datasets: [{
+                    label: '星期分布',
+                    data: Object.values(weekdayData),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '星期分布'
+                    }
+                }
+            }
+        });
+
+        // 阅读时间-月内分布图表
+        const monthDayCtx = document.getElementById('monthDayChart').getContext('2d');
+        const monthDayChart = new Chart(monthDayCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(monthDayData),
+                datasets: [{
+                    data: Object.values(monthDayData),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '月内日期分布'
+                    },
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // 主题分布图表
+        const topicCtx = document.getElementById('topicChart').getContext('2d');
+        const topicChart = new Chart(topicCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(topicData),
+                datasets: [{
+                    label: '主题分布',
+                    data: Object.values(topicData),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(201, 203, 207, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(201, 203, 207, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

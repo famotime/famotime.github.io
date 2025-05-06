@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型：概念、历史与应用</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .state-node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .state-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .arrow {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background-color: #1a56db;
+            transform-origin: left center;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #1a56db;
+        }
+        .probability {
+            position: absolute;
+            background-color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #1a56db;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col items-center justify-center p-8 relative">
+        <!-- 几何背景 -->
+        <div class="geometric-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <!-- 蓝色装饰条 -->
+        <div class="absolute top-0 left-0 w-full h-8 bg-blue-600"></div>
+
+        <!-- 标题内容 -->
+        <div class="z-10 text-center mb-6 fade-in" id="title">
+            <h1 class="text-5xl font-bold text-blue-800 mb-4">马尔科夫模型</h1>
+            <div class="w-32 h-1 bg-blue-600 mx-auto mb-4"></div>
+            <h2 class="text-2xl text-gray-700 font-light">概念 · 历史 · 应用场景</h2>
+        </div>
+
+        <!-- 马尔科夫链状态转移图示 -->
+        <div class="relative mt-12 h-60 w-full max-w-2xl fade-in" id="markovChain">
+            <!-- 状态节点 -->
+            <div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute" style="top: 0; left: 50%; transform: translateX(-50%);" id="stateA">A</div>
+            <div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute" style="bottom: 0; left: 20%;" id="stateB">B</div>
+            <div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute" style="bottom: 0; right: 20%;" id="stateC">C</div>
+
+            <!-- 箭头 - 将通过JS动态创建和定位 -->
+        </div>
+
+        <!-- 简短介绍 -->
+        <div class="mt-8 text-center text-gray-600 max-w-2xl fade-in" id="intro">
+            <p class="leading-relaxed">马尔科夫模型是一种随机过程，其未来状态的概率分布仅由当前状态决定，而与过去的状态无关</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 箭头连接和概率标签
+            const arrowData = [
+                { from: "stateA", to: "stateA", label: "0.7", curve: true, offset: -40 },
+                { from: "stateA", to: "stateB", label: "0.2" },
+                { from: "stateA", to: "stateC", label: "0.1" },
+                { from: "stateB", to: "stateA", label: "0.3" },
+                { from: "stateB", to: "stateB", label: "0.5", curve: true, offset: -40 },
+                { from: "stateB", to: "stateC", label: "0.2" },
+                { from: "stateC", to: "stateA", label: "0.2" },
+                { from: "stateC", to: "stateB", label: "0.3" },
+                { from: "stateC", to: "stateC", label: "0.5", curve: true, offset: 40 }
+            ];
+
+            function createArrows() {
+                const markovChain = document.getElementById('markovChain');
+
+                arrowData.forEach(data => {
+                    const fromEl = document.getElementById(data.from);
+                    const toEl = document.getElementById(data.to);
+
+                    const fromRect = fromEl.getBoundingClientRect();
+                    const toRect = toEl.getBoundingClientRect();
+
+                    const fromCenterX = fromRect.left + fromRect.width/2;
+                    const fromCenterY = fromRect.top + fromRect.height/2;
+                    const toCenterX = toRect.left + toRect.width/2;
+                    const toCenterY = toRect.top + toRect.height/2;
+
+                    // 创建箭头
+                    const arrow = document.createElement('div');
+                    arrow.className = 'arrow absolute';
+                    markovChain.appendChild(arrow);
+
+                    if (data.curve) {
+                        // 自循环箭头
+                        const selfLoop = document.createElement('div');
+                        selfLoop.style.position = 'absolute';
+                        selfLoop.style.width = '40px';
+                        selfLoop.style.height = '40px';
+                        selfLoop.style.border = '2px solid #1a56db';
+                        selfLoop.style.borderBottom = 'none';
+                        selfLoop.style.borderRight = 'none';
+                        selfLoop.style.borderRadius = '50% 0 0 0';
+
+                        if (data.offset > 0) {
+                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            selfLoop.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
+                            selfLoop.style.transform = 'rotate(-90deg)';
+                        } else {
+                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            selfLoop.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 45}px`;
+                            selfLoop.style.transform = 'rotate(180deg)';
+                        }
+
+                        markovChain.appendChild(selfLoop);
+
+                        // 添加箭头尖
+                        const arrowTip = document.createElement('div');
+                        arrowTip.style.position = 'absolute';
+                        arrowTip.style.width = '0';
+                        arrowTip.style.height = '0';
+                        arrowTip.style.borderTop = '6px solid transparent';
+                        arrowTip.style.borderBottom = '6px solid transparent';
+                        arrowTip.style.borderLeft = '10px solid #1a56db';
+
+                        if (data.offset > 0) {
+                            arrowTip.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 40}px`;
+                            arrowTip.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
+                            arrowTip.style.transform = 'rotate(0deg)';
+                        } else {
+                            arrowTip.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            arrowTip.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 10}px`;
+                            arrowTip.style.transform = 'rotate(90deg)';
+                        }
+
+                        markovChain.appendChild(arrowTip);
+
+                        // 概率标签
+                        const probability = document.createElement('div');
+                        probability.className = 'probability';
+                        probability.textContent = data.label;
+
+                        if (data.offset > 0) {
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 20}px`;
+                            probability.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 25}px`;
+                        } else {
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top - 5}px`;
+                            probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 25}px`;
+                        }
+
+                        markovChain.appendChild(probability);
+                    } else {
+                        // 普通箭头
+                        const dx = toCenterX - fromCenterX;
+                        const dy = toCenterY - fromCenterY;
+                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                        const length = Math.sqrt(dx*dx + dy*dy) - 80; // 减去节点半径
+
+                        arrow.style.top = `${fromCenterY - markovChain.getBoundingClientRect().top}px`;
+                        arrow.style.left = `${fromCenterX - markovChain.getBoundingClientRect().left}px`;
+                        arrow.style.width = `${length}px`;
+                        arrow.style.transform = `rotate(${angle}deg)`;
+
+                        // 概率标签
+                        const probability = document.createElement('div');
+                        probability.className = 'probability';
+                        probability.textContent = data.label;
+
+                        const midX = fromCenterX + dx/2;
+                        const midY = fromCenterY + dy/2;
+
+                        probability.style.top = `${midY - markovChain.getBoundingClientRect().top - 15}px`;
+                        probability.style.left = `${midX - markovChain.getBoundingClientRect().left - 10}px`;
+
+                        markovChain.appendChild(probability);
+                    }
+                });
+            }
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.8, ease: "power3.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.3})
+                   .to("#markovChain", {opacity: 1, scale: 1, y: 0})
+                   .to("#intro", {opacity: 1, y: 0});
+
+            // 在合适的时机调用创建箭头函数
+            setTimeout(createArrows, 1000);
+        });
+    </script>
+</body>
+</html>

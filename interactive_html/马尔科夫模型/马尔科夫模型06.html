@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型的多领域应用详解</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .app-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .app-header {
+            padding: 12px 16px;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .app-content {
+            padding: 16px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .feature-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            color: white;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .characteristic-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col p-6 relative">
+        <!-- 几何背景 -->
+        <div class="geometric-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="z-10 text-center mb-4 fade-in" id="title">
+            <h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的多领域应用详解</h2>
+            <div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-5 flex-grow z-10">
+            <!-- 自然语言处理应用 -->
+            <div class="app-card fade-in" id="nlp-card">
+                <div class="app-header bg-blue-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-language text-2xl mr-2"></i>
+                        <span class="text-lg">自然语言处理</span>
+                    </div>
+                    <div class="bg-blue-800 rounded-full px-2 py-1 text-xs">N-gram & HMM</div>
+                </div>
+                <div class="app-content">
+                    <div class="mb-3">
+                        <h4 class="font-bold text-blue-700 text-md mb-1">应用原理</h4>
+                        <p class="text-sm text-gray-700">将语言序列视为马尔科夫过程，每个词/字的出现仅依赖于前N个词/字，通过概率分布预测下一个可能的词汇</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="font-bold text-blue-700 text-md mb-1">特点与映射</h4>
+                        <div class="flex flex-wrap">
+                            <div class="characteristic-badge bg-blue-50 text-blue-700 border-blue-200">序列建模</div>
+                            <div class="characteristic-badge bg-blue-50 text-blue-700 border-blue-200">本地依赖</div>
+                            <div class="characteristic-badge bg-blue-50 text-blue-700 border-blue-200">上下文相关性</div>
+                            <div class="characteristic-badge bg-blue-50 text-blue-700 border-blue-200">概率转移</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="font-bold text-blue-700 text-md mb-1">解决问题</h4>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-blue-100 text-blue-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">词性标注：使用隐马尔科夫模型将词语映射到词性标签</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-blue-100 text-blue-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">文本生成：基于N-gram模型生成语法相似的新文本</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-blue-100 text-blue-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">拼写检查：计算不同单词序列的概率来纠正拼写错误</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-blue-700 text-md mb-1">应用案例</h4>
+                        <div class="flex flex-wrap">
+                            <div class="example-tag bg-blue-500">智能输入法</div>
+                            <div class="example-tag bg-blue-600">拼写纠错系统</div>
+                            <div class="example-tag bg-blue-500">机器翻译（早期）</div>
+                            <div class="example-tag bg-blue-600">文本分类器</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 语音识别应用 -->
+            <div class="app-card fade-in" id="speech-card">
+                <div class="app-header bg-indigo-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-microphone text-2xl mr-2"></i>
+                        <span class="text-lg">语音识别</span>
+                    </div>
+                    <div class="bg-indigo-800 rounded-full px-2 py-1 text-xs">隐马尔科夫模型</div>
+                </div>
+                <div class="app-content">
+                    <div class="mb-3">
+                        <h4 class="font-bold text-indigo-700 text-md mb-1">应用原理</h4>
+                        <p class="text-sm text-gray-700">将音频信号特征作为观察序列，语音内容（音素/单词）作为隐藏状态，通过概率模型从观察中推断最可能的隐藏状态序列</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="font-bold text-indigo-700 text-md mb-1">特点与映射</h4>
+                        <div class="flex flex-wrap">
+                            <div class="characteristic-badge bg-indigo-50 text-indigo-700 border-indigo-200">观察与隐藏状态</div>
+                            <div class="characteristic-badge bg-indigo-50 text-indigo-700 border-indigo-200">发射概率</div>
+                            <div class="characteristic-badge bg-indigo-50 text-indigo-700 border-indigo-200">状态转移概率</div>
+                            <div class="characteristic-badge bg-indigo-50 text-indigo-700 border-indigo-200">动态规划解码</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="font-bold text-indigo-700 text-md mb-1">解决问题</h4>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-indigo-100 text-indigo-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">语音到文本转换：精确识别不同口音、环境下的语音</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-indigo-100 text-indigo-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">音素切分：将连续语音信号分割为独立音素单元</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-indigo-100 text-indigo-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">说话人识别：通过声音特征区分不同的说话人</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-indigo-700 text-md mb-1">应用案例</h4>
+                        <div class="flex flex-wrap">
+                            <div class="example-tag bg-indigo-500">早期Siri/Alexa</div>
+                            <div class="example-tag bg-indigo-600">电话语音导航</div>
+                            <div class="example-tag bg-indigo-500">听写软件</div>
+                            <div class="example-tag bg-indigo-600">CMU Sphinx系统</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PageRank算法应用 -->
+            <div class="app-card fade-in" id="pagerank-card">
+                <div class="app-header bg-yellow-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-search text-2xl mr-2"></i>
+                        <span class="text-lg">PageRank算法</span>
+                    </div>
+                    <div class="bg-yellow-800 rounded-full px-2 py-1 text-xs">马尔科夫链</div>
+                </div>
+                <div class="app-content">
+                    <div class="mb-3">
+                        <h4 class="font-bold text-yellow-700 text-md mb-1">应用原理</h4>
+                        <p class="text-sm text-gray-700">将网页间的链接结构建模为马尔科夫链，用户在网页间随机点击链接的过程视为随机游走，网页的重要性由其作为马尔科夫链平稳分布的概率值决定</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="font-bold text-yellow-700 text-md mb-1">特点与映射</h4>
+                        <div class="flex flex-wrap">
+                            <div class="characteristic-badge bg-yellow-50 text-yellow-700 border-yellow-200">随机游走</div>
+                            <div class="characteristic-badge bg-yellow-50 text-yellow-700 border-yellow-200">平稳分布</div>
+                            <div class="characteristic-badge bg-yellow-50 text-yellow-700 border-yellow-200">链接即转移概率</div>
+                            <div class="characteristic-badge bg-yellow-50 text-yellow-700 border-yellow-200">阻尼系数</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="font-bold text-yellow-700 text-md mb-1">解决问题</h4>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-yellow-100 text-yellow-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">网页排名：根据链接结构自动计算页面权重和重要性</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-yellow-100 text-yellow-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">反作弊机制：降低垃圾链接和链接农场的影响</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-yellow-100 text-yellow-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">权威性评估：识别网络中的高价值节点</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-yellow-700 text-md mb-1">应用案例</h4>
+                        <div class="flex flex-wrap">
+                            <div class="example-tag bg-yellow-500">Google搜索引擎</div>
+                            <div class="example-tag bg-yellow-600">学术引用分析</div>
+                            <div class="example-tag bg-yellow-500">社交网络分析</div>
+                            <div class="example-tag bg-yellow-600">推荐系统</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图像处理应用 -->
+            <div class="app-card fade-in" id="image-card">
+                <div class="app-header bg-green-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-image text-2xl mr-2"></i>
+                        <span class="text-lg">图像处理</span>
+                    </div>
+                    <div class="bg-green-800 rounded-full px-2 py-1 text-xs">马尔科夫随机场</div>
+                </div>
+                <div class="app-content">
+                    <div class="mb-3">
+                        <h4 class="font-bold text-green-700 text-md mb-1">应用原理</h4>
+                        <p class="text-sm text-gray-700">将图像像素或区域建模为无向图网络，相邻元素之间具有马尔科夫特性，通过局部相互作用和能量函数优化来处理图像</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="font-bold text-green-700 text-md mb-1">特点与映射</h4>
+                        <div class="flex flex-wrap">
+                            <div class="characteristic-badge bg-green-50 text-green-700 border-green-200">空间相关性</div>
+                            <div class="characteristic-badge bg-green-50 text-green-700 border-green-200">无向图结构</div>
+                            <div class="characteristic-badge bg-green-50 text-green-700 border-green-200">能量函数</div>
+                            <div class="characteristic-badge bg-green-50 text-green-700 border-green-200">局部条件依赖</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="font-bold text-green-700 text-md mb-1">解决问题</h4>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-green-100 text-green-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">图像分割：将图像区分为有意义的区域或对象</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-green-100 text-green-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">图像降噪：利用像素间相关性去除随机噪声</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon bg-green-100 text-green-600">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-sm text-gray-700">纹理合成：生成与样本相似的新纹理图像</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-green-700 text-md mb-1">应用案例</h4>
+                        <div class="flex flex-wrap">
+                            <div class="example-tag bg-green-500">医学图像分割</div>
+                            <div class="example-tag bg-green-600">遥感图像分析</div>
+                            <div class="example-tag bg-green-500">图像修复工具</div>
+                            <div class="example-tag bg-green-600">CRF图像标注</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部总结 -->
+        <div class="mt-4 z-10 fade-in" id="summary">
+            <div class="bg-blue-50 p-3 rounded-lg border-t-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-lightbulb text-yellow-500 text-xl mr-2"></i>
+                        <div>
+                            <h3 class="text-sm font-bold text-blue-700">马尔科夫模型的共性</h3>
+                            <p class="text-xs text-gray-700">将复杂系统简化为状态转移过程，利用局部依赖性质有效解决现实世界中的顺序和空间相关问题</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-code-branch text-blue-500 text-xl mr-2"></i>
+                        <div>
+                            <h3 class="text-sm font-bold text-blue-700">发展趋势</h3>
+                            <p class="text-xs text-gray-700">与深度学习结合，处理更复杂的依赖关系，同时保持概率框架的可解释性</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#nlp-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#speech-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#pagerank-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#image-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 卡片悬停效果
+            const cards = document.querySelectorAll('.app-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -5, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                card.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

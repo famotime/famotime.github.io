@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型：概念</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .concept-box {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .concept-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .markov-property {
+            border-left: 4px solid #3b82f6;
+        }
+        .transition-matrix {
+            width: 450px;
+            height: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .matrix-box {
+            width: 300px;
+            height: 200px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px;
+            margin: 0 auto;
+        }
+        .matrix-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .matrix-cell:hover {
+            background-color: #dbeafe;
+        }
+        .graph-visualization {
+            width: 450px;
+            height: 300px;
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .state-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 22px;
+            position: absolute;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background-color: #bfdbfe;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+            transition: transform 0.2s ease;
+        }
+        .state-node:hover {
+            transform: scale(1.1);
+        }
+        .transition-arrow {
+            position: absolute;
+            height: 2px;
+            background-color: #3b82f6;
+            transform-origin: 0 50%;
+        }
+        .transition-arrow::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #3b82f6;
+        }
+        .transition-label {
+            position: absolute;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            border: 1px solid #e5e7eb;
+            color: #3b82f6;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col p-8 relative">
+        <!-- 几何背景 -->
+        <div class="geometric-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="z-10 text-center mb-8 fade-in" id="title">
+            <h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的概念</h2>
+            <div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+        </div>
+
+        <div class="flex flex-row justify-between z-10">
+            <!-- 左侧：概念和定义 -->
+            <div class="w-1/2 pr-6 flex flex-col space-y-6">
+                <!-- 马尔科夫性质 -->
+                <div class="concept-box p-5 markov-property fade-in" id="markov-property">
+                    <h3 class="text-xl font-bold text-blue-700 mb-3">
+                        <i class="fas fa-bookmark mr-2"></i>马尔科夫性质（无记忆性）
+                    </h3>
+                    <p class="text-gray-700 mb-4">
+                        马尔科夫性质是指系统的未来状态仅依赖于当前状态，而与过去的历史状态无关。这种特性也被称为"无记忆性"。
+                    </p>
+                    <div class="bg-blue-50 p-3 rounded-md border border-blue-200 fade-in" id="math-definition">
+                        <p class="text-center text-blue-800 font-semibold">数学定义</p>
+                        <div id="markov-equation" class="text-center py-2">
+                            P(X<sub>n+1</sub>=j | X<sub>n</sub>=i, X<sub>n-1</sub>=i<sub>n-1</sub>,...,X<sub>0</sub>=i<sub>0</sub>) = P(X<sub>n+1</sub>=j | X<sub>n</sub>=i) = P<sub>ij</sub>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 马尔科夫链基本概念 -->
+                <div class="concept-box p-5 fade-in" id="markov-basics">
+                    <h3 class="text-xl font-bold text-blue-700 mb-3">
+                        <i class="fas fa-link mr-2"></i>马尔科夫链基本概念
+                    </h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><span class="font-semibold text-blue-600">状态空间(S)</span>：系统可能处于的所有状态的集合</li>
+                        <li><span class="font-semibold text-blue-600">转移概率(P)</span>：从一个状态转移到另一个状态的概率</li>
+                        <li><span class="font-semibold text-blue-600">状态转移矩阵</span>：记录所有可能状态之间转移概率的矩阵</li>
+                        <li><span class="font-semibold text-blue-600">初始分布(π<sub>0</sub>)</span>：系统初始状态的概率分布</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 右侧：可视化和矩阵 -->
+            <div class="w-1/2 pl-6 flex flex-col space-y-6">
+                <!-- 状态转移矩阵 -->
+                <div class="transition-matrix p-4 fade-in" id="matrix">
+                    <h3 class="text-xl font-bold text-blue-700 mb-2 text-center">
+                        <i class="fas fa-table mr-2"></i>状态转移矩阵
+                    </h3>
+                    <div class="matrix-box my-4" id="transition-matrix">
+                        <div class="matrix-cell" data-from="A" data-to="A">0.7</div>
+                        <div class="matrix-cell" data-from="A" data-to="B">0.2</div>
+                        <div class="matrix-cell" data-from="A" data-to="C">0.1</div>
+                        <div class="matrix-cell" data-from="B" data-to="A">0.3</div>
+                        <div class="matrix-cell" data-from="B" data-to="B">0.5</div>
+                        <div class="matrix-cell" data-from="B" data-to="C">0.2</div>
+                        <div class="matrix-cell" data-from="C" data-to="A">0.2</div>
+                        <div class="matrix-cell" data-from="C" data-to="B">0.3</div>
+                        <div class="matrix-cell" data-from="C" data-to="C">0.5</div>
+                    </div>
+                    <div class="text-center text-sm text-gray-600">
+                        P<sub>ij</sub> 表示从状态 i 到状态 j 的转移概率
+                    </div>
+                </div>
+
+                <!-- 马尔科夫链可视化 -->
+                <div class="graph-visualization p-4 fade-in" id="visualization">
+                    <h3 class="text-xl font-bold text-blue-700 mb-2 text-center">
+                        <i class="fas fa-project-diagram mr-2"></i>马尔科夫链可视化
+                    </h3>
+                    <div class="relative h-full" id="markov-graph">
+                        <div class="state-node" id="stateA" style="top: 50px; left: 195px;">A</div>
+                        <div class="state-node" id="stateB" style="top: 180px; left: 105px;">B</div>
+                        <div class="state-node" id="stateC" style="top: 180px; left: 285px;">C</div>
+                        <!-- 箭头和标签将通过JavaScript生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部：核心特点总结 -->
+        <div class="mt-auto pt-4 z-10">
+            <div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 fade-in" id="summary">
+                <h3 class="text-lg font-bold text-blue-700 mb-2">
+                    <i class="fas fa-lightbulb mr-2"></i>核心特点
+                </h3>
+                <div class="flex flex-row justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-random text-blue-500 text-2xl mr-3"></i>
+                        <p class="text-gray-700">状态转移只依赖<br>当前状态</p>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-history text-blue-500 text-2xl mr-3"></i>
+                        <p class="text-gray-700">历史路径<br>不影响未来</p>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-calculator text-blue-500 text-2xl mr-3"></i>
+                        <p class="text-gray-700">通过转移概率<br>预测未来状态</p>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-balance-scale text-blue-500 text-2xl mr-3"></i>
+                        <p class="text-gray-700">长期行为趋向<br>稳定分布</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 创建马尔科夫链可视化的箭头和标签
+            function createArrows() {
+                const graph = document.getElementById('markov-graph');
+                const stateA = document.getElementById('stateA');
+                const stateB = document.getElementById('stateB');
+                const stateC = document.getElementById('stateC');
+
+                // 定义转移连接
+                const transitions = [
+                    { from: stateA, to: stateA, label: "0.7", selfLoop: true, angle: -45 },
+                    { from: stateA, to: stateB, label: "0.2" },
+                    { from: stateA, to: stateC, label: "0.1" },
+                    { from: stateB, to: stateA, label: "0.3" },
+                    { from: stateB, to: stateB, label: "0.5", selfLoop: true, angle: -135 },
+                    { from: stateB, to: stateC, label: "0.2" },
+                    { from: stateC, to: stateA, label: "0.2" },
+                    { from: stateC, to: stateB, label: "0.3" },
+                    { from: stateC, to: stateC, label: "0.5", selfLoop: true, angle: -315 }
+                ];
+
+                transitions.forEach(t => {
+                    const fromRect = t.from.getBoundingClientRect();
+                    const toRect = t.to.getBoundingClientRect();
+                    const graphRect = graph.getBoundingClientRect();
+
+                    if (t.selfLoop) {
+                        // 创建自循环箭头
+                        const loop = document.createElement('div');
+                        loop.style.position = 'absolute';
+                        loop.style.width = '30px';
+                        loop.style.height = '30px';
+                        loop.style.borderRadius = '50%';
+                        loop.style.borderTop = '2px solid #3b82f6';
+                        loop.style.borderRight = '2px solid #3b82f6';
+                        loop.style.top = (fromRect.top - graphRect.top - 25) + 'px';
+                        loop.style.left = (fromRect.left - graphRect.left + 15) + 'px';
+                        loop.style.transform = `rotate(${t.angle}deg)`;
+                        graph.appendChild(loop);
+
+                        // 添加标签
+                        const label = document.createElement('div');
+                        label.className = 'transition-label';
+                        label.textContent = t.label;
+                        label.style.top = (fromRect.top - graphRect.top - 20) + 'px';
+                        label.style.left = (fromRect.left - graphRect.left + 45) + 'px';
+                        graph.appendChild(label);
+
+                    } else {
+                        // 创建普通箭头
+                        const fromX = fromRect.left - graphRect.left + fromRect.width/2;
+                        const fromY = fromRect.top - graphRect.top + fromRect.height/2;
+                        const toX = toRect.left - graphRect.left + toRect.width/2;
+                        const toY = toRect.top - graphRect.top + toRect.height/2;
+
+                        const dx = toX - fromX;
+                        const dy = toY - fromY;
+                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                        const radius = 30; // 节点半径
+                        const fromAngle = angle * Math.PI / 180;
+                        const startX = fromX + Math.cos(fromAngle) * radius;
+                        const startY = fromY + Math.sin(fromAngle) * radius;
+
+                        const toAngle = (angle + 180) * Math.PI / 180;
+                        const endX = toX + Math.cos(toAngle) * radius;
+                        const endY = toY + Math.sin(toAngle) * radius;
+
+                        const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+
+                        const arrow = document.createElement('div');
+                        arrow.className = 'transition-arrow';
+                        arrow.style.width = length + 'px';
+                        arrow.style.left = startX + 'px';
+                        arrow.style.top = startY + 'px';
+                        arrow.style.transform = `rotate(${angle}deg)`;
+                        graph.appendChild(arrow);
+
+                        // 添加标签
+                        const label = document.createElement('div');
+                        label.className = 'transition-label';
+                        label.textContent = t.label;
+                        label.style.top = (startY + (endY - startY) / 2 - 10) + 'px';
+                        label.style.left = (startX + (endX - startX) / 2 - 10) + 'px';
+                        graph.appendChild(label);
+                    }
+                });
+            }
+
+            // 高亮显示转移矩阵单元格时联动高亮对应的箭头
+            function setupMatrixInteraction() {
+                const cells = document.querySelectorAll('.matrix-cell');
+
+                cells.forEach(cell => {
+                    cell.addEventListener('mouseover', function() {
+                        const from = this.dataset.from;
+                        const to = this.dataset.to;
+                        this.style.backgroundColor = '#93c5fd';
+
+                        // 在这里可以添加高亮对应箭头的逻辑
+                    });
+
+                    cell.addEventListener('mouseout', function() {
+                        this.style.backgroundColor = '#f0f7ff';
+                    });
+                });
+            }
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.6, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#markov-property", {opacity: 1, y: 0})
+                   .to("#math-definition", {opacity: 1, y: 0, delay: -0.3})
+                   .to("#markov-basics", {opacity: 1, y: 0})
+                   .to("#matrix", {opacity: 1, scale: 1})
+                   .to("#visualization", {opacity: 1, scale: 1})
+                   .to("#summary", {opacity: 1, y: 0});
+
+            // 在合适的时机调用创建箭头函数
+            setTimeout(createArrows, 1500);
+            setTimeout(setupMatrixInteraction, 2000);
+        });
+    </script>
+</body>
+</html>

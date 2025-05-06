@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型：历史发展</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: #3b82f6;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 5px;
+        }
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid #3b82f6;
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+        .left {
+            left: 0;
+        }
+        .right {
+            left: 50%;
+        }
+        .left::after {
+            right: -10px;
+        }
+        .right::after {
+            left: -10px;
+        }
+        .content {
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .content:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .timeline-year {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .timeline-dot-line {
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background-color: #3b82f6;
+            top: 25px;
+        }
+        .left .timeline-dot-line {
+            right: 20px;
+        }
+        .right .timeline-dot-line {
+            left: 20px;
+        }
+        .markov-portrait {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #dbeafe;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col p-8 relative">
+        <!-- 几何背景 -->
+        <div class="geometric-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="z-10 text-center mb-6 fade-in" id="title">
+            <h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的历史发展</h2>
+            <div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+        </div>
+
+        <!-- 人物介绍 -->
+        <div class="flex flex-row items-center justify-center mb-8 z-10 fade-in" id="founder">
+            <div class="flex flex-col items-center mr-10">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/Andrei_Markov.jpg" alt="安德烈·马尔科夫" class="markov-portrait">
+                <p class="text-center mt-2 text-sm text-gray-600">安德烈·马尔科夫<br>(1856-1922)</p>
+            </div>
+            <div class="max-w-md">
+                <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-blue-500">
+                    <h3 class="text-xl font-bold text-blue-700 mb-2">马尔科夫模型的创始人</h3>
+                    <p class="text-gray-700">
+                        俄国数学家安德烈·马尔科夫于1906年首次提出了马尔科夫链的概念，用于研究具有"无记忆性"特性的随机过程。他的开创性工作最初应用于分析俄语文学中字母序列出现的规律，并为概率论开辟了新的研究方向。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史时间线 -->
+        <div class="timeline z-10 mt-2 mb-4">
+            <div class="timeline-item left fade-in" id="timeline-1">
+                <div class="timeline-dot-line"></div>
+                <div class="content">
+                    <div class="timeline-year"><i class="fas fa-landmark mr-2"></i>1906-1913</div>
+                    <h3 class="font-semibold text-blue-700">马尔科夫链的诞生</h3>
+                    <p class="text-sm text-gray-700">
+                        马尔科夫在《概率计算扩展》论文中首次提出马尔科夫链概念，并应用于分析俄语文学作品《叶甫盖尼·奥涅金》中字母序列的出现概率。
+                    </p>
+                </div>
+            </div>
+
+            <div class="timeline-item right fade-in" id="timeline-2">
+                <div class="timeline-dot-line"></div>
+                <div class="content">
+                    <div class="timeline-year"><i class="fas fa-users mr-2"></i>1930年代</div>
+                    <h3 class="font-semibold text-blue-700">理论扩展与应用</h3>
+                    <p class="text-sm text-gray-700">
+                        科尔莫戈罗夫(Kolmogorov)和其他数学家扩展了马尔科夫链理论，建立了连续时间马尔科夫过程理论，为更广泛的应用奠定基础。
+                    </p>
+                </div>
+            </div>
+
+            <div class="timeline-item left fade-in" id="timeline-3">
+                <div class="timeline-dot-line"></div>
+                <div class="content">
+                    <div class="timeline-year"><i class="fas fa-code mr-2"></i>1950-1960年代</div>
+                    <h3 class="font-semibold text-blue-700">隐马尔科夫模型的提出</h3>
+                    <p class="text-sm text-gray-700">
+                        Leonard E. Baum和其他研究者开发了隐马尔科夫模型(HMM)，为处理观察不到的状态提供了数学框架，极大扩展了应用范围。
+                    </p>
+                </div>
+            </div>
+
+            <div class="timeline-item right fade-in" id="timeline-4">
+                <div class="timeline-dot-line"></div>
+                <div class="content">
+                    <div class="timeline-year"><i class="fas fa-microphone mr-2"></i>1970-1980年代</div>
+                    <h3 class="font-semibold text-blue-700">语音识别应用</h3>
+                    <p class="text-sm text-gray-700">
+                        隐马尔科夫模型在语音识别领域取得重大突破，成为当时自动语音识别系统的主流技术，IBM和AT&T等公司开始广泛应用。
+                    </p>
+                </div>
+            </div>
+
+            <div class="timeline-item left fade-in" id="timeline-5">
+                <div class="timeline-dot-line"></div>
+                <div class="content">
+                    <div class="timeline-year"><i class="fas fa-dna mr-2"></i>1990年代-2000年代</div>
+                    <h3 class="font-semibold text-blue-700">生物信息学应用</h3>
+                    <p class="text-sm text-gray-700">
+                        马尔科夫模型被应用于DNA序列分析、蛋白质结构预测等生物信息学领域，成为基因组研究的重要工具。
+                    </p>
+                </div>
+            </div>
+
+            <div class="timeline-item right fade-in" id="timeline-6">
+                <div class="timeline-dot-line"></div>
+                <div class="content">
+                    <div class="timeline-year"><i class="fas fa-robot mr-2"></i>2000年代至今</div>
+                    <h3 class="font-semibold text-blue-700">机器学习与现代应用</h3>
+                    <p class="text-sm text-gray-700">
+                        马尔科夫决策过程成为强化学习的理论基础，马尔科夫随机场应用于图像处理，马尔科夫链蒙特卡洛方法广泛用于复杂系统模拟。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部：历史意义总结 -->
+        <div class="mt-auto z-10">
+            <div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 fade-in" id="impact">
+                <h3 class="text-lg font-bold text-blue-700 mb-2">
+                    <i class="fas fa-history mr-2"></i>历史意义
+                </h3>
+                <div class="flex flex-row justify-between text-sm">
+                    <div class="flex items-start max-w-xs">
+                        <i class="fas fa-university text-blue-500 text-xl mt-1 mr-3"></i>
+                        <p class="text-gray-700">
+                            马尔科夫的研究工作开创了随机过程理论的新领域，是概率论发展史上的里程碑
+                        </p>
+                    </div>
+                    <div class="flex items-start max-w-xs">
+                        <i class="fas fa-lightbulb text-blue-500 text-xl mt-1 mr-3"></i>
+                        <p class="text-gray-700">
+                            从纯数学理论发展为各领域中解决实际问题的实用工具，展示了数学与应用科学的紧密结合
+                        </p>
+                    </div>
+                    <div class="flex items-start max-w-xs">
+                        <i class="fas fa-rocket text-blue-500 text-xl mt-1 mr-3"></i>
+                        <p class="text-gray-700">
+                            马尔科夫模型的发展历程体现了科学理论如何通过不断拓展和适应新问题而保持活力
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#founder", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#timeline-1", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-2", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-3", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-4", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-5", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-6", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#impact", {opacity: 1, y: 0, delay: 0.1});
+        });
+    </script>
+</body>
+</html>

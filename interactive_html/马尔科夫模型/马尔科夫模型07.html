@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型在语音识别中的应用</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .speech-workflow {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .workflow-step {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .workflow-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .workflow-connector {
+            position: absolute;
+            left: 50%;
+            height: 20px;
+            width: 2px;
+            background-color: #6366f1;
+            z-index: 1;
+        }
+        .workflow-connector::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 8px solid #6366f1;
+        }
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .application-example {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .application-example:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .app-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col p-6 relative">
+        <!-- 几何背景 -->
+        <div class="geometric-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="z-10 text-center mb-4 fade-in" id="title">
+            <h2 class="text-3xl font-bold text-indigo-800 mb-2">马尔科夫模型在语音识别中的应用</h2>
+            <div class="w-32 h-1 bg-indigo-600 mx-auto mb-2"></div>
+            <p class="text-gray-600 text-sm max-w-3xl mx-auto">隐马尔科夫模型(HMM)作为语音识别的核心技术，将语音信号映射为可观测状态，语音内容视为隐藏状态，通过概率关系实现识别</p>
+        </div>
+
+        <!-- 工作流程 -->
+        <div class="speech-workflow z-10 mb-6">
+            <div class="workflow-step flex items-start fade-in" id="step1">
+                <div class="step-icon bg-indigo-100 text-indigo-600">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-bold text-indigo-700 text-lg">1. 语音信号采集与预处理</h3>
+                    <p class="text-sm text-gray-600 mb-2">将连续的声音信号数字化并提取特征，常用MFCC特征提取方法</p>
+                    <div class="flex flex-wrap">
+                        <div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">声音采样</div>
+                        <div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">预加重</div>
+                        <div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">分帧</div>
+                        <div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">加窗</div>
+                        <div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">特征提取</div>
+                    </div>
+                </div>
+            </div>
+            <div class="workflow-connector"></div>
+
+            <div class="workflow-step flex items-start fade-in" id="step2">
+                <div class="step-icon bg-purple-100 text-purple-600">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-bold text-purple-700 text-lg">2. 隐马尔科夫模型映射</h3>
+                    <div class="flex flex-col md:flex-row gap-3 mt-2">
+                        <div class="bg-purple-50 rounded-lg p-2 flex-1">
+                            <h4 class="text-sm font-semibold text-purple-700">隐藏状态</h4>
+                            <p class="text-xs text-gray-600">音素/词/句子（我们想要识别的内容）</p>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-2 flex-1">
+                            <h4 class="text-sm font-semibold text-purple-700">观测序列</h4>
+                            <p class="text-xs text-gray-600">MFCC声学特征向量序列</p>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-2 flex-1">
+                            <h4 class="text-sm font-semibold text-purple-700">转移概率</h4>
+                            <p class="text-xs text-gray-600">音素/词间的转移概率（语言模型）</p>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-2 flex-1">
+                            <h4 class="text-sm font-semibold text-purple-700">发射概率</h4>
+                            <p class="text-xs text-gray-600">声学模型（特征与音素的映射）</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="workflow-connector"></div>
+
+            <div class="workflow-step flex items-start fade-in" id="step3">
+                <div class="step-icon bg-blue-100 text-blue-600">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-bold text-blue-700 text-lg">3. 核心算法与实现</h3>
+                    <div class="grid grid-cols-3 gap-3 mt-2">
+                        <div class="bg-blue-50 rounded-lg p-2">
+                            <h4 class="text-sm font-semibold text-blue-700">前向算法</h4>
+                            <p class="text-xs text-gray-600">计算观测序列的概率，评估模型</p>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-2">
+                            <h4 class="text-sm font-semibold text-blue-700">维特比算法</h4>
+                            <p class="text-xs text-gray-600">求解最可能的隐藏状态序列（解码）</p>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-2">
+                            <h4 class="text-sm font-semibold text-blue-700">鲍姆-韦尔奇算法</h4>
+                            <p class="text-xs text-gray-600">优化模型参数（训练）</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">语音识别的HMM通常采用左右结构（Left-to-Right HMM），限制状态转移只能向前，符合语音的时序特性</p>
+                </div>
+            </div>
+            <div class="workflow-connector"></div>
+
+            <div class="workflow-step flex items-start fade-in" id="step4">
+                <div class="step-icon bg-green-100 text-green-600">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-bold text-green-700 text-lg">4. 实际应用效果与优势</h3>
+                    <div class="grid grid-cols-2 gap-3 mt-2">
+                        <div>
+                            <h4 class="text-sm font-semibold text-green-700">优势</h4>
+                            <ul class="text-xs text-gray-600 list-disc list-inside">
+                                <li>将声学和语言知识整合在统一框架</li>
+                                <li>处理可变长度序列的能力</li>
+                                <li>统计学习方法，可从数据中自动学习</li>
+                                <li>对噪声和说话人变化有一定鲁棒性</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-green-700">局限性</h4>
+                            <ul class="text-xs text-gray-600 list-disc list-inside">
+                                <li>独立性假设限制了上下文建模能力</li>
+                                <li>需要大量标注数据训练</li>
+                                <li>难以处理长距离语音依赖</li>
+                                <li>现已被深度学习方法（LSTM/CTC/Transformer）部分替代</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 应用案例 -->
+        <div class="z-10 fade-in" id="applications">
+            <h3 class="text-lg font-bold text-indigo-700 mb-2 flex items-center">
+                <i class="fas fa-mobile-alt text-indigo-500 mr-2"></i>知名应用案例
+            </h3>
+            <div class="flex flex-wrap justify-between">
+                <div class="application-example">
+                    <div class="app-logo bg-blue-100 text-blue-600">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold">早期Siri (2011)</h4>
+                        <p class="text-xs text-gray-600">苹果首代语音助手使用HMM作为核心识别引擎</p>
+                    </div>
+                </div>
+                <div class="application-example">
+                    <div class="app-logo bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold">Sphinx系统</h4>
+                        <p class="text-xs text-gray-600">CMU开发的开源语音识别系统，基于HMM架构</p>
+                    </div>
+                </div>
+                <div class="application-example">
+                    <div class="app-logo bg-green-100 text-green-600">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold">智能客服电话</h4>
+                        <p class="text-xs text-gray-600">早期电话自动语音交互系统，如银行、航空公司</p>
+                    </div>
+                </div>
+                <div class="application-example">
+                    <div class="app-logo bg-red-100 text-red-600">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold">车载语音系统</h4>
+                        <p class="text-xs text-gray-600">早期汽车导航和控制系统的语音命令识别</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部总结 -->
+        <div class="mt-auto pt-4 z-10 fade-in" id="summary">
+            <div class="bg-indigo-50 p-3 rounded-lg border-t-4 border-indigo-500">
+                <div class="flex items-center">
+                    <div class="bg-indigo-100 rounded-full p-2 mr-3 text-indigo-600">
+                        <i class="fas fa-lightbulb text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-md font-bold text-indigo-700">马尔科夫模型与语音识别的完美契合</h3>
+                        <p class="text-sm text-gray-700">马尔科夫模型的顺序建模特性与语音的时序结构高度匹配，HMM成功将声学特征（观测）与语言文本（隐藏状态）建立了概率联系，成为推动早期语音识别技术发展的关键力量，为现代深度学习语音识别奠定了基础。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#step1", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#step2", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#step3", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#step4", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#applications", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 工作流程步骤悬停效果
+            const steps = document.querySelectorAll('.workflow-step');
+            steps.forEach(step => {
+                step.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -3, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                step.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+
+            // 应用案例悬停效果
+            const examples = document.querySelectorAll('.application-example');
+            examples.forEach(example => {
+                example.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -2, boxShadow: '0 4px 8px rgba(0,0,0,0.1)', duration: 0.2});
+                });
+
+                example.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 2px 5px rgba(0,0,0,0.05)', duration: 0.2});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

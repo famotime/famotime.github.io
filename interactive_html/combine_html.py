@@ -14,7 +14,7 @@ def ensure_vertical_layout(content):
     return content
 
 # 定义工作目录
-workspace_folder = pathlib.Path('d:\\Python_Work\\genspark_output')
+workspace_folder = pathlib.Path.cwd() / "FourierTransformation"
 
 # 定义合并后的文件名
 output_file = workspace_folder / 'combined.html'
@@ -48,13 +48,13 @@ else:
 
                 if not body_start_found:
                     # 提取第一个文件的 <body> 开始标签
-                    body_start_match = re.search(r'<body>', content)
+                    body_start_match = re.search(r'<body.*?>', content)
                     if body_start_match:
                         combined_content += body_start_match.group()
                         body_start_found = True
 
                 # 提取文件内容，去除头部和 <body> 标签
-                body_content = re.sub(r'<!DOCTYPE html>.*?<body>', '', content, flags=re.DOTALL)
+                body_content = re.sub(r'<!DOCTYPE html>.*?<body.*?>', '', content, flags=re.DOTALL)
                 body_content = re.sub(r'</body>.*?</html>', '', body_content, flags=re.DOTALL)
                 combined_content += body_content.strip()
 

@@ -1,0 +1,3989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马尔科夫模型：概念、历史与应用</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .state-node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .state-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .arrow {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background-color: #1a56db;
+            transform-origin: left center;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #1a56db;
+        }
+        .probability {
+            position: absolute;
+            background-color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #1a56db;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .limitation-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .limitation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .warning-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .comparison-chart-container {
+            height: 250px;
+            width: 100%;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .alternative-item {
+            transition: transform 0.2s ease;
+        }
+        .alternative-item:hover {
+            transform: translateX(5px);
+        }
+    </style><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .app-card {
+            background: white;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .app-icon-bg {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .usage-chart-container {
+            height: 280px;
+            width: 100%;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .card-border-top {
+            height: 4px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+    </style><meta content="width=device-width, initial-scale=1.0" name="viewport"/><script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .app-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .app-header {
+            padding: 12px 16px;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .app-content {
+            padding: 16px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .feature-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            color: white;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .characteristic-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+    </style><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .nlp-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+        }
+        .nlp-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .card-header {
+            color: white;
+            font-weight: bold;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            color: white;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .word-prediction {
+            font-family: monospace;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #f8fafc;
+            margin-bottom: 8px;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+        .prediction-word {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 4px;
+            background-color: #e5e7eb;
+        }
+        .prediction-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 16px;
+            background-color: #3b82f6;
+            animation: blink 1s step-end infinite;
+        }
+        .prediction-options {
+            display: none;
+            position: absolute;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 4px 0;
+            min-width: 100px;
+            z-index: 10;
+        }
+        .prediction-option {
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+        .prediction-option:hover {
+            background-color: #f3f4f6;
+        }
+        .cursor-active .prediction-options {
+            display: block;
+        }
+        .hmm-diagram {
+            max-width: 100%;
+            margin: 0 auto;
+            height: 100px;
+        }
+        .pos-tag {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: white;
+            margin-right: 2px;
+            margin-bottom: 2px;
+        }
+        .pos-n { background-color: #3b82f6; }
+        .pos-v { background-color: #10b981; }
+        .pos-adj { background-color: #f59e0b; }
+        .pos-adv { background-color: #8b5cf6; }
+        .pos-prep { background-color: #ef4444; }
+        .pos-pron { background-color: #6366f1; }
+        .pos-conj { background-color: #ec4899; }
+        .performance-chart-container {
+            height: 100px;
+            width: 100%;
+        }
+        .text-highlight {
+            position: relative;
+            display: inline-block;
+        }
+        .text-highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: rgba(59, 130, 246, 0.3);
+            border-radius: 2px;
+        }
+        .spell-incorrect {
+            text-decoration: wavy underline #ef4444;
+            position: relative;
+            cursor: pointer;
+        }
+        .spell-correction {
+            display: none;
+            position: absolute;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 4px 0;
+            min-width: 100px;
+            z-index: 10;
+            font-size: 12px;
+            left: 0;
+            top: 100%;
+        }
+        .spell-correction-option {
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .spell-correction-option:hover {
+            background-color: #f3f4f6;
+        }
+        .spell-incorrect:hover .spell-correction {
+            display: block;
+        }
+        .animated-typing {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid #3b82f6;
+            animation: typing 3.5s steps(30, end) infinite, blink-caret 0.75s step-end infinite;
+        }
+        .app-logo {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+        .progress-gradient {
+            background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            50% { width: 100% }
+            90% { width: 100% }
+            to { width: 0 }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #3b82f6 }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .typewriter {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: .15em solid #3b82f6;
+            margin: 0;
+            animation: typing 3.5s steps(30, end) infinite, blink-caret 0.75s step-end infinite;
+        }
+    </style><script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .app-example {
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+        .app-example:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            width: 180px;
+            height: 180px;
+        }
+        .pixel {
+            background: #ddd;
+            border-radius: 2px;
+            transition: background-color 0.3s ease;
+        }
+        .pixel:hover {
+            background: #10b981;
+        }
+        .pixel-neighborhood {
+            background: #10b981;
+        }
+        .pixel-center {
+            background: #059669;
+            border: 2px solid #047857;
+        }
+        .neighborhood-indicator {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #10b981;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+        .comparison-chart-container {
+            height: 200px;
+            width: 100%;
+        }
+        .process-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(90deg);
+            font-size: 24px;
+            color: #10b981;
+            padding: 5px;
+        }
+    </style><meta charset="utf-8"/><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: absolute;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        .edge {
+            position: absolute;
+            height: 2px;
+            background-color: #fbbf24;
+            transform-origin: 0 50%;
+            z-index: 1;
+        }
+        .edge::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #fbbf24;
+        }
+        .concept-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .concept-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .page-rank-chart-container {
+            height: 200px;
+            width: 100%;
+            position: relative;
+        }
+        .application-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+        }
+        .application-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+    </style><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .speech-workflow {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .workflow-step {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .workflow-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .workflow-connector {
+            position: absolute;
+            left: 50%;
+            height: 20px;
+            width: 2px;
+            background-color: #6366f1;
+            z-index: 1;
+        }
+        .workflow-connector::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 8px solid #6366f1;
+        }
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .application-example {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .application-example:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .app-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+    </style><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .concept-box {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .concept-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .markov-property {
+            border-left: 4px solid #3b82f6;
+        }
+        .transition-matrix {
+            width: 450px;
+            height: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .matrix-box {
+            width: 300px;
+            height: 200px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px;
+            margin: 0 auto;
+        }
+        .matrix-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .matrix-cell:hover {
+            background-color: #dbeafe;
+        }
+        .graph-visualization {
+            width: 450px;
+            height: 300px;
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .state-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 22px;
+            position: absolute;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background-color: #bfdbfe;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+            transition: transform 0.2s ease;
+        }
+        .state-node:hover {
+            transform: scale(1.1);
+        }
+        .transition-arrow {
+            position: absolute;
+            height: 2px;
+            background-color: #3b82f6;
+            transform-origin: 0 50%;
+        }
+        .transition-arrow::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #3b82f6;
+        }
+        .transition-label {
+            position: absolute;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            border: 1px solid #e5e7eb;
+            color: #3b82f6;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet"/><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: #3b82f6;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 5px;
+        }
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid #3b82f6;
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+        .left {
+            left: 0;
+        }
+        .right {
+            left: 50%;
+        }
+        .left::after {
+            right: -10px;
+        }
+        .right::after {
+            left: -10px;
+        }
+        .content {
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .content:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .timeline-year {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .timeline-dot-line {
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background-color: #3b82f6;
+            top: 25px;
+        }
+        .left .timeline-dot-line {
+            right: 20px;
+        }
+        .right .timeline-dot-line {
+            left: 20px;
+        }
+        .markov-portrait {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #dbeafe;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+</head>
+<body>
+    <div class="slide flex flex-col items-center justify-center p-8 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 蓝色装饰条 -->
+<div class="absolute top-0 left-0 w-full h-8 bg-blue-600"></div>
+<!-- 标题内容 -->
+<div class="z-10 text-center mb-6 fade-in" id="title">
+<h1 class="text-5xl font-bold text-blue-800 mb-4">马尔科夫模型</h1>
+<div class="w-32 h-1 bg-blue-600 mx-auto mb-4"></div>
+<h2 class="text-2xl text-gray-700 font-light">概念 · 历史 · 应用场景</h2>
+</div>
+<!-- 马尔科夫链状态转移图示 -->
+<div class="relative mt-12 h-60 w-full max-w-2xl fade-in" id="markovChain">
+<!-- 状态节点 -->
+<div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute" id="stateA" style="top: 0; left: 50%; transform: translateX(-50%);">A</div>
+<div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute" id="stateB" style="bottom: 0; left: 20%;">B</div>
+<div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute" id="stateC" style="bottom: 0; right: 20%;">C</div>
+<!-- 箭头 - 将通过JS动态创建和定位 -->
+</div>
+<!-- 简短介绍 -->
+<div class="mt-8 text-center text-gray-600 max-w-2xl fade-in" id="intro">
+<p class="leading-relaxed">马尔科夫模型是一种随机过程，其未来状态的概率分布仅由当前状态决定，而与过去的状态无关</p>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 箭头连接和概率标签
+            const arrowData = [
+                { from: "stateA", to: "stateA", label: "0.7", curve: true, offset: -40 },
+                { from: "stateA", to: "stateB", label: "0.2" },
+                { from: "stateA", to: "stateC", label: "0.1" },
+                { from: "stateB", to: "stateA", label: "0.3" },
+                { from: "stateB", to: "stateB", label: "0.5", curve: true, offset: -40 },
+                { from: "stateB", to: "stateC", label: "0.2" },
+                { from: "stateC", to: "stateA", label: "0.2" },
+                { from: "stateC", to: "stateB", label: "0.3" },
+                { from: "stateC", to: "stateC", label: "0.5", curve: true, offset: 40 }
+            ];
+
+            function createArrows() {
+                const markovChain = document.getElementById('markovChain');
+
+                arrowData.forEach(data => {
+                    const fromEl = document.getElementById(data.from);
+                    const toEl = document.getElementById(data.to);
+
+                    const fromRect = fromEl.getBoundingClientRect();
+                    const toRect = toEl.getBoundingClientRect();
+
+                    const fromCenterX = fromRect.left + fromRect.width/2;
+                    const fromCenterY = fromRect.top + fromRect.height/2;
+                    const toCenterX = toRect.left + toRect.width/2;
+                    const toCenterY = toRect.top + toRect.height/2;
+
+                    // 创建箭头
+                    const arrow = document.createElement('div');
+                    arrow.className = 'arrow absolute';
+                    markovChain.appendChild(arrow);
+
+                    if (data.curve) {
+                        // 自循环箭头
+                        const selfLoop = document.createElement('div');
+                        selfLoop.style.position = 'absolute';
+                        selfLoop.style.width = '40px';
+                        selfLoop.style.height = '40px';
+                        selfLoop.style.border = '2px solid #1a56db';
+                        selfLoop.style.borderBottom = 'none';
+                        selfLoop.style.borderRight = 'none';
+                        selfLoop.style.borderRadius = '50% 0 0 0';
+
+                        if (data.offset > 0) {
+                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            selfLoop.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
+                            selfLoop.style.transform = 'rotate(-90deg)';
+                        } else {
+                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            selfLoop.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 45}px`;
+                            selfLoop.style.transform = 'rotate(180deg)';
+                        }
+
+                        markovChain.appendChild(selfLoop);
+
+                        // 添加箭头尖
+                        const arrowTip = document.createElement('div');
+                        arrowTip.style.position = 'absolute';
+                        arrowTip.style.width = '0';
+                        arrowTip.style.height = '0';
+                        arrowTip.style.borderTop = '6px solid transparent';
+                        arrowTip.style.borderBottom = '6px solid transparent';
+                        arrowTip.style.borderLeft = '10px solid #1a56db';
+
+                        if (data.offset > 0) {
+                            arrowTip.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 40}px`;
+                            arrowTip.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
+                            arrowTip.style.transform = 'rotate(0deg)';
+                        } else {
+                            arrowTip.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            arrowTip.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 10}px`;
+                            arrowTip.style.transform = 'rotate(90deg)';
+                        }
+
+                        markovChain.appendChild(arrowTip);
+
+                        // 概率标签
+                        const probability = document.createElement('div');
+                        probability.className = 'probability';
+                        probability.textContent = data.label;
+
+                        if (data.offset > 0) {
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 20}px`;
+                            probability.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 25}px`;
+                        } else {
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top - 5}px`;
+                            probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 25}px`;
+                        }
+
+                        markovChain.appendChild(probability);
+                    } else {
+                        // 普通箭头
+                        const dx = toCenterX - fromCenterX;
+                        const dy = toCenterY - fromCenterY;
+                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                        const length = Math.sqrt(dx*dx + dy*dy) - 80; // 减去节点半径
+
+                        arrow.style.top = `${fromCenterY - markovChain.getBoundingClientRect().top}px`;
+                        arrow.style.left = `${fromCenterX - markovChain.getBoundingClientRect().left}px`;
+                        arrow.style.width = `${length}px`;
+                        arrow.style.transform = `rotate(${angle}deg)`;
+
+                        // 概率标签
+                        const probability = document.createElement('div');
+                        probability.className = 'probability';
+                        probability.textContent = data.label;
+
+                        const midX = fromCenterX + dx/2;
+                        const midY = fromCenterY + dy/2;
+
+                        probability.style.top = `${midY - markovChain.getBoundingClientRect().top - 15}px`;
+                        probability.style.left = `${midX - markovChain.getBoundingClientRect().left - 10}px`;
+
+                        markovChain.appendChild(probability);
+                    }
+                });
+            }
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.8, ease: "power3.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.3})
+                   .to("#markovChain", {opacity: 1, scale: 1, y: 0})
+                   .to("#intro", {opacity: 1, y: 0});
+
+            // 在合适的时机调用创建箭头函数
+            setTimeout(createArrows, 1000);
+        });
+    </script><div class="slide flex flex-col p-8 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 页面标题 -->
+<div class="z-10 text-center mb-8 fade-in" id="title">
+<h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的概念</h2>
+<div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+</div>
+<div class="flex flex-row justify-between z-10">
+<!-- 左侧：概念和定义 -->
+<div class="w-1/2 pr-6 flex flex-col space-y-6">
+<!-- 马尔科夫性质 -->
+<div class="concept-box p-5 markov-property fade-in" id="markov-property">
+<h3 class="text-xl font-bold text-blue-700 mb-3">
+<i class="fas fa-bookmark mr-2"></i>马尔科夫性质（无记忆性）
+                    </h3>
+<p class="text-gray-700 mb-4">
+                        马尔科夫性质是指系统的未来状态仅依赖于当前状态，而与过去的历史状态无关。这种特性也被称为"无记忆性"。
+                    </p>
+<div class="bg-blue-50 p-3 rounded-md border border-blue-200 fade-in" id="math-definition">
+<p class="text-center text-blue-800 font-semibold">数学定义</p>
+<div class="text-center py-2" id="markov-equation">
+                            P(X<sub>n+1</sub>=j | X<sub>n</sub>=i, X<sub>n-1</sub>=i<sub>n-1</sub>,...,X<sub>0</sub>=i<sub>0</sub>) = P(X<sub>n+1</sub>=j | X<sub>n</sub>=i) = P<sub>ij</sub>
+</div>
+</div>
+</div>
+<!-- 马尔科夫链基本概念 -->
+<div class="concept-box p-5 fade-in" id="markov-basics">
+<h3 class="text-xl font-bold text-blue-700 mb-3">
+<i class="fas fa-link mr-2"></i>马尔科夫链基本概念
+                    </h3>
+<ul class="list-disc list-inside space-y-2 text-gray-700">
+<li><span class="font-semibold text-blue-600">状态空间(S)</span>：系统可能处于的所有状态的集合</li>
+<li><span class="font-semibold text-blue-600">转移概率(P)</span>：从一个状态转移到另一个状态的概率</li>
+<li><span class="font-semibold text-blue-600">状态转移矩阵</span>：记录所有可能状态之间转移概率的矩阵</li>
+<li><span class="font-semibold text-blue-600">初始分布(π<sub>0</sub>)</span>：系统初始状态的概率分布</li>
+</ul>
+</div>
+</div>
+<!-- 右侧：可视化和矩阵 -->
+<div class="w-1/2 pl-6 flex flex-col space-y-6">
+<!-- 状态转移矩阵 -->
+<div class="transition-matrix p-4 fade-in" id="matrix">
+<h3 class="text-xl font-bold text-blue-700 mb-2 text-center">
+<i class="fas fa-table mr-2"></i>状态转移矩阵
+                    </h3>
+<div class="matrix-box my-4" id="transition-matrix">
+<div class="matrix-cell" data-from="A" data-to="A">0.7</div>
+<div class="matrix-cell" data-from="A" data-to="B">0.2</div>
+<div class="matrix-cell" data-from="A" data-to="C">0.1</div>
+<div class="matrix-cell" data-from="B" data-to="A">0.3</div>
+<div class="matrix-cell" data-from="B" data-to="B">0.5</div>
+<div class="matrix-cell" data-from="B" data-to="C">0.2</div>
+<div class="matrix-cell" data-from="C" data-to="A">0.2</div>
+<div class="matrix-cell" data-from="C" data-to="B">0.3</div>
+<div class="matrix-cell" data-from="C" data-to="C">0.5</div>
+</div>
+<div class="text-center text-sm text-gray-600">
+                        P<sub>ij</sub> 表示从状态 i 到状态 j 的转移概率
+                    </div>
+</div>
+<!-- 马尔科夫链可视化 -->
+<div class="graph-visualization p-4 fade-in" id="visualization">
+<h3 class="text-xl font-bold text-blue-700 mb-2 text-center">
+<i class="fas fa-project-diagram mr-2"></i>马尔科夫链可视化
+                    </h3>
+<div class="relative h-full" id="markov-graph">
+<div class="state-node" id="stateA" style="top: 50px; left: 195px;">A</div>
+<div class="state-node" id="stateB" style="top: 180px; left: 105px;">B</div>
+<div class="state-node" id="stateC" style="top: 180px; left: 285px;">C</div>
+<!-- 箭头和标签将通过JavaScript生成 -->
+</div>
+</div>
+</div>
+</div>
+<!-- 底部：核心特点总结 -->
+<div class="mt-auto pt-4 z-10">
+<div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 fade-in" id="summary">
+<h3 class="text-lg font-bold text-blue-700 mb-2">
+<i class="fas fa-lightbulb mr-2"></i>核心特点
+                </h3>
+<div class="flex flex-row justify-between">
+<div class="flex items-center">
+<i class="fas fa-random text-blue-500 text-2xl mr-3"></i>
+<p class="text-gray-700">状态转移只依赖<br/>当前状态</p>
+</div>
+<div class="flex items-center">
+<i class="fas fa-history text-blue-500 text-2xl mr-3"></i>
+<p class="text-gray-700">历史路径<br/>不影响未来</p>
+</div>
+<div class="flex items-center">
+<i class="fas fa-calculator text-blue-500 text-2xl mr-3"></i>
+<p class="text-gray-700">通过转移概率<br/>预测未来状态</p>
+</div>
+<div class="flex items-center">
+<i class="fas fa-balance-scale text-blue-500 text-2xl mr-3"></i>
+<p class="text-gray-700">长期行为趋向<br/>稳定分布</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 创建马尔科夫链可视化的箭头和标签
+            function createArrows() {
+                const graph = document.getElementById('markov-graph');
+                const stateA = document.getElementById('stateA');
+                const stateB = document.getElementById('stateB');
+                const stateC = document.getElementById('stateC');
+
+                // 定义转移连接
+                const transitions = [
+                    { from: stateA, to: stateA, label: "0.7", selfLoop: true, angle: -45 },
+                    { from: stateA, to: stateB, label: "0.2" },
+                    { from: stateA, to: stateC, label: "0.1" },
+                    { from: stateB, to: stateA, label: "0.3" },
+                    { from: stateB, to: stateB, label: "0.5", selfLoop: true, angle: -135 },
+                    { from: stateB, to: stateC, label: "0.2" },
+                    { from: stateC, to: stateA, label: "0.2" },
+                    { from: stateC, to: stateB, label: "0.3" },
+                    { from: stateC, to: stateC, label: "0.5", selfLoop: true, angle: -315 }
+                ];
+
+                transitions.forEach(t => {
+                    const fromRect = t.from.getBoundingClientRect();
+                    const toRect = t.to.getBoundingClientRect();
+                    const graphRect = graph.getBoundingClientRect();
+
+                    if (t.selfLoop) {
+                        // 创建自循环箭头
+                        const loop = document.createElement('div');
+                        loop.style.position = 'absolute';
+                        loop.style.width = '30px';
+                        loop.style.height = '30px';
+                        loop.style.borderRadius = '50%';
+                        loop.style.borderTop = '2px solid #3b82f6';
+                        loop.style.borderRight = '2px solid #3b82f6';
+                        loop.style.top = (fromRect.top - graphRect.top - 25) + 'px';
+                        loop.style.left = (fromRect.left - graphRect.left + 15) + 'px';
+                        loop.style.transform = `rotate(${t.angle}deg)`;
+                        graph.appendChild(loop);
+
+                        // 添加标签
+                        const label = document.createElement('div');
+                        label.className = 'transition-label';
+                        label.textContent = t.label;
+                        label.style.top = (fromRect.top - graphRect.top - 20) + 'px';
+                        label.style.left = (fromRect.left - graphRect.left + 45) + 'px';
+                        graph.appendChild(label);
+
+                    } else {
+                        // 创建普通箭头
+                        const fromX = fromRect.left - graphRect.left + fromRect.width/2;
+                        const fromY = fromRect.top - graphRect.top + fromRect.height/2;
+                        const toX = toRect.left - graphRect.left + toRect.width/2;
+                        const toY = toRect.top - graphRect.top + toRect.height/2;
+
+                        const dx = toX - fromX;
+                        const dy = toY - fromY;
+                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                        const radius = 30; // 节点半径
+                        const fromAngle = angle * Math.PI / 180;
+                        const startX = fromX + Math.cos(fromAngle) * radius;
+                        const startY = fromY + Math.sin(fromAngle) * radius;
+
+                        const toAngle = (angle + 180) * Math.PI / 180;
+                        const endX = toX + Math.cos(toAngle) * radius;
+                        const endY = toY + Math.sin(toAngle) * radius;
+
+                        const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+
+                        const arrow = document.createElement('div');
+                        arrow.className = 'transition-arrow';
+                        arrow.style.width = length + 'px';
+                        arrow.style.left = startX + 'px';
+                        arrow.style.top = startY + 'px';
+                        arrow.style.transform = `rotate(${angle}deg)`;
+                        graph.appendChild(arrow);
+
+                        // 添加标签
+                        const label = document.createElement('div');
+                        label.className = 'transition-label';
+                        label.textContent = t.label;
+                        label.style.top = (startY + (endY - startY) / 2 - 10) + 'px';
+                        label.style.left = (startX + (endX - startX) / 2 - 10) + 'px';
+                        graph.appendChild(label);
+                    }
+                });
+            }
+
+            // 高亮显示转移矩阵单元格时联动高亮对应的箭头
+            function setupMatrixInteraction() {
+                const cells = document.querySelectorAll('.matrix-cell');
+
+                cells.forEach(cell => {
+                    cell.addEventListener('mouseover', function() {
+                        const from = this.dataset.from;
+                        const to = this.dataset.to;
+                        this.style.backgroundColor = '#93c5fd';
+
+                        // 在这里可以添加高亮对应箭头的逻辑
+                    });
+
+                    cell.addEventListener('mouseout', function() {
+                        this.style.backgroundColor = '#f0f7ff';
+                    });
+                });
+            }
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.6, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#markov-property", {opacity: 1, y: 0})
+                   .to("#math-definition", {opacity: 1, y: 0, delay: -0.3})
+                   .to("#markov-basics", {opacity: 1, y: 0})
+                   .to("#matrix", {opacity: 1, scale: 1})
+                   .to("#visualization", {opacity: 1, scale: 1})
+                   .to("#summary", {opacity: 1, y: 0});
+
+            // 在合适的时机调用创建箭头函数
+            setTimeout(createArrows, 1500);
+            setTimeout(setupMatrixInteraction, 2000);
+        });
+    </script><div class="slide flex flex-col p-8 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 页面标题 -->
+<div class="z-10 text-center mb-6 fade-in" id="title">
+<h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的历史发展</h2>
+<div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+</div>
+<!-- 人物介绍 -->
+<div class="flex flex-row items-center justify-center mb-8 z-10 fade-in" id="founder">
+<div class="flex flex-col items-center mr-10">
+<img alt="安德烈·马尔科夫" class="markov-portrait" src="https://upload.wikimedia.org/wikipedia/commons/d/de/Andrei_Markov.jpg"/>
+<p class="text-center mt-2 text-sm text-gray-600">安德烈·马尔科夫<br/>(1856-1922)</p>
+</div>
+<div class="max-w-md">
+<div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-blue-500">
+<h3 class="text-xl font-bold text-blue-700 mb-2">马尔科夫模型的创始人</h3>
+<p class="text-gray-700">
+                        俄国数学家安德烈·马尔科夫于1906年首次提出了马尔科夫链的概念，用于研究具有"无记忆性"特性的随机过程。他的开创性工作最初应用于分析俄语文学中字母序列出现的规律，并为概率论开辟了新的研究方向。
+                    </p>
+</div>
+</div>
+</div>
+<!-- 历史时间线 -->
+<div class="timeline z-10 mt-2 mb-4">
+<div class="timeline-item left fade-in" id="timeline-1">
+<div class="timeline-dot-line"></div>
+<div class="content">
+<div class="timeline-year"><i class="fas fa-landmark mr-2"></i>1906-1913</div>
+<h3 class="font-semibold text-blue-700">马尔科夫链的诞生</h3>
+<p class="text-sm text-gray-700">
+                        马尔科夫在《概率计算扩展》论文中首次提出马尔科夫链概念，并应用于分析俄语文学作品《叶甫盖尼·奥涅金》中字母序列的出现概率。
+                    </p>
+</div>
+</div>
+<div class="timeline-item right fade-in" id="timeline-2">
+<div class="timeline-dot-line"></div>
+<div class="content">
+<div class="timeline-year"><i class="fas fa-users mr-2"></i>1930年代</div>
+<h3 class="font-semibold text-blue-700">理论扩展与应用</h3>
+<p class="text-sm text-gray-700">
+                        科尔莫戈罗夫(Kolmogorov)和其他数学家扩展了马尔科夫链理论，建立了连续时间马尔科夫过程理论，为更广泛的应用奠定基础。
+                    </p>
+</div>
+</div>
+<div class="timeline-item left fade-in" id="timeline-3">
+<div class="timeline-dot-line"></div>
+<div class="content">
+<div class="timeline-year"><i class="fas fa-code mr-2"></i>1950-1960年代</div>
+<h3 class="font-semibold text-blue-700">隐马尔科夫模型的提出</h3>
+<p class="text-sm text-gray-700">
+                        Leonard E. Baum和其他研究者开发了隐马尔科夫模型(HMM)，为处理观察不到的状态提供了数学框架，极大扩展了应用范围。
+                    </p>
+</div>
+</div>
+<div class="timeline-item right fade-in" id="timeline-4">
+<div class="timeline-dot-line"></div>
+<div class="content">
+<div class="timeline-year"><i class="fas fa-microphone mr-2"></i>1970-1980年代</div>
+<h3 class="font-semibold text-blue-700">语音识别应用</h3>
+<p class="text-sm text-gray-700">
+                        隐马尔科夫模型在语音识别领域取得重大突破，成为当时自动语音识别系统的主流技术，IBM和AT&amp;T等公司开始广泛应用。
+                    </p>
+</div>
+</div>
+<div class="timeline-item left fade-in" id="timeline-5">
+<div class="timeline-dot-line"></div>
+<div class="content">
+<div class="timeline-year"><i class="fas fa-dna mr-2"></i>1990年代-2000年代</div>
+<h3 class="font-semibold text-blue-700">生物信息学应用</h3>
+<p class="text-sm text-gray-700">
+                        马尔科夫模型被应用于DNA序列分析、蛋白质结构预测等生物信息学领域，成为基因组研究的重要工具。
+                    </p>
+</div>
+</div>
+<div class="timeline-item right fade-in" id="timeline-6">
+<div class="timeline-dot-line"></div>
+<div class="content">
+<div class="timeline-year"><i class="fas fa-robot mr-2"></i>2000年代至今</div>
+<h3 class="font-semibold text-blue-700">机器学习与现代应用</h3>
+<p class="text-sm text-gray-700">
+                        马尔科夫决策过程成为强化学习的理论基础，马尔科夫随机场应用于图像处理，马尔科夫链蒙特卡洛方法广泛用于复杂系统模拟。
+                    </p>
+</div>
+</div>
+</div>
+<!-- 底部：历史意义总结 -->
+<div class="mt-auto z-10">
+<div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 fade-in" id="impact">
+<h3 class="text-lg font-bold text-blue-700 mb-2">
+<i class="fas fa-history mr-2"></i>历史意义
+                </h3>
+<div class="flex flex-row justify-between text-sm">
+<div class="flex items-start max-w-xs">
+<i class="fas fa-university text-blue-500 text-xl mt-1 mr-3"></i>
+<p class="text-gray-700">
+                            马尔科夫的研究工作开创了随机过程理论的新领域，是概率论发展史上的里程碑
+                        </p>
+</div>
+<div class="flex items-start max-w-xs">
+<i class="fas fa-lightbulb text-blue-500 text-xl mt-1 mr-3"></i>
+<p class="text-gray-700">
+                            从纯数学理论发展为各领域中解决实际问题的实用工具，展示了数学与应用科学的紧密结合
+                        </p>
+</div>
+<div class="flex items-start max-w-xs">
+<i class="fas fa-rocket text-blue-500 text-xl mt-1 mr-3"></i>
+<p class="text-gray-700">
+                            马尔科夫模型的发展历程体现了科学理论如何通过不断拓展和适应新问题而保持活力
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#founder", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#timeline-1", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-2", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-3", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-4", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-5", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#timeline-6", {opacity: 1, x: 0, delay: 0.1})
+                   .to("#impact", {opacity: 1, y: 0, delay: 0.1});
+        });
+    </script><div class="slide flex flex-col p-8 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 页面标题 -->
+<div class="z-10 text-center mb-6 fade-in" id="title">
+<h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的应用场景</h2>
+<div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+</div>
+<div class="flex flex-row z-10 mb-6">
+<!-- 左侧：应用卡片 -->
+<div class="w-2/3 grid grid-cols-3 gap-4 pr-4">
+<!-- 自然语言处理 -->
+<div class="fade-in" id="nlp-card">
+<div class="app-card p-4">
+<div class="card-border-top bg-blue-500"></div>
+<div class="flex items-center mb-2">
+<div class="app-icon-bg bg-blue-100">
+<i class="fas fa-language text-blue-600 text-xl"></i>
+</div>
+<h3 class="text-lg font-bold text-gray-800 ml-2">自然语言处理</h3>
+</div>
+<p class="text-sm text-gray-600 mb-3">
+                            马尔科夫模型用于文本生成、词性标注和语言建模等任务
+                        </p>
+<ul class="text-xs text-gray-700">
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-blue-500 mr-1"></i> N-gram语言模型
+                            </li>
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-blue-500 mr-1"></i> 自动文本摘要
+                            </li>
+<li class="flex items-center">
+<i class="fas fa-check-circle text-blue-500 mr-1"></i> 拼写检查与纠错
+                            </li>
+</ul>
+</div>
+</div>
+<!-- 语音识别 -->
+<div class="fade-in" id="speech-card">
+<div class="app-card p-4">
+<div class="card-border-top bg-indigo-500"></div>
+<div class="flex items-center mb-2">
+<div class="app-icon-bg bg-indigo-100">
+<i class="fas fa-microphone text-indigo-600 text-xl"></i>
+</div>
+<h3 class="text-lg font-bold text-gray-800 ml-2">语音识别</h3>
+</div>
+<p class="text-sm text-gray-600 mb-3">
+                            隐马尔科夫模型是早期语音识别系统的核心组件
+                        </p>
+<ul class="text-xs text-gray-700">
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-indigo-500 mr-1"></i> 语音信号处理
+                            </li>
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-indigo-500 mr-1"></i> 音素和词识别
+                            </li>
+<li class="flex items-center">
+<i class="fas fa-check-circle text-indigo-500 mr-1"></i> 声学模型训练
+                            </li>
+</ul>
+</div>
+</div>
+<!-- 图像处理 -->
+<div class="fade-in" id="image-card">
+<div class="app-card p-4">
+<div class="card-border-top bg-purple-500"></div>
+<div class="flex items-center mb-2">
+<div class="app-icon-bg bg-purple-100">
+<i class="fas fa-image text-purple-600 text-xl"></i>
+</div>
+<h3 class="text-lg font-bold text-gray-800 ml-2">图像处理</h3>
+</div>
+<p class="text-sm text-gray-600 mb-3">
+                            马尔科夫随机场在图像分割和纹理分析中得到广泛应用
+                        </p>
+<ul class="text-xs text-gray-700">
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-purple-500 mr-1"></i> 图像分割与标注
+                            </li>
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-purple-500 mr-1"></i> 纹理建模与合成
+                            </li>
+<li class="flex items-center">
+<i class="fas fa-check-circle text-purple-500 mr-1"></i> 图像修复与降噪
+                            </li>
+</ul>
+</div>
+</div>
+<!-- 金融市场分析 -->
+<div class="fade-in" id="finance-card">
+<div class="app-card p-4">
+<div class="card-border-top bg-green-500"></div>
+<div class="flex items-center mb-2">
+<div class="app-icon-bg bg-green-100">
+<i class="fas fa-chart-line text-green-600 text-xl"></i>
+</div>
+<h3 class="text-lg font-bold text-gray-800 ml-2">金融市场分析</h3>
+</div>
+<p class="text-sm text-gray-600 mb-3">
+                            用于建模股票价格变动和风险评估的隐马尔科夫模型
+                        </p>
+<ul class="text-xs text-gray-700">
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-green-500 mr-1"></i> 股票价格预测
+                            </li>
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-green-500 mr-1"></i> 市场状态识别
+                            </li>
+<li class="flex items-center">
+<i class="fas fa-check-circle text-green-500 mr-1"></i> 投资风险评估
+                            </li>
+</ul>
+</div>
+</div>
+<!-- 生物信息学 -->
+<div class="fade-in" id="bio-card">
+<div class="app-card p-4">
+<div class="card-border-top bg-red-500"></div>
+<div class="flex items-center mb-2">
+<div class="app-icon-bg bg-red-100">
+<i class="fas fa-dna text-red-600 text-xl"></i>
+</div>
+<h3 class="text-lg font-bold text-gray-800 ml-2">生物信息学</h3>
+</div>
+<p class="text-sm text-gray-600 mb-3">
+                            在基因序列分析和蛋白质结构预测中的应用
+                        </p>
+<ul class="text-xs text-gray-700">
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-red-500 mr-1"></i> DNA序列分析
+                            </li>
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-red-500 mr-1"></i> 基因识别与预测
+                            </li>
+<li class="flex items-center">
+<i class="fas fa-check-circle text-red-500 mr-1"></i> 蛋白质结构预测
+                            </li>
+</ul>
+</div>
+</div>
+<!-- 搜索引擎算法 -->
+<div class="fade-in" id="search-card">
+<div class="app-card p-4">
+<div class="card-border-top bg-yellow-500"></div>
+<div class="flex items-center mb-2">
+<div class="app-icon-bg bg-yellow-100">
+<i class="fas fa-search text-yellow-600 text-xl"></i>
+</div>
+<h3 class="text-lg font-bold text-gray-800 ml-2">搜索引擎算法</h3>
+</div>
+<p class="text-sm text-gray-600 mb-3">
+                            PageRank算法使用马尔科夫链模型进行网页排名
+                        </p>
+<ul class="text-xs text-gray-700">
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-yellow-500 mr-1"></i> 网页排名算法
+                            </li>
+<li class="flex items-center mb-1">
+<i class="fas fa-check-circle text-yellow-500 mr-1"></i> 搜索结果优化
+                            </li>
+<li class="flex items-center">
+<i class="fas fa-check-circle text-yellow-500 mr-1"></i> 用户行为预测
+                            </li>
+</ul>
+</div>
+</div>
+</div>
+<!-- 右侧：应用统计和示例 -->
+<div class="w-1/3 flex flex-col space-y-4">
+<!-- 应用领域统计图表 -->
+<div class="bg-white rounded-lg p-4 shadow-md fade-in" id="stats-chart">
+<h3 class="text-lg font-bold text-gray-800 mb-2">应用领域分布</h3>
+<div class="usage-chart-container">
+<canvas id="applicationChart"></canvas>
+</div>
+</div>
+<!-- 实际案例展示 -->
+<div class="bg-white rounded-lg p-4 shadow-md flex-grow fade-in" id="case-study">
+<h3 class="text-lg font-bold text-gray-800 mb-2">
+<i class="fas fa-lightbulb text-blue-500 mr-2"></i>典型应用案例
+                    </h3>
+<div class="border-l-4 border-blue-500 pl-3 py-1 mb-3">
+<h4 class="font-semibold text-blue-700">谷歌PageRank算法</h4>
+<p class="text-sm text-gray-600">将网页链接结构建模为马尔科夫链，通过计算用户随机点击链接时最终到达各网页的概率来确定网页排名</p>
+</div>
+<div class="border-l-4 border-indigo-500 pl-3 py-1 mb-3">
+<h4 class="font-semibold text-indigo-700">语音助手</h4>
+<p class="text-sm text-gray-600">早期的Siri、Alexa等语音助手使用HMM进行语音识别，将声音信号转换为文字命令</p>
+</div>
+<div class="border-l-4 border-green-500 pl-3 py-1">
+<h4 class="font-semibold text-green-700">天气预报模型</h4>
+<p class="text-sm text-gray-600">通过历史天气数据建立马尔科夫模型，预测未来天气状态的转变概率</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部：不同类型的马尔科夫模型与应用关系 -->
+<div class="mt-auto z-10 fade-in" id="models-summary">
+<div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500">
+<h3 class="text-lg font-bold text-blue-700 mb-2">
+<i class="fas fa-sitemap mr-2"></i>马尔科夫模型家族与对应应用
+                </h3>
+<div class="flex flex-row justify-between">
+<div class="bg-white rounded-lg p-3 shadow-sm flex items-center">
+<div class="rounded-full w-8 h-8 bg-blue-100 flex items-center justify-center mr-2">
+<i class="fas fa-link text-blue-600"></i>
+</div>
+<div>
+<h4 class="font-semibold text-blue-700 text-sm">马尔科夫链</h4>
+<p class="text-xs text-gray-600">文本生成、网页排名、时序预测</p>
+</div>
+</div>
+<div class="bg-white rounded-lg p-3 shadow-sm flex items-center">
+<div class="rounded-full w-8 h-8 bg-purple-100 flex items-center justify-center mr-2">
+<i class="fas fa-eye-slash text-purple-600"></i>
+</div>
+<div>
+<h4 class="font-semibold text-purple-700 text-sm">隐马尔科夫模型</h4>
+<p class="text-xs text-gray-600">语音识别、手势识别、基因序列分析</p>
+</div>
+</div>
+<div class="bg-white rounded-lg p-3 shadow-sm flex items-center">
+<div class="rounded-full w-8 h-8 bg-green-100 flex items-center justify-center mr-2">
+<i class="fas fa-project-diagram text-green-600"></i>
+</div>
+<div>
+<h4 class="font-semibold text-green-700 text-sm">马尔科夫随机场</h4>
+<p class="text-xs text-gray-600">图像处理、计算机视觉、空间数据分析</p>
+</div>
+</div>
+<div class="bg-white rounded-lg p-3 shadow-sm flex items-center">
+<div class="rounded-full w-8 h-8 bg-red-100 flex items-center justify-center mr-2">
+<i class="fas fa-chess text-red-600"></i>
+</div>
+<div>
+<h4 class="font-semibold text-red-700 text-sm">马尔科夫决策过程</h4>
+<p class="text-xs text-gray-600">强化学习、机器人路径规划、游戏AI</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 应用领域统计图表
+            const ctx = document.getElementById('applicationChart').getContext('2d');
+            const applicationChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['自然语言处理', '语音识别', '图像处理', '金融分析', '生物信息学', '搜索引擎', '其他'],
+                    datasets: [{
+                        data: [25, 20, 15, 12, 10, 8, 10],
+                        backgroundColor: [
+                            '#3b82f6', // 蓝色 - NLP
+                            '#6366f1', // 靛蓝色 - 语音
+                            '#a855f7', // 紫色 - 图像
+                            '#10b981', // 绿色 - 金融
+                            '#ef4444', // 红色 - 生物
+                            '#f59e0b', // 黄色 - 搜索
+                            '#6b7280'  // 灰色 - 其他
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 15,
+                                padding: 15,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#nlp-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#speech-card", {opacity: 1, y: 0, delay: 0.05})
+                   .to("#image-card", {opacity: 1, y: 0, delay: 0.05})
+                   .to("#finance-card", {opacity: 1, y: 0, delay: 0.05})
+                   .to("#bio-card", {opacity: 1, y: 0, delay: 0.05})
+                   .to("#search-card", {opacity: 1, y: 0, delay: 0.05})
+                   .to("#stats-chart", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#case-study", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#models-summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 添加卡片悬停效果
+            const cards = document.querySelectorAll('.app-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -5, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                card.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+        });
+    </script><div class="slide flex flex-col p-8 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 页面标题 -->
+<div class="z-10 text-center mb-6 fade-in" id="title">
+<h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的局限性与不适用场景</h2>
+<div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+</div>
+<div class="flex flex-row gap-6 z-10">
+<!-- 左侧：局限性列表 -->
+<div class="w-1/2">
+<div class="mb-4 fade-in" id="limitations-title">
+<h3 class="text-xl font-bold text-blue-700 flex items-center">
+<i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i>主要局限性
+                    </h3>
+</div>
+<!-- 马尔科夫性质限制 -->
+<div class="limitation-card p-4 mb-3 border-l-4 border-amber-500 fade-in" id="limitation-1">
+<div class="flex">
+<div class="warning-icon bg-amber-100 text-amber-600">
+<i class="fas fa-history"></i>
+</div>
+<div>
+<h4 class="font-semibold text-gray-800">无记忆性限制</h4>
+<p class="text-sm text-gray-600">仅考虑当前状态，忽略历史路径信息，无法处理需要较长历史信息的问题</p>
+</div>
+</div>
+</div>
+<!-- 长程依赖问题 -->
+<div class="limitation-card p-4 mb-3 border-l-4 border-red-500 fade-in" id="limitation-2">
+<div class="flex">
+<div class="warning-icon bg-red-100 text-red-600">
+<i class="fas fa-link"></i>
+</div>
+<div>
+<h4 class="font-semibold text-gray-800">长程依赖问题</h4>
+<p class="text-sm text-gray-600">难以有效捕捉远距离事件之间的关系，对需要长期记忆的序列模式表现不佳</p>
+</div>
+</div>
+</div>
+<!-- 状态爆炸问题 -->
+<div class="limitation-card p-4 mb-3 border-l-4 border-purple-500 fade-in" id="limitation-3">
+<div class="flex">
+<div class="warning-icon bg-purple-100 text-purple-600">
+<i class="fas fa-bomb"></i>
+</div>
+<div>
+<h4 class="font-semibold text-gray-800">状态爆炸问题</h4>
+<p class="text-sm text-gray-600">随着状态数量或高阶依赖关系增加，模型复杂度呈指数级增长，计算成本大幅提高</p>
+</div>
+</div>
+</div>
+<!-- 平稳过程假设 -->
+<div class="limitation-card p-4 border-l-4 border-blue-500 fade-in" id="limitation-4">
+<div class="flex">
+<div class="warning-icon bg-blue-100 text-blue-600">
+<i class="fas fa-balance-scale"></i>
+</div>
+<div>
+<h4 class="font-semibold text-gray-800">平稳过程假设</h4>
+<p class="text-sm text-gray-600">假设转移概率在整个过程中保持不变，难以适应动态变化的环境和非平稳过程</p>
+</div>
+</div>
+</div>
+<!-- 训练数据需求 -->
+<div class="limitation-card p-4 mt-3 border-l-4 border-green-500 fade-in" id="limitation-5">
+<div class="flex">
+<div class="warning-icon bg-green-100 text-green-600">
+<i class="fas fa-database"></i>
+</div>
+<div>
+<h4 class="font-semibold text-gray-800">数据稀疏性问题</h4>
+<p class="text-sm text-gray-600">需要大量数据才能准确估计转移概率，在数据稀疏情况下容易过拟合</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 右侧：不适用场景和替代方案 -->
+<div class="w-1/2">
+<!-- 不适用场景 -->
+<div class="mb-4 fade-in" id="unsuitable-title">
+<h3 class="text-xl font-bold text-blue-700 flex items-center">
+<i class="fas fa-ban text-red-500 mr-2"></i>不适用场景
+                    </h3>
+</div>
+<div class="limitation-card p-4 mb-4 fade-in" id="unsuitable-scenarios">
+<ul class="space-y-3">
+<li class="flex items-start">
+<i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+<div>
+<span class="font-semibold text-gray-800">需要长期记忆的任务</span>
+<p class="text-xs text-gray-600">如长文本理解、复杂对话系统、用户行为长期趋势分析</p>
+</div>
+</li>
+<li class="flex items-start">
+<i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+<div>
+<span class="font-semibold text-gray-800">非平稳动态系统</span>
+<p class="text-xs text-gray-600">转移概率随时间变化的系统，如快速变化的用户兴趣、金融市场剧烈波动期</p>
+</div>
+</li>
+<li class="flex items-start">
+<i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+<div>
+<span class="font-semibold text-gray-800">连续状态空间问题</span>
+<p class="text-xs text-gray-600">需要精确模拟连续数值变化的场景，如精确的传感器数据分析</p>
+</div>
+</li>
+<li class="flex items-start">
+<i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+<div>
+<span class="font-semibold text-gray-800">需要因果关系推理的场景</span>
+<p class="text-xs text-gray-600">需要理解事件之间因果关系而非仅相关性的分析任务</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- 模型性能对比图表 -->
+<div class="limitation-card p-4 mb-4 fade-in" id="comparison-chart">
+<h3 class="text-md font-bold text-gray-700 mb-2">不同模型在长期依赖任务中的性能</h3>
+<div class="comparison-chart-container">
+<canvas id="modelComparisonChart"></canvas>
+</div>
+</div>
+<!-- 替代方案 -->
+<div class="limitation-card p-4 fade-in" id="alternatives">
+<h3 class="text-md font-bold text-gray-700 mb-2 flex items-center">
+<i class="fas fa-lightbulb text-yellow-500 mr-2"></i>替代方案
+                    </h3>
+<div class="grid grid-cols-2 gap-3">
+<div class="alternative-item p-2 bg-blue-50 rounded-md">
+<div class="font-semibold text-blue-700 text-sm">循环神经网络 (RNN/LSTM)</div>
+<p class="text-xs text-gray-600">适用于长期依赖关系的序列数据</p>
+</div>
+<div class="alternative-item p-2 bg-purple-50 rounded-md">
+<div class="font-semibold text-purple-700 text-sm">变阶马尔科夫模型</div>
+<p class="text-xs text-gray-600">根据上下文动态调整马尔科夫链的阶数</p>
+</div>
+<div class="alternative-item p-2 bg-green-50 rounded-md">
+<div class="font-semibold text-green-700 text-sm">Transformer 模型</div>
+<p class="text-xs text-gray-600">通过自注意力机制捕获长距离依赖</p>
+</div>
+<div class="alternative-item p-2 bg-red-50 rounded-md">
+<div class="font-semibold text-red-700 text-sm">贝叶斯网络</div>
+<p class="text-xs text-gray-600">适用于需要明确因果关系的场景</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部：总结提示 -->
+<div class="mt-auto pt-4 z-10">
+<div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 fade-in" id="summary">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<i class="fas fa-lightbulb text-amber-500 text-2xl mr-3"></i>
+<div>
+<h3 class="text-md font-bold text-blue-700">选择正确的工具</h3>
+<p class="text-sm text-gray-700">马尔科夫模型在简单状态转移场景中效果出色，但对于复杂任务需谨慎评估其局限性</p>
+</div>
+</div>
+<div class="flex items-center">
+<i class="fas fa-balance-scale text-blue-500 text-2xl mr-3"></i>
+<div>
+<h3 class="text-md font-bold text-blue-700">权衡利弊</h3>
+<p class="text-sm text-gray-700">在模型简洁性、计算效率与捕捉复杂依赖关系之间寻找平衡点</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 模型性能对比图表
+            const ctx = document.getElementById('modelComparisonChart').getContext('2d');
+            const modelComparisonChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        '长期依赖能力',
+                        '计算效率',
+                        '训练难度',
+                        '模型简洁性',
+                        '可解释性'
+                    ],
+                    datasets: [
+                        {
+                            label: '马尔科夫模型',
+                            data: [20, 90, 85, 95, 80],
+                            fill: true,
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            pointBackgroundColor: 'rgb(59, 130, 246)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(59, 130, 246)'
+                        },
+                        {
+                            label: 'LSTM/RNN',
+                            data: [85, 40, 30, 45, 35],
+                            fill: true,
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: 'rgb(16, 185, 129)',
+                            pointBackgroundColor: 'rgb(16, 185, 129)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(16, 185, 129)'
+                        },
+                        {
+                            label: 'Transformer',
+                            data: [95, 30, 20, 30, 40],
+                            fill: true,
+                            backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                            borderColor: 'rgb(139, 92, 246)',
+                            pointBackgroundColor: 'rgb(139, 92, 246)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(139, 92, 246)'
+                        }
+                    ]
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 2
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 10,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#limitations-title", {opacity: 1, y: 0})
+                   .to("#limitation-1", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#limitation-2", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#limitation-3", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#limitation-4", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#limitation-5", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#unsuitable-title", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#unsuitable-scenarios", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#comparison-chart", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#alternatives", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 卡片悬停效果
+            const limitationCards = document.querySelectorAll('.limitation-card');
+            limitationCards.forEach(card => {
+                card.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -3, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                card.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+        });
+    </script><div class="slide flex flex-col p-6 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 页面标题 -->
+<div class="z-10 text-center mb-4 fade-in" id="title">
+<h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型的多领域应用详解</h2>
+<div class="w-32 h-1 bg-blue-600 mx-auto"></div>
+</div>
+<div class="grid grid-cols-2 gap-5 flex-grow z-10">
+<!-- 自然语言处理应用 -->
+<div class="app-card fade-in" id="nlp-card">
+<div class="app-header bg-blue-600">
+<div class="flex items-center">
+<i class="fas fa-language text-2xl mr-2"></i>
+<span class="text-lg">自然语言处理</span>
+</div>
+<div class="bg-blue-800 rounded-full px-2 py-1 text-xs">N-gram &amp; HMM</div>
+</div>
+<div class="app-content">
+<div class="mb-3">
+<h4 class="font-bold text-blue-700 text-md mb-1">应用原理</h4>
+<p class="text-sm text-gray-700">将语言序列视为马尔科夫过程，每个词/字的出现仅依赖于前N个词/字，通过概率分布预测下一个可能的词汇</p>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-blue-700 text-md mb-1">特点与映射</h4>
+<div class="flex flex-wrap">
+<div class="characteristic-badge bg-blue-50 text-blue-700 border-blue-200">序列建模</div>
+<div class="characteristic-badge bg-blue-50 text-blue-700 border-blue-200">本地依赖</div>
+<div class="characteristic-badge bg-blue-50 text-blue-700 border-blue-200">上下文相关性</div>
+<div class="characteristic-badge bg-blue-50 text-blue-700 border-blue-200">概率转移</div>
+</div>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-blue-700 text-md mb-1">解决问题</h4>
+<div class="feature-item">
+<div class="feature-icon bg-blue-100 text-blue-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">词性标注：使用隐马尔科夫模型将词语映射到词性标签</div>
+</div>
+<div class="feature-item">
+<div class="feature-icon bg-blue-100 text-blue-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">文本生成：基于N-gram模型生成语法相似的新文本</div>
+</div>
+<div class="feature-item">
+<div class="feature-icon bg-blue-100 text-blue-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">拼写检查：计算不同单词序列的概率来纠正拼写错误</div>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-blue-700 text-md mb-1">应用案例</h4>
+<div class="flex flex-wrap">
+<div class="example-tag bg-blue-500">智能输入法</div>
+<div class="example-tag bg-blue-600">拼写纠错系统</div>
+<div class="example-tag bg-blue-500">机器翻译（早期）</div>
+<div class="example-tag bg-blue-600">文本分类器</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 语音识别应用 -->
+<div class="app-card fade-in" id="speech-card">
+<div class="app-header bg-indigo-600">
+<div class="flex items-center">
+<i class="fas fa-microphone text-2xl mr-2"></i>
+<span class="text-lg">语音识别</span>
+</div>
+<div class="bg-indigo-800 rounded-full px-2 py-1 text-xs">隐马尔科夫模型</div>
+</div>
+<div class="app-content">
+<div class="mb-3">
+<h4 class="font-bold text-indigo-700 text-md mb-1">应用原理</h4>
+<p class="text-sm text-gray-700">将音频信号特征作为观察序列，语音内容（音素/单词）作为隐藏状态，通过概率模型从观察中推断最可能的隐藏状态序列</p>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-indigo-700 text-md mb-1">特点与映射</h4>
+<div class="flex flex-wrap">
+<div class="characteristic-badge bg-indigo-50 text-indigo-700 border-indigo-200">观察与隐藏状态</div>
+<div class="characteristic-badge bg-indigo-50 text-indigo-700 border-indigo-200">发射概率</div>
+<div class="characteristic-badge bg-indigo-50 text-indigo-700 border-indigo-200">状态转移概率</div>
+<div class="characteristic-badge bg-indigo-50 text-indigo-700 border-indigo-200">动态规划解码</div>
+</div>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-indigo-700 text-md mb-1">解决问题</h4>
+<div class="feature-item">
+<div class="feature-icon bg-indigo-100 text-indigo-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">语音到文本转换：精确识别不同口音、环境下的语音</div>
+</div>
+<div class="feature-item">
+<div class="feature-icon bg-indigo-100 text-indigo-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">音素切分：将连续语音信号分割为独立音素单元</div>
+</div>
+<div class="feature-item">
+<div class="feature-icon bg-indigo-100 text-indigo-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">说话人识别：通过声音特征区分不同的说话人</div>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-indigo-700 text-md mb-1">应用案例</h4>
+<div class="flex flex-wrap">
+<div class="example-tag bg-indigo-500">早期Siri/Alexa</div>
+<div class="example-tag bg-indigo-600">电话语音导航</div>
+<div class="example-tag bg-indigo-500">听写软件</div>
+<div class="example-tag bg-indigo-600">CMU Sphinx系统</div>
+</div>
+</div>
+</div>
+</div>
+<!-- PageRank算法应用 -->
+<div class="app-card fade-in" id="pagerank-card">
+<div class="app-header bg-yellow-600">
+<div class="flex items-center">
+<i class="fas fa-search text-2xl mr-2"></i>
+<span class="text-lg">PageRank算法</span>
+</div>
+<div class="bg-yellow-800 rounded-full px-2 py-1 text-xs">马尔科夫链</div>
+</div>
+<div class="app-content">
+<div class="mb-3">
+<h4 class="font-bold text-yellow-700 text-md mb-1">应用原理</h4>
+<p class="text-sm text-gray-700">将网页间的链接结构建模为马尔科夫链，用户在网页间随机点击链接的过程视为随机游走，网页的重要性由其作为马尔科夫链平稳分布的概率值决定</p>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-yellow-700 text-md mb-1">特点与映射</h4>
+<div class="flex flex-wrap">
+<div class="characteristic-badge bg-yellow-50 text-yellow-700 border-yellow-200">随机游走</div>
+<div class="characteristic-badge bg-yellow-50 text-yellow-700 border-yellow-200">平稳分布</div>
+<div class="characteristic-badge bg-yellow-50 text-yellow-700 border-yellow-200">链接即转移概率</div>
+<div class="characteristic-badge bg-yellow-50 text-yellow-700 border-yellow-200">阻尼系数</div>
+</div>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-yellow-700 text-md mb-1">解决问题</h4>
+<div class="feature-item">
+<div class="feature-icon bg-yellow-100 text-yellow-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">网页排名：根据链接结构自动计算页面权重和重要性</div>
+</div>
+<div class="feature-item">
+<div class="feature-icon bg-yellow-100 text-yellow-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">反作弊机制：降低垃圾链接和链接农场的影响</div>
+</div>
+<div class="feature-item">
+<div class="feature-icon bg-yellow-100 text-yellow-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">权威性评估：识别网络中的高价值节点</div>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-yellow-700 text-md mb-1">应用案例</h4>
+<div class="flex flex-wrap">
+<div class="example-tag bg-yellow-500">Google搜索引擎</div>
+<div class="example-tag bg-yellow-600">学术引用分析</div>
+<div class="example-tag bg-yellow-500">社交网络分析</div>
+<div class="example-tag bg-yellow-600">推荐系统</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 图像处理应用 -->
+<div class="app-card fade-in" id="image-card">
+<div class="app-header bg-green-600">
+<div class="flex items-center">
+<i class="fas fa-image text-2xl mr-2"></i>
+<span class="text-lg">图像处理</span>
+</div>
+<div class="bg-green-800 rounded-full px-2 py-1 text-xs">马尔科夫随机场</div>
+</div>
+<div class="app-content">
+<div class="mb-3">
+<h4 class="font-bold text-green-700 text-md mb-1">应用原理</h4>
+<p class="text-sm text-gray-700">将图像像素或区域建模为无向图网络，相邻元素之间具有马尔科夫特性，通过局部相互作用和能量函数优化来处理图像</p>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-green-700 text-md mb-1">特点与映射</h4>
+<div class="flex flex-wrap">
+<div class="characteristic-badge bg-green-50 text-green-700 border-green-200">空间相关性</div>
+<div class="characteristic-badge bg-green-50 text-green-700 border-green-200">无向图结构</div>
+<div class="characteristic-badge bg-green-50 text-green-700 border-green-200">能量函数</div>
+<div class="characteristic-badge bg-green-50 text-green-700 border-green-200">局部条件依赖</div>
+</div>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-green-700 text-md mb-1">解决问题</h4>
+<div class="feature-item">
+<div class="feature-icon bg-green-100 text-green-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">图像分割：将图像区分为有意义的区域或对象</div>
+</div>
+<div class="feature-item">
+<div class="feature-icon bg-green-100 text-green-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">图像降噪：利用像素间相关性去除随机噪声</div>
+</div>
+<div class="feature-item">
+<div class="feature-icon bg-green-100 text-green-600">
+<i class="fas fa-check"></i>
+</div>
+<div class="text-sm text-gray-700">纹理合成：生成与样本相似的新纹理图像</div>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-green-700 text-md mb-1">应用案例</h4>
+<div class="flex flex-wrap">
+<div class="example-tag bg-green-500">医学图像分割</div>
+<div class="example-tag bg-green-600">遥感图像分析</div>
+<div class="example-tag bg-green-500">图像修复工具</div>
+<div class="example-tag bg-green-600">CRF图像标注</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部总结 -->
+<div class="mt-4 z-10 fade-in" id="summary">
+<div class="bg-blue-50 p-3 rounded-lg border-t-4 border-blue-500">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<i class="fas fa-lightbulb text-yellow-500 text-xl mr-2"></i>
+<div>
+<h3 class="text-sm font-bold text-blue-700">马尔科夫模型的共性</h3>
+<p class="text-xs text-gray-700">将复杂系统简化为状态转移过程，利用局部依赖性质有效解决现实世界中的顺序和空间相关问题</p>
+</div>
+</div>
+<div class="flex items-center">
+<i class="fas fa-code-branch text-blue-500 text-xl mr-2"></i>
+<div>
+<h3 class="text-sm font-bold text-blue-700">发展趋势</h3>
+<p class="text-xs text-gray-700">与深度学习结合，处理更复杂的依赖关系，同时保持概率框架的可解释性</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#nlp-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#speech-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#pagerank-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#image-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 卡片悬停效果
+            const cards = document.querySelectorAll('.app-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -5, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                card.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+        });
+    </script><div class="slide flex flex-col p-6 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 页面标题 -->
+<div class="z-10 text-center mb-4 fade-in" id="title">
+<h2 class="text-3xl font-bold text-indigo-800 mb-2">马尔科夫模型在语音识别中的应用</h2>
+<div class="w-32 h-1 bg-indigo-600 mx-auto mb-2"></div>
+<p class="text-gray-600 text-sm max-w-3xl mx-auto">隐马尔科夫模型(HMM)作为语音识别的核心技术，将语音信号映射为可观测状态，语音内容视为隐藏状态，通过概率关系实现识别</p>
+</div>
+<!-- 工作流程 -->
+<div class="speech-workflow z-10 mb-6">
+<div class="workflow-step flex items-start fade-in" id="step1">
+<div class="step-icon bg-indigo-100 text-indigo-600">
+<i class="fas fa-microphone"></i>
+</div>
+<div class="flex-grow">
+<h3 class="font-bold text-indigo-700 text-lg">1. 语音信号采集与预处理</h3>
+<p class="text-sm text-gray-600 mb-2">将连续的声音信号数字化并提取特征，常用MFCC特征提取方法</p>
+<div class="flex flex-wrap">
+<div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">声音采样</div>
+<div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">预加重</div>
+<div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">分帧</div>
+<div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">加窗</div>
+<div class="feature-badge bg-indigo-50 text-indigo-700 border-indigo-200">特征提取</div>
+</div>
+</div>
+</div>
+<div class="workflow-connector"></div>
+<div class="workflow-step flex items-start fade-in" id="step2">
+<div class="step-icon bg-purple-100 text-purple-600">
+<i class="fas fa-project-diagram"></i>
+</div>
+<div class="flex-grow">
+<h3 class="font-bold text-purple-700 text-lg">2. 隐马尔科夫模型映射</h3>
+<div class="flex flex-col md:flex-row gap-3 mt-2">
+<div class="bg-purple-50 rounded-lg p-2 flex-1">
+<h4 class="text-sm font-semibold text-purple-700">隐藏状态</h4>
+<p class="text-xs text-gray-600">音素/词/句子（我们想要识别的内容）</p>
+</div>
+<div class="bg-purple-50 rounded-lg p-2 flex-1">
+<h4 class="text-sm font-semibold text-purple-700">观测序列</h4>
+<p class="text-xs text-gray-600">MFCC声学特征向量序列</p>
+</div>
+<div class="bg-purple-50 rounded-lg p-2 flex-1">
+<h4 class="text-sm font-semibold text-purple-700">转移概率</h4>
+<p class="text-xs text-gray-600">音素/词间的转移概率（语言模型）</p>
+</div>
+<div class="bg-purple-50 rounded-lg p-2 flex-1">
+<h4 class="text-sm font-semibold text-purple-700">发射概率</h4>
+<p class="text-xs text-gray-600">声学模型（特征与音素的映射）</p>
+</div>
+</div>
+</div>
+</div>
+<div class="workflow-connector"></div>
+<div class="workflow-step flex items-start fade-in" id="step3">
+<div class="step-icon bg-blue-100 text-blue-600">
+<i class="fas fa-cogs"></i>
+</div>
+<div class="flex-grow">
+<h3 class="font-bold text-blue-700 text-lg">3. 核心算法与实现</h3>
+<div class="grid grid-cols-3 gap-3 mt-2">
+<div class="bg-blue-50 rounded-lg p-2">
+<h4 class="text-sm font-semibold text-blue-700">前向算法</h4>
+<p class="text-xs text-gray-600">计算观测序列的概率，评估模型</p>
+</div>
+<div class="bg-blue-50 rounded-lg p-2">
+<h4 class="text-sm font-semibold text-blue-700">维特比算法</h4>
+<p class="text-xs text-gray-600">求解最可能的隐藏状态序列（解码）</p>
+</div>
+<div class="bg-blue-50 rounded-lg p-2">
+<h4 class="text-sm font-semibold text-blue-700">鲍姆-韦尔奇算法</h4>
+<p class="text-xs text-gray-600">优化模型参数（训练）</p>
+</div>
+</div>
+<p class="text-xs text-gray-500 mt-2">语音识别的HMM通常采用左右结构（Left-to-Right HMM），限制状态转移只能向前，符合语音的时序特性</p>
+</div>
+</div>
+<div class="workflow-connector"></div>
+<div class="workflow-step flex items-start fade-in" id="step4">
+<div class="step-icon bg-green-100 text-green-600">
+<i class="fas fa-check-circle"></i>
+</div>
+<div class="flex-grow">
+<h3 class="font-bold text-green-700 text-lg">4. 实际应用效果与优势</h3>
+<div class="grid grid-cols-2 gap-3 mt-2">
+<div>
+<h4 class="text-sm font-semibold text-green-700">优势</h4>
+<ul class="text-xs text-gray-600 list-disc list-inside">
+<li>将声学和语言知识整合在统一框架</li>
+<li>处理可变长度序列的能力</li>
+<li>统计学习方法，可从数据中自动学习</li>
+<li>对噪声和说话人变化有一定鲁棒性</li>
+</ul>
+</div>
+<div>
+<h4 class="text-sm font-semibold text-green-700">局限性</h4>
+<ul class="text-xs text-gray-600 list-disc list-inside">
+<li>独立性假设限制了上下文建模能力</li>
+<li>需要大量标注数据训练</li>
+<li>难以处理长距离语音依赖</li>
+<li>现已被深度学习方法（LSTM/CTC/Transformer）部分替代</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 应用案例 -->
+<div class="z-10 fade-in" id="applications">
+<h3 class="text-lg font-bold text-indigo-700 mb-2 flex items-center">
+<i class="fas fa-mobile-alt text-indigo-500 mr-2"></i>知名应用案例
+            </h3>
+<div class="flex flex-wrap justify-between">
+<div class="application-example">
+<div class="app-logo bg-blue-100 text-blue-600">
+<i class="fab fa-apple"></i>
+</div>
+<div>
+<h4 class="text-sm font-bold">早期Siri (2011)</h4>
+<p class="text-xs text-gray-600">苹果首代语音助手使用HMM作为核心识别引擎</p>
+</div>
+</div>
+<div class="application-example">
+<div class="app-logo bg-yellow-100 text-yellow-600">
+<i class="fas fa-microphone-alt"></i>
+</div>
+<div>
+<h4 class="text-sm font-bold">Sphinx系统</h4>
+<p class="text-xs text-gray-600">CMU开发的开源语音识别系统，基于HMM架构</p>
+</div>
+</div>
+<div class="application-example">
+<div class="app-logo bg-green-100 text-green-600">
+<i class="fas fa-headset"></i>
+</div>
+<div>
+<h4 class="text-sm font-bold">智能客服电话</h4>
+<p class="text-xs text-gray-600">早期电话自动语音交互系统，如银行、航空公司</p>
+</div>
+</div>
+<div class="application-example">
+<div class="app-logo bg-red-100 text-red-600">
+<i class="fas fa-car"></i>
+</div>
+<div>
+<h4 class="text-sm font-bold">车载语音系统</h4>
+<p class="text-xs text-gray-600">早期汽车导航和控制系统的语音命令识别</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部总结 -->
+<div class="mt-auto pt-4 z-10 fade-in" id="summary">
+<div class="bg-indigo-50 p-3 rounded-lg border-t-4 border-indigo-500">
+<div class="flex items-center">
+<div class="bg-indigo-100 rounded-full p-2 mr-3 text-indigo-600">
+<i class="fas fa-lightbulb text-xl"></i>
+</div>
+<div>
+<h3 class="text-md font-bold text-indigo-700">马尔科夫模型与语音识别的完美契合</h3>
+<p class="text-sm text-gray-700">马尔科夫模型的顺序建模特性与语音的时序结构高度匹配，HMM成功将声学特征（观测）与语言文本（隐藏状态）建立了概率联系，成为推动早期语音识别技术发展的关键力量，为现代深度学习语音识别奠定了基础。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#step1", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#step2", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#step3", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#step4", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#applications", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 工作流程步骤悬停效果
+            const steps = document.querySelectorAll('.workflow-step');
+            steps.forEach(step => {
+                step.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -3, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                step.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+
+            // 应用案例悬停效果
+            const examples = document.querySelectorAll('.application-example');
+            examples.forEach(example => {
+                example.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -2, boxShadow: '0 4px 8px rgba(0,0,0,0.1)', duration: 0.2});
+                });
+
+                example.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 2px 5px rgba(0,0,0,0.05)', duration: 0.2});
+                });
+            });
+        });
+    </script><div class="slide flex flex-col p-6 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#fbbf24" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 页面标题 -->
+<div class="z-10 text-center mb-4 fade-in" id="title">
+<h2 class="text-3xl font-bold text-yellow-800 mb-2">马尔科夫模型在PageRank算法中的应用</h2>
+<div class="w-32 h-1 bg-yellow-500 mx-auto mb-2"></div>
+<p class="text-gray-600 text-sm max-w-3xl mx-auto">Google搜索引擎的基石技术：将网页间的链接关系建模为马尔科夫链，通过随机游走理论确定网页重要性</p>
+</div>
+<div class="flex flex-row gap-5 z-10 mb-4">
+<!-- 左侧：原理解释 -->
+<div class="w-1/2">
+<!-- PageRank原理 -->
+<div class="concept-box p-4 mb-4 border-l-4 border-yellow-500 fade-in" id="principles">
+<h3 class="font-bold text-yellow-700 text-lg mb-2 flex items-center">
+<i class="fas fa-lightbulb text-yellow-500 mr-2"></i>原理与马尔科夫链映射
+                    </h3>
+<p class="text-sm text-gray-600 mb-2">PageRank算法将整个互联网视为一个有向图，每个网页是一个节点，链接是有向边，用马尔科夫链建模用户浏览行为：</p>
+<div class="grid grid-cols-2 gap-3 mt-3">
+<div class="bg-yellow-50 rounded-lg p-2">
+<h4 class="text-sm font-semibold text-yellow-700">随机游走模型</h4>
+<p class="text-xs text-gray-600">用户从一个页面随机点击链接到达另一个页面，类似马尔科夫链中的状态转移过程</p>
+</div>
+<div class="bg-yellow-50 rounded-lg p-2">
+<h4 class="text-sm font-semibold text-yellow-700">链接即投票</h4>
+<p class="text-xs text-gray-600">网页A链接到网页B，相当于A对B投出一票，体现为状态转移概率</p>
+</div>
+<div class="bg-yellow-50 rounded-lg p-2">
+<h4 class="text-sm font-semibold text-yellow-700">平稳分布</h4>
+<p class="text-xs text-gray-600">网页重要性值是用户无限随机浏览最终停留在各页面的概率分布，即马尔科夫链的平稳分布</p>
+</div>
+<div class="bg-yellow-50 rounded-lg p-2">
+<h4 class="text-sm font-semibold text-yellow-700">阻尼系数</h4>
+<p class="text-xs text-gray-600">模拟用户随机跳转到任意页面的概率（通常为0.85），保证马尔科夫链收敛性</p>
+</div>
+</div>
+</div>
+<!-- 数学公式 -->
+<div class="concept-box p-4 border-l-4 border-blue-500 fade-in" id="formula">
+<h3 class="font-bold text-blue-700 text-lg mb-2 flex items-center">
+<i class="fas fa-square-root-alt text-blue-500 mr-2"></i>数学表示与矩阵计算
+                    </h3>
+<div class="bg-blue-50 p-3 rounded-lg">
+<p class="text-sm text-gray-700 mb-2">PageRank计算的核心公式：</p>
+<div class="text-center font-mono text-blue-800 p-2 bg-white rounded-lg shadow-sm">
+                            PR(pi) = (1-d)/N + d × ∑(PR(pj)/L(pj))
+                        </div>
+<p class="text-xs text-gray-600 mt-2">其中：d为阻尼系数，N为总网页数，L(pj)为页面j的出链数量，求和对象为所有链接到页面i的页面j</p>
+</div>
+<div class="mt-3">
+<p class="text-sm text-gray-700">从马尔科夫链角度理解，这是求解方程：</p>
+<div class="text-center font-mono text-blue-800 p-2 bg-white rounded-lg shadow-sm mt-1">
+                            π = π·P
+                        </div>
+<p class="text-xs text-gray-600 mt-1">其中π是平稳分布，P是转移概率矩阵，迭代计算至收敛即得到网页重要性评分</p>
+</div>
+</div>
+</div>
+<!-- 右侧：网页链接图和应用案例 -->
+<div class="w-1/2">
+<!-- 网页链接演示 -->
+<div class="concept-box p-4 mb-4 fade-in h-80" id="pagerank-demo">
+<h3 class="font-bold text-gray-700 text-lg mb-2">网页链接马尔科夫模型示意图</h3>
+<div class="relative h-64 bg-gray-50 rounded-lg" id="network-graph">
+<!-- 网页节点 -->
+<div class="node bg-red-100 text-red-600 border-2 border-red-300" id="page-A" style="top: 40px; left: 200px;">A</div>
+<div class="node bg-blue-100 text-blue-600 border-2 border-blue-300" id="page-B" style="top: 150px; left: 80px;">B</div>
+<div class="node bg-green-100 text-green-600 border-2 border-green-300" id="page-C" style="top: 150px; left: 320px;">C</div>
+<div class="node bg-purple-100 text-purple-600 border-2 border-purple-300" id="page-D" style="top: 60px; left: 380px;">D</div>
+<div class="node bg-yellow-100 text-yellow-600 border-2 border-yellow-300" id="page-E" style="top: 240px; left: 200px;">E</div>
+<!-- 链接边将通过JavaScript绘制 -->
+</div>
+<div class="flex justify-center mt-2 gap-8">
+<div class="text-sm">
+<span class="font-bold text-yellow-600">重要页面</span>
+<div class="text-xs text-gray-600">更多入链，得到更高PageRank值</div>
+</div>
+<div class="text-sm">
+<span class="font-bold text-gray-600">权重传递</span>
+<div class="text-xs text-gray-600">重要页面的出链传递更多权重</div>
+</div>
+</div>
+</div>
+<!-- 应用案例 -->
+<div class="fade-in" id="applications">
+<h3 class="font-bold text-gray-700 text-lg mb-2">实际应用案例</h3>
+<div class="grid grid-cols-2 gap-3">
+<div class="application-card">
+<div class="flex items-center mb-2">
+<div class="app-icon bg-blue-100 text-blue-600">
+<i class="fab fa-google text-2xl"></i>
+</div>
+<h4 class="font-bold text-gray-800">Google搜索引擎</h4>
+</div>
+<p class="text-xs text-gray-600">PageRank是Google创始性技术，将搜索结果按页面重要性排序，大幅提升搜索质量</p>
+</div>
+<div class="application-card">
+<div class="flex items-center mb-2">
+<div class="app-icon bg-green-100 text-green-600">
+<i class="fas fa-graduation-cap text-lg"></i>
+</div>
+<h4 class="font-bold text-gray-800">学术影响力评估</h4>
+</div>
+<p class="text-xs text-gray-600">引用网络中应用相似算法评估学术论文和作者影响力，如Scopus和Google Scholar</p>
+</div>
+<div class="application-card">
+<div class="flex items-center mb-2">
+<div class="app-icon bg-purple-100 text-purple-600">
+<i class="fas fa-users text-lg"></i>
+</div>
+<h4 class="font-bold text-gray-800">社交网络分析</h4>
+</div>
+<p class="text-xs text-gray-600">识别社交网络中的关键意见领袖和影响者，优化信息传播策略</p>
+</div>
+<div class="application-card">
+<div class="flex items-center mb-2">
+<div class="app-icon bg-red-100 text-red-600">
+<i class="fas fa-project-diagram text-lg"></i>
+</div>
+<h4 class="font-bold text-gray-800">推荐系统</h4>
+</div>
+<p class="text-xs text-gray-600">基于物品关联网络的个性化推荐，提升内容发现和用户体验</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 算法效果 -->
+<div class="z-10 fade-in" id="performance">
+<div class="concept-box p-3">
+<h3 class="font-bold text-gray-700 text-lg mb-1">PageRank迭代收敛过程</h3>
+<div class="page-rank-chart-container">
+<canvas id="pageRankChart"></canvas>
+</div>
+</div>
+</div>
+<!-- 底部总结 -->
+<div class="mt-auto pt-3 z-10 fade-in" id="summary">
+<div class="bg-yellow-50 p-3 rounded-lg border-t-4 border-yellow-500">
+<div class="flex items-center">
+<div class="bg-yellow-100 rounded-full p-2 mr-3 text-yellow-600">
+<i class="fas fa-lightbulb text-xl"></i>
+</div>
+<div>
+<h3 class="text-md font-bold text-yellow-700">马尔科夫模型与网页排序的完美结合</h3>
+<p class="text-sm text-gray-700">PageRank展示了马尔科夫链在复杂网络分析中的强大能力，通过将互联网建模为状态转移系统，从而用数学方法解决了"哪些网页最重要"这一核心问题，奠定了现代搜索引擎的理论基础，也成为图结构数据分析的经典范例。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 绘制网页链接
+            function drawEdges() {
+                const graph = document.getElementById('network-graph');
+                const pageA = document.getElementById('page-A');
+                const pageB = document.getElementById('page-B');
+                const pageC = document.getElementById('page-C');
+                const pageD = document.getElementById('page-D');
+                const pageE = document.getElementById('page-E');
+
+                // 定义链接
+                const links = [
+                    { from: pageA, to: pageB },
+                    { from: pageA, to: pageC },
+                    { from: pageB, to: pageC },
+                    { from: pageB, to: pageA },
+                    { from: pageC, to: pageE },
+                    { from: pageD, to: pageA },
+                    { from: pageD, to: pageC },
+                    { from: pageE, to: pageD },
+                    { from: pageE, to: pageB }
+                ];
+
+                links.forEach(link => {
+                    const fromRect = link.from.getBoundingClientRect();
+                    const toRect = link.to.getBoundingClientRect();
+                    const graphRect = graph.getBoundingClientRect();
+
+                    const fromX = fromRect.left - graphRect.left + fromRect.width/2;
+                    const fromY = fromRect.top - graphRect.top + fromRect.height/2;
+                    const toX = toRect.left - graphRect.left + toRect.width/2;
+                    const toY = toRect.top - graphRect.top + toRect.height/2;
+
+                    const dx = toX - fromX;
+                    const dy = toY - fromY;
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                    const radius = 30; // 节点半径
+                    const fromAngle = angle * Math.PI / 180;
+                    const startX = fromX + Math.cos(fromAngle) * radius;
+                    const startY = fromY + Math.sin(fromAngle) * radius;
+
+                    const toAngle = (angle + 180) * Math.PI / 180;
+                    const endX = toX + Math.cos(toAngle) * radius;
+                    const endY = toY + Math.sin(toAngle) * radius;
+
+                    const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+
+                    const edge = document.createElement('div');
+                    edge.className = 'edge';
+                    edge.style.width = length + 'px';
+                    edge.style.left = startX + 'px';
+                    edge.style.top = startY + 'px';
+                    edge.style.transform = `rotate(${angle}deg)`;
+                    graph.appendChild(edge);
+                });
+            }
+
+            // PageRank迭代收敛图表
+            const ctx = document.getElementById('pageRankChart').getContext('2d');
+            const pageRankChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['初始', '迭代1', '迭代2', '迭代3', '迭代4', '迭代5', '迭代6', '迭代7', '迭代8', '收敛'],
+                    datasets: [
+                        {
+                            label: '页面A',
+                            data: [0.2, 0.28, 0.33, 0.36, 0.38, 0.39, 0.396, 0.398, 0.399, 0.4],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '页面B',
+                            data: [0.2, 0.18, 0.22, 0.26, 0.29, 0.31, 0.32, 0.326, 0.329, 0.33],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '页面C',
+                            data: [0.2, 0.22, 0.25, 0.26, 0.265, 0.268, 0.269, 0.27, 0.27, 0.27],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '页面D',
+                            data: [0.2, 0.15, 0.12, 0.10, 0.09, 0.085, 0.08, 0.078, 0.077, 0.075],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: '页面E',
+                            data: [0.2, 0.17, 0.13, 0.12, 0.115, 0.11, 0.105, 0.103, 0.102, 0.1],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 10,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#1f2937',
+                            bodyColor: '#4b5563',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 8,
+                            boxWidth: 8,
+                            usePointStyle: true,
+                            titleFont: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 11
+                            },
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    return `迭代${tooltipItems[0].label}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 0.5,
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'PageRank值',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 3
+                        },
+                        line: {
+                            borderWidth: 2
+                        }
+                    }
+                }
+            });
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#principles", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#formula", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#pagerank-demo", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#applications", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#performance", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 在合适的时机调用绘制链接函数
+            setTimeout(drawEdges, 1000);
+
+            // 添加节点动画效果
+            const nodes = document.querySelectorAll('.node');
+            nodes.forEach(node => {
+                node.addEventListener('mouseover', function() {
+                    gsap.to(this, {scale: 1.1, boxShadow: '0 6px 15px rgba(0,0,0,0.2)', duration: 0.3});
+
+                    // 高亮相关链接
+                    const nodeId = this.id.split('-')[1];
+                    highlightConnections(nodeId);
+                });
+
+                node.addEventListener('mouseout', function() {
+                    gsap.to(this, {scale: 1, boxShadow: '0 4px 10px rgba(0,0,0,0.1)', duration: 0.3});
+
+                    // 重置链接样式
+                    resetEdges();
+                });
+            });
+
+            function highlightConnections(nodeId) {
+                // 这里可以添加高亮相关连接的逻辑
+            }
+
+            function resetEdges() {
+                // 这里可以添加重置连接样式的逻辑
+            }
+        });
+    </script><div class="slide flex flex-col p-6 relative">
+<!-- 几何背景 -->
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#10b981" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- 页面标题 -->
+<div class="z-10 text-center mb-4 fade-in" id="title">
+<h2 class="text-3xl font-bold text-green-800 mb-2">马尔科夫模型在图像处理中的应用</h2>
+<div class="w-32 h-1 bg-green-600 mx-auto mb-2"></div>
+<p class="text-gray-600 text-sm max-w-3xl mx-auto">马尔科夫随机场(MRF)在图像处理中建立像素间的空间关系，优化图像结构和内容</p>
+</div>
+<div class="grid grid-cols-3 gap-5 flex-grow z-10">
+<!-- 原理和映射 -->
+<div class="section-card p-4 fade-in" id="principles">
+<h3 class="font-bold text-green-700 text-lg mb-2 flex items-center">
+<i class="fas fa-lightbulb text-green-500 mr-2"></i>原理与特点
+                </h3>
+<div class="mb-3">
+<p class="text-sm text-gray-600">马尔科夫随机场将图像像素建模为无向图网络，每个像素基于周围邻域状态形成局部依赖关系</p>
+<div class="mt-2 flex flex-wrap gap-1">
+<div class="feature-badge bg-green-50 text-green-700 border-green-200">无向图结构</div>
+<div class="feature-badge bg-green-50 text-green-700 border-green-200">局部马尔科夫性</div>
+<div class="feature-badge bg-green-50 text-green-700 border-green-200">吉布斯分布</div>
+<div class="feature-badge bg-green-50 text-green-700 border-green-200">能量函数</div>
+</div>
+</div>
+<div class="bg-green-50 p-3 rounded-lg mb-3">
+<h4 class="text-sm font-semibold text-green-700 mb-1">像素邻域关系</h4>
+<div class="relative flex justify-center">
+<div class="pixel-grid">
+<!-- 像素网格，注意：这里只展示部分关键像素，其余由JavaScript生成 -->
+<div class="pixel pixel-neighborhood" id="p-2-2"></div>
+<div class="pixel pixel-neighborhood" id="p-2-3"></div>
+<div class="pixel pixel-neighborhood" id="p-2-4"></div>
+<div class="pixel pixel-neighborhood" id="p-3-2"></div>
+<div class="pixel pixel-center" id="p-3-3"></div>
+<div class="pixel pixel-neighborhood" id="p-3-4"></div>
+<div class="pixel pixel-neighborhood" id="p-4-2"></div>
+<div class="pixel pixel-neighborhood" id="p-4-3"></div>
+<div class="pixel pixel-neighborhood" id="p-4-4"></div>
+<!-- 其他像素将通过JavaScript生成 -->
+</div>
+<div class="neighborhood-indicator" style="top: 55px; left: 60px;"></div>
+</div>
+<p class="text-xs text-center text-gray-600 mt-2">像素值依赖于其邻域状态</p>
+</div>
+<div class="text-xs text-gray-700">
+<div class="font-semibold mb-1">马尔科夫-吉布斯等价性：</div>
+<p>MRF可以通过能量函数表示，最优图像配置对应能量最小状态</p>
+<div class="font-mono bg-white p-2 rounded mt-1 text-green-700 text-center">
+                        E(x) = ∑ U<sub>c</sub>(x)
+                    </div>
+</div>
+</div>
+<!-- 应用领域 -->
+<div class="section-card p-4 fade-in" id="applications">
+<h3 class="font-bold text-green-700 text-lg mb-3 flex items-center">
+<i class="fas fa-tasks text-green-500 mr-2"></i>主要应用任务
+                </h3>
+<div class="space-y-3">
+<!-- 图像分割 -->
+<div class="bg-white rounded-lg p-2 shadow-sm">
+<div class="flex items-center mb-1">
+<div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mr-2 text-green-600">
+<i class="fas fa-object-ungroup text-sm"></i>
+</div>
+<h4 class="font-bold text-gray-800 text-sm">图像分割</h4>
+</div>
+<p class="text-xs text-gray-600 mb-1">将图像区分为有意义的区域或对象</p>
+<div class="flex justify-between">
+<div class="text-xs font-semibold text-green-600">医学图像分析</div>
+<div class="text-xs font-semibold text-green-600">卫星图像解析</div>
+</div>
+</div>
+<!-- 图像降噪 -->
+<div class="bg-white rounded-lg p-2 shadow-sm">
+<div class="flex items-center mb-1">
+<div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mr-2 text-green-600">
+<i class="fas fa-broom text-sm"></i>
+</div>
+<h4 class="font-bold text-gray-800 text-sm">图像降噪与修复</h4>
+</div>
+<p class="text-xs text-gray-600 mb-1">根据周围像素关系去除噪声，修复损坏区域</p>
+<div class="flex justify-between">
+<div class="text-xs font-semibold text-green-600">数码照片优化</div>
+<div class="text-xs font-semibold text-green-600">历史图像复原</div>
+</div>
+</div>
+<!-- 纹理分析 -->
+<div class="bg-white rounded-lg p-2 shadow-sm">
+<div class="flex items-center mb-1">
+<div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mr-2 text-green-600">
+<i class="fas fa-layer-group text-sm"></i>
+</div>
+<h4 class="font-bold text-gray-800 text-sm">纹理分析与合成</h4>
+</div>
+<p class="text-xs text-gray-600 mb-1">捕捉和生成符合特定纹理特征的图像</p>
+<div class="flex justify-between">
+<div class="text-xs font-semibold text-green-600">材质生成</div>
+<div class="text-xs font-semibold text-green-600">图像风格迁移</div>
+</div>
+</div>
+<!-- 超分辨率 -->
+<div class="bg-white rounded-lg p-2 shadow-sm">
+<div class="flex items-center mb-1">
+<div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mr-2 text-green-600">
+<i class="fas fa-expand-arrows-alt text-sm"></i>
+</div>
+<h4 class="font-bold text-gray-800 text-sm">图像超分辨率</h4>
+</div>
+<p class="text-xs text-gray-600 mb-1">从低分辨率图像恢复高分辨率细节</p>
+<div class="flex justify-between">
+<div class="text-xs font-semibold text-green-600">监控提升</div>
+<div class="text-xs font-semibold text-green-600">医学影像增强</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 实际案例 -->
+<div class="section-card p-4 fade-in" id="examples">
+<h3 class="font-bold text-green-700 text-lg mb-3 flex items-center">
+<i class="fas fa-microscope text-green-500 mr-2"></i>实际案例与效果
+                </h3>
+<!-- 图像处理对比 -->
+<div class="mb-4">
+<h4 class="text-sm font-semibold text-green-700 mb-2">MRF图像分割示例</h4>
+<div class="flex items-center justify-center">
+<div class="bg-gray-100 rounded-lg overflow-hidden w-32 h-32 flex items-center justify-center">
+<i class="fas fa-image text-3xl text-gray-400"></i>
+<span class="text-xs text-gray-600 absolute bottom-1">原始图像</span>
+</div>
+<div class="process-arrow">
+<i class="fas fa-arrow-right"></i>
+</div>
+<div class="bg-gray-100 rounded-lg overflow-hidden w-32 h-32 flex items-center justify-center">
+<i class="fas fa-object-group text-3xl text-green-400"></i>
+<span class="text-xs text-gray-600 absolute bottom-1">MRF分割结果</span>
+</div>
+</div>
+</div>
+<!-- 性能对比 -->
+<div>
+<h4 class="text-sm font-semibold text-green-700 mb-2">不同方法性能对比</h4>
+<div class="comparison-chart-container">
+<canvas id="performanceChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部：成功案例 -->
+<div class="mt-4 z-10 fade-in" id="case-studies">
+<h3 class="font-bold text-green-700 text-lg mb-2 flex items-center">
+<i class="fas fa-star text-green-500 mr-2"></i>成功应用产品与服务
+            </h3>
+<div class="grid grid-cols-4 gap-3">
+<div class="app-example flex items-center">
+<div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+<i class="fas fa-brain text-green-600"></i>
+</div>
+<div>
+<h4 class="font-bold text-gray-800 text-sm">医学影像分析系统</h4>
+<p class="text-xs text-gray-600">MRF用于肿瘤边界精确分割</p>
+</div>
+</div>
+<div class="app-example flex items-center">
+<div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+<i class="fas fa-satellite text-green-600"></i>
+</div>
+<div>
+<h4 class="font-bold text-gray-800 text-sm">遥感影像处理</h4>
+<p class="text-xs text-gray-600">土地用途分类与变化检测</p>
+</div>
+</div>
+<div class="app-example flex items-center">
+<div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+<i class="fas fa-camera text-green-600"></i>
+</div>
+<div>
+<h4 class="font-bold text-gray-800 text-sm">Adobe Photoshop</h4>
+<p class="text-xs text-gray-600">内容感知填充和智能修复工具</p>
+</div>
+</div>
+<div class="app-example flex items-center">
+<div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+<i class="fas fa-video text-green-600"></i>
+</div>
+<div>
+<h4 class="font-bold text-gray-800 text-sm">计算机视觉系统</h4>
+<p class="text-xs text-gray-600">微软Kinect体感前景分割</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部总结 -->
+<div class="mt-auto pt-2 z-10 fade-in" id="summary">
+<div class="bg-green-50 p-3 rounded-lg border-t-4 border-green-500">
+<div class="flex items-center">
+<div class="bg-green-100 rounded-full p-2 mr-3 text-green-600">
+<i class="fas fa-lightbulb text-xl"></i>
+</div>
+<div>
+<h3 class="text-md font-bold text-green-700">马尔科夫随机场的图像处理优势</h3>
+<p class="text-sm text-gray-700">马尔科夫随机场将图像建模为具有局部依赖关系的统计系统，既能保持像素间的空间关联性，又能有效处理图像中的不确定性和噪声干扰，成为图像处理、计算机视觉领域的重要理论基础，为现代深度学习图像分析奠定了概率框架。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 生成像素网格
+            function generatePixelGrid() {
+                const pixelGrid = document.querySelector('.pixel-grid');
+
+                // 清除现有像素
+                pixelGrid.innerHTML = '';
+
+                // 生成6x6像素网格
+                for (let i = 1; i <= 6; i++) {
+                    for (let j = 1; j <= 6; j++) {
+                        const pixel = document.createElement('div');
+                        pixel.className = 'pixel';
+                        pixel.id = `p-${i}-${j}`;
+
+                        // 设置中心和邻域像素颜色
+                        if (i === 3 && j === 3) {
+                            pixel.classList.add('pixel-center');
+                        } else if ((i >= 2 && i <= 4) && (j >= 2 && j <= 4)) {
+                            pixel.classList.add('pixel-neighborhood');
+                        }
+
+                        pixelGrid.appendChild(pixel);
+                    }
+                }
+
+                // 添加像素交互效果
+                const pixels = document.querySelectorAll('.pixel:not(.pixel-center)');
+                pixels.forEach(pixel => {
+                    pixel.addEventListener('mouseover', function() {
+                        if (!this.classList.contains('pixel-neighborhood')) {
+                            this.style.backgroundColor = '#d1fae5';
+                        }
+                    });
+
+                    pixel.addEventListener('mouseout', function() {
+                        if (!this.classList.contains('pixel-neighborhood')) {
+                            this.style.backgroundColor = '';
+                        }
+                    });
+                });
+            }
+
+            // 性能对比图表
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const performanceChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        '准确率',
+                        '抗噪性',
+                        '边缘保留',
+                        '计算效率',
+                        '自适应性'
+                    ],
+                    datasets: [
+                        {
+                            label: '马尔科夫随机场',
+                            data: [85, 90, 80, 60, 75],
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: 'rgb(16, 185, 129)',
+                            pointBackgroundColor: 'rgb(16, 185, 129)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(16, 185, 129)'
+                        },
+                        {
+                            label: '传统方法',
+                            data: [60, 55, 50, 85, 45],
+                            backgroundColor: 'rgba(156, 163, 175, 0.2)',
+                            borderColor: 'rgb(156, 163, 175)',
+                            pointBackgroundColor: 'rgb(156, 163, 175)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(156, 163, 175)'
+                        },
+                        {
+                            label: '深度学习',
+                            data: [95, 80, 90, 40, 90],
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            borderColor: 'rgb(79, 70, 229)',
+                            pointBackgroundColor: 'rgb(79, 70, 229)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(79, 70, 229)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 10,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#principles", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#applications", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#examples", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#case-studies", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+
+            // 生成像素网格
+            generatePixelGrid();
+
+            // 卡片悬停效果
+            const cards = document.querySelectorAll('.section-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -5, boxShadow: '0 8px 25px rgba(0,0,0,0.15)', duration: 0.3});
+                });
+
+                card.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.1)', duration: 0.3});
+                });
+            });
+
+            // 应用案例悬停效果
+            const examples = document.querySelectorAll('.app-example');
+            examples.forEach(example => {
+                example.addEventListener('mouseover', function() {
+                    gsap.to(this, {y: -3, boxShadow: '0 6px 15px rgba(0,0,0,0.1)', duration: 0.2});
+                });
+
+                example.addEventListener('mouseout', function() {
+                    gsap.to(this, {y: 0, boxShadow: '0 2px 5px rgba(0,0,0,0.05)', duration: 0.2});
+                });
+            });
+        });
+    </script><div class="slide flex flex-col p-6 relative">
+<div class="geometric-bg">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<pattern height="50" id="grid" patternunits="userSpaceOnUse" width="50">
+<path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1a56db" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<div class="z-10 text-center mb-4 fade-in" id="title">
+<h2 class="text-3xl font-bold text-blue-800 mb-2">马尔科夫模型在自然语言处理中的应用场景详解</h2>
+<div class="w-32 h-1 bg-blue-600 mx-auto mb-2"></div>
+<p class="text-gray-600 text-sm max-w-3xl mx-auto">深入探讨马尔科夫模型如何解决语言序列分析、预测和分类等核心NLP任务</p>
+</div>
+<div class="grid grid-cols-2 gap-5 flex-grow z-10 mb-4">
+<div class="nlp-card fade-in" id="text-generation-card">
+<div class="card-header bg-blue-600">
+<div class="flex items-center">
+<i class="fas fa-keyboard text-xl mr-2"></i>
+<span class="text-lg">文本生成与智能输入</span>
+</div>
+<div class="bg-blue-800 rounded-full px-2 py-1 text-xs">N-gram模型</div>
+</div>
+<div class="p-4">
+<div class="mb-3">
+<h4 class="font-bold text-blue-700 text-md mb-2">应用原理</h4>
+<p class="text-sm text-gray-700">N-gram模型将语句分解为连续的N个词/字的序列，基于已出现的(N-1)个词/字预测下一个词/字的概率分布</p>
+<div class="bg-blue-50 p-3 rounded-lg my-3">
+<h5 class="text-sm font-semibold text-blue-700 mb-1">预测下一个词的过程</h5>
+<div class="word-prediction" id="prediction-demo">
+<span>我想去</span>
+<span class="prediction-word cursor-active bg-blue-100 border border-blue-300" id="predicted-word">北京</span>
+<span class="prediction-cursor"></span>
+<div class="prediction-options">
+<div class="prediction-option" onclick="updatePrediction('北京')">北京 (0.32)</div>
+<div class="prediction-option" onclick="updatePrediction('上海')">上海 (0.28)</div>
+<div class="prediction-option" onclick="updatePrediction('旅游')">旅游 (0.15)</div>
+<div class="prediction-option" onclick="updatePrediction('公园')">公园 (0.07)</div>
+</div>
+</div>
+<div class="text-xs text-gray-600 flex justify-between mt-1">
+<span>基于条件概率: P(词|我想去)</span>
+<span class="text-blue-600">(点击选项可更换预测词)</span>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-blue-700 text-md mb-1">实际应用案例</h4>
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center mb-1">
+<div class="app-logo bg-blue-100 text-blue-600">
+<i class="fas fa-language"></i>
+</div>
+<div>
+<h5 class="font-bold text-gray-800 text-sm">智能输入法</h5>
+<p class="text-xs text-gray-600">搜狗、讯飞输入法的词语联想功能</p>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center mb-1">
+<div class="app-logo bg-blue-100 text-blue-600">
+<i class="fas fa-robot"></i>
+</div>
+<div>
+<h5 class="font-bold text-gray-800 text-sm">聊天机器人</h5>
+<p class="text-xs text-gray-600">基于统计的对话生成</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<div class="performance-chart-container">
+<canvas id="ngramChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+<div class="nlp-card fade-in" id="pos-tagging-card">
+<div class="card-header bg-indigo-600">
+<div class="flex items-center">
+<i class="fas fa-tags text-xl mr-2"></i>
+<span class="text-lg">词性标注与序列标记</span>
+</div>
+<div class="bg-indigo-800 rounded-full px-2 py-1 text-xs">隐马尔科夫模型</div>
+</div>
+<div class="p-4">
+<div class="mb-3">
+<h4 class="font-bold text-indigo-700 text-md mb-2">应用原理</h4>
+<p class="text-sm text-gray-700">使用隐马尔科夫模型将词语视为观察序列，词性作为隐藏状态，通过维特比算法找出最可能的词性标注序列</p>
+<div class="bg-indigo-50 p-3 rounded-lg my-3">
+<h5 class="text-sm font-semibold text-indigo-700 mb-1">HMM词性标注流程</h5>
+<div class="hmm-diagram flex items-center justify-center" id="pos-diagram">
+<div class="flex flex-col items-center mx-2">
+<div class="text-xs text-gray-500 mb-1">隐藏状态(词性)</div>
+<div class="flex">
+<div class="pos-tag pos-pron">代词</div>
+<div class="pos-tag pos-v">动词</div>
+<div class="pos-tag pos-v">动词</div>
+<div class="pos-tag pos-n">名词</div>
+</div>
+<div class="text-2xl my-2">↓</div>
+<div class="flex">
+<div class="bg-gray-200 rounded px-2 py-1 text-xs mx-1">我</div>
+<div class="bg-gray-200 rounded px-2 py-1 text-xs mx-1">想</div>
+<div class="bg-gray-200 rounded px-2 py-1 text-xs mx-1">去</div>
+<div class="bg-gray-200 rounded px-2 py-1 text-xs mx-1">北京</div>
+</div>
+<div class="text-xs text-gray-500 mt-1">观察序列(词语)</div>
+</div>
+</div>
+<div class="text-xs text-indigo-600 text-center mt-1">(隐藏状态通过维特比算法推断)</div>
+</div>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-indigo-700 text-md mb-1">实际应用案例</h4>
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center mb-1">
+<div class="app-logo bg-indigo-100 text-indigo-600">
+<i class="fas fa-database"></i>
+</div>
+<div>
+<h5 class="font-bold text-gray-800 text-sm">信息抽取</h5>
+<p class="text-xs text-gray-600">识别人名、地名等命名实体</p>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center mb-1">
+<div class="app-logo bg-indigo-100 text-indigo-600">
+<i class="fas fa-language"></i>
+</div>
+<div>
+<h5 class="font-bold text-gray-800 text-sm">机器翻译</h5>
+<p class="text-xs text-gray-600">早期翻译系统的语法分析组件</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<div class="performance-chart-container">
+<canvas id="hmmChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+<div class="nlp-card fade-in" id="spell-checker-card">
+<div class="card-header bg-green-600">
+<div class="flex items-center">
+<i class="fas fa-spell-check text-xl mr-2"></i>
+<span class="text-lg">拼写检查与纠错</span>
+</div>
+<div class="bg-green-800 rounded-full px-2 py-1 text-xs">噪声通道模型</div>
+</div>
+<div class="p-4">
+<div class="mb-3">
+<h4 class="font-bold text-green-700 text-md mb-2">应用原理</h4>
+<p class="text-sm text-gray-700">将拼写错误视为通过噪声通道的语言模型，使用马尔科夫链计算词序列概率，选择最可能的正确拼写形式</p>
+<div class="bg-green-50 p-3 rounded-lg my-3">
+<h5 class="text-sm font-semibold text-green-700 mb-1">拼写纠错示例</h5>
+<div class="text-sm mb-1 relative" id="spell-check-demo">
+<span>我想参加一次重要的</span>
+<span class="spell-incorrect" id="misspelled-word">回意</span>
+<span>，但不确定时间</span>
+<div class="spell-correction">
+<div class="spell-correction-option" onclick="correctSpelling('会议')">会议 (0.86)</div>
+<div class="spell-correction-option" onclick="correctSpelling('回忆')">回忆 (0.09)</div>
+<div class="spell-correction-option" onclick="correctSpelling('悔意')">悔意 (0.05)</div>
+</div>
+</div>
+<div class="text-xs text-green-600 text-center mt-1">(点击带下划线的词查看修正建议)</div>
+</div>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-green-700 text-md mb-1">实际应用案例</h4>
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center mb-1">
+<div class="app-logo bg-green-100 text-green-600">
+<i class="fas fa-file-word"></i>
+</div>
+<div>
+<h5 class="font-bold text-gray-800 text-sm">文字处理软件</h5>
+<p class="text-xs text-gray-600">Word、WPS的拼写检查功能</p>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center mb-1">
+<div class="app-logo bg-green-100 text-green-600">
+<i class="fas fa-search"></i>
+</div>
+<div>
+<h5 class="font-bold text-gray-800 text-sm">搜索引擎</h5>
+<p class="text-xs text-gray-600">"您是否要搜索..."推荐</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-green-700 text-md mb-1">效果提升</h4>
+<div class="flex items-center">
+<div class="w-1/2 pr-2">
+<div class="text-xs text-center text-gray-700 mb-1">单词级别准确率</div>
+<div class="bg-gray-200 h-6 rounded-full overflow-hidden">
+<div class="bg-green-500 h-full rounded-full" style="width: 87%">
+<span class="text-white text-xs pl-2">87%</span>
+</div>
+</div>
+</div>
+<div class="w-1/2 pl-2">
+<div class="text-xs text-center text-gray-700 mb-1">用户满意度</div>
+<div class="bg-gray-200 h-6 rounded-full overflow-hidden">
+<div class="bg-green-500 h-full rounded-full" style="width: 92%">
+<span class="text-white text-xs pl-2">92%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="nlp-card fade-in" id="text-classification-card">
+<div class="card-header bg-purple-600">
+<div class="flex items-center">
+<i class="fas fa-layer-group text-xl mr-2"></i>
+<span class="text-lg">文本分类</span>
+</div>
+<div class="bg-purple-800 rounded-full px-2 py-1 text-xs">马尔科夫链文本分类</div>
+</div>
+<div class="p-4">
+<div class="mb-3">
+<h4 class="font-bold text-purple-700 text-md mb-2">应用原理</h4>
+<p class="text-sm text-gray-700">为每类文本训练特定的马尔科夫模型，新文本分类时计算该文本由各个模型生成的概率，选择概率最高的类别</p>
+<div class="bg-purple-50 p-3 rounded-lg my-3">
+<h5 class="text-sm font-semibold text-purple-700 mb-1">分类流程</h5>
+<div class="flex items-center justify-center" id="classification-demo">
+<div class="text-sm bg-white p-2 rounded shadow-sm text-center min-w-[180px]">
+<div class="typewriter" id="sample-text">这部电影真是太精彩了</div>
+</div>
+<i class="fas fa-arrow-right mx-3 text-purple-500"></i>
+<div class="flex flex-col bg-white p-2 rounded shadow-sm min-w-[140px]">
+<div class="flex items-center mb-1">
+<div class="w-3 h-3 rounded-full bg-purple-500 mr-1"></div>
+<div class="text-xs">正面情感: <span class="font-bold">0.83</span></div>
+</div>
+<div class="flex items-center">
+<div class="w-3 h-3 rounded-full bg-gray-500 mr-1"></div>
+<div class="text-xs">负面情感: <span class="font-bold">0.17</span></div>
+</div>
+</div>
+</div>
+<div class="flex justify-center mt-2">
+<button class="text-xs bg-purple-500 text-white px-2 py-1 rounded hover:bg-purple-600 transition-colors" id="change-text-btn">切换示例文本</button>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<h4 class="font-bold text-purple-700 text-md mb-1">实际应用案例</h4>
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center mb-1">
+<div class="app-logo bg-purple-100 text-purple-600">
+<i class="fas fa-comment-dots"></i>
+</div>
+<div>
+<h5 class="font-bold text-gray-800 text-sm">情感分析</h5>
+<p class="text-xs text-gray-600">电商平台评论情感分析系统</p>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center mb-1">
+<div class="app-logo bg-purple-100 text-purple-600">
+<i class="fas fa-envelope"></i>
+</div>
+<div>
+<h5 class="font-bold text-gray-800 text-sm">垃圾邮件过滤</h5>
+<p class="text-xs text-gray-600">基于内容的邮件分类系统</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<div class="performance-chart-container">
+<canvas id="classificationChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-6 z-10 fade-in" id="summary">
+<div class="bg-blue-50 p-3 rounded-lg border-t-4 border-blue-500">
+<div class="flex items-center">
+<div class="bg-blue-100 rounded-full p-2 mr-3 text-blue-600">
+<i class="fas fa-lightbulb text-xl"></i>
+</div>
+<div>
+<h3 class="text-md font-bold text-blue-700">总结</h3>
+<p class="text-sm text-gray-700">这页幻灯片详细展示了马尔科夫模型在自然语言处理中的广泛应用场景，通过具体实例和可视化演示，让观众能够直观理解马尔科夫模型如何在实际产品和服务中应用，以及它们解决实际问题的方式和效果。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 预测下一个词：更新预测词和高亮显示
+            window.updatePrediction = function(selectedWord) {
+                const predictionDemo = document.getElementById('prediction-demo');
+                const predictedWordSpan = document.getElementById('predicted-word');
+                predictedWordSpan.textContent = selectedWord;
+                predictedWordSpan.classList.remove('bg-blue-100', 'border-blue-300');
+                predictedWordSpan.classList.add('bg-green-100', 'border-green-300');
+
+                // 移除光标
+                const cursor = predictionDemo.querySelector('.prediction-cursor');
+                if (cursor) {
+                    cursor.remove();
+                }
+
+                // 1秒后恢复到初始状态
+                setTimeout(() => {
+                    predictedWordSpan.textContent = '北京';
+                    predictedWordSpan.classList.remove('bg-green-100', 'border-green-300');
+                    predictedWordSpan.classList.add('bg-blue-100', 'border-blue-300');
+                    predictionDemo.insertAdjacentHTML('beforeend', '<span class="prediction-cursor"></span>');
+                }, 1000);
+            };
+
+            // 拼写检查：纠正拼写错误
+            window.correctSpelling = function(correction) {
+                const misspelledWordSpan = document.getElementById('misspelled-word');
+                misspelledWordSpan.textContent = correction;
+                misspelledWordSpan.classList.remove('spell-incorrect');
+                misspelledWordSpan.classList.add('text-green-600');
+
+                const spellCorrectionDiv = document.querySelector('.spell-correction');
+                if (spellCorrectionDiv) {
+                    spellCorrectionDiv.style.display = 'none';
+                }
+            };
+
+            // 切换文本分类示例
+            const textSamples = [
+                "这部电影真是太精彩了",
+                "剧情拖沓，毫无亮点",
+                "演员表现出色，值得一看",
+                "特效震撼，场面宏大",
+                "故事平淡，浪费时间"
+            ];
+            const sentimentResults = [
+                { positive: 0.83, negative: 0.17 },
+                { positive: 0.05, negative: 0.95 },
+                { positive: 0.78, negative: 0.22 },
+                { positive: 0.92, negative: 0.08 },
+                { positive: 0.12, negative: 0.88 }
+            ];
+            let currentTextIndex = 0;
+            document.getElementById('change-text-btn').addEventListener('click', function() {
+                currentTextIndex = (currentTextIndex + 1) % textSamples.length;
+                document.getElementById('sample-text').textContent = textSamples[currentTextIndex];
+
+                const resultDivs = document.querySelectorAll('.flex.flex-col.bg-white.p-2.rounded.shadow-sm.min-w-\\[140px\\] div');
+                resultDivs[0].querySelector('span').textContent = sentimentResults[currentTextIndex].positive.toFixed(2);
+                resultDivs[1].querySelector('span').textContent = sentimentResults[currentTextIndex].negative.toFixed(2);
+            });
+
+            // N-gram模型性能图表
+            const ngramCtx = document.getElementById('ngramChart').getContext('2d');
+            const ngramChart = new Chart(ngramCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2-gram', '3-gram', '4-gram', '5-gram'],
+                    datasets: [{
+                        label: '文本生成准确率',
+                        data: [0.72, 0.85,0.90, 0.93],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(59, 130, 246)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    return value * 100 + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += Math.round(context.parsed.y * 100) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // HMM词性标注性能图表
+            const hmmCtx = document.getElementById('hmmChart').getContext('2d');
+            const hmmChart = new Chart(hmmCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['HMM', 'CRF', 'Bi-LSTM', 'BERT'],
+                    datasets: [{
+                        label: '词性标注准确率',
+                        data: [0.92, 0.94, 0.95, 0.97],
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.5)',
+                            'rgba(56, 189, 248, 0.5)',
+                            'rgba(22, 163, 74, 0.5)',
+                            'rgba(244, 114, 182, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgb(79, 70, 229)',
+                            'rgb(56, 189, 248)',
+                            'rgb(22, 163, 74)',
+                            'rgb(244, 114, 182)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    return value * 100 + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += Math.round(context.parsed.y * 100) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 情感分析性能图表
+            const classificationCtx = document.getElementById('classificationChart').getContext('2d');
+            const classificationChart = new Chart(classificationCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Naive Bayes', 'SVM', 'MaxEnt', 'Markov Chain'],
+                    datasets: [{
+                        label: '情感分类准确率',
+                        data: [0.78, 0.82, 0.84, 0.86],
+                        backgroundColor: [
+                            'rgba(252, 211, 77, 0.5)',
+                            'rgba(248, 113, 113, 0.5)',
+                            'rgba(52, 211, 153, 0.5)',
+                            'rgba(125, 211, 252, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgb(252, 211, 77)',
+                            'rgb(248, 113, 113)',
+                            'rgb(52, 211, 153)',
+                            'rgb(125, 211, 252)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    return value * 100 + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += Math.round(context.parsed.y * 100) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // GSAP动画
+            const timeline = gsap.timeline({defaults: {duration: 0.5, ease: "power2.out"}});
+
+            timeline.to("#title", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#text-generation-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#pos-tagging-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#spell-checker-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#text-classification-card", {opacity: 1, y: 0, delay: 0.1})
+                   .to("#design-highlights", {opacity: 1, y: 0, delay: 0.2})
+                   .to("#summary", {opacity: 1, y: 0, delay: 0.1});
+        });
+    </script>
+</body>
+</html>

@@ -1,15 +1,158 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>傅里叶变换的基本概念</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-    <style>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script><style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom right, #ffffff, #f0f8ff);
+        }
+        .header {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+        }
+        .formula-card {
+            background-color: rgba(240, 248, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #0056b3;
+        }
+        .formula-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .property-box {
+            background-color: #f8f9fa;
+            border-left: 3px solid #0056b3;
+            transition: all 0.3s ease;
+        }
+        .property-box:hover {
+            transform: translateX(3px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: white;
+            transition: all 0.3s ease;
+            height: 200px;
+        }
+        .chart-container:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        .animation-fade {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animation-slide-right {
+            animation: slideRight 1s ease-in-out;
+        }
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .formula-component {
+            transition: all 0.3s ease;
+        }
+        .formula-component:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+    </style><script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script><link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet"/><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/><style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom right, #ffffff, #f0f8ff);
+        }
+        .header {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+        }
+        .animation-fade {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animation-scale {
+            animation: scaleIn 0.8s ease-in-out;
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .summary-point {
+            border-left: 3px solid #0056b3;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .summary-point:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .impact-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .impact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+        }
+        .impact-icon {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        .thank-you-text {
+            background: linear-gradient(90deg, #0056b3, #00a0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 86, 179, 0.2);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .chart-container {
+            height: 180px;
+            position: relative;
+        }
+    </style><style>
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -78,98 +221,243 @@
             transform: scale(1.02);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
         }
+    </style><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta charset="utf-8"/><style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom right, #ffffff, #f0f8ff);
+        }
+        .header {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+        }
+        .content-box {
+            border-left: 4px solid #0056b3;
+            background-color: rgba(240, 248, 255, 0.6);
+        }
+        .portrait {
+            border: 5px solid white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .portrait:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+        .timeline {
+            position: relative;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: #0056b3;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        .timeline-item::after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+        .timeline-content {
+            padding: 15px;
+            background-color: white;
+            position: relative;
+            border-radius: 8px;
+            width: 45%;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .timeline-left {
+            float: left;
+        }
+        .timeline-right {
+            float: right;
+        }
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            background-color: #0056b3;
+            border-radius: 50%;
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            margin-left: -10px;
+            z-index: 10;
+            border: 4px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .animation-fade {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .highlight-box {
+            background-color: rgba(0, 86, 179, 0.05);
+            border-left: 3px solid #0056b3;
+        }
+    </style><style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .slide {
+            width: 1280px;
+            min-height: 720px;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom right, #ffffff, #f0f8ff);
+        }
+        .header {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+        }
+        .app-card {
+            background-color: white;
+            border-radius: 8px;
+            border-left: 4px solid #0056b3;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .icon-box {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 6px rgba(0, 86, 179, 0.3);
+        }
+        .chart-container {
+            height: 180px;
+            margin-top: 10px;
+            position: relative;
+        }
+        .animation-fade {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animation-zoom {
+            animation: zoomIn 1s ease-in-out;
+        }
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
-<style>body { display: flex; flex-direction: column; }</style></head><body class="flex items-center justify-center min-h-screen p-4"><div class="slide rounded-lg overflow-hidden flex flex-col">
-        <!-- Header -->
-        <div class="header py-4 px-8 text-white animation-fade">
-            <h1 class="text-4xl font-bold">傅里叶变换的基本概念</h1>
-            <p class="text-xl mt-2">从时域到频域的转换 - 解析信号的频率结构</p>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 px-8 py-6 flex flex-col">
-            <!-- Introduction -->
-            <div class="content-box pl-4 py-3 mb-4 rounded animation-fade" style="animation-delay: 0.2s">
-                <p class="text-xl leading-relaxed text-gray-800">
+</head>
+<body>
+    <div class="slide rounded-lg overflow-hidden flex flex-col">
+<!-- Header -->
+<div class="header py-4 px-8 text-white animation-fade">
+<h1 class="text-4xl font-bold">傅里叶变换的基本概念</h1>
+<p class="text-xl mt-2">从时域到频域的转换 - 解析信号的频率结构</p>
+</div>
+<!-- Main Content -->
+<div class="flex-1 px-8 py-6 flex flex-col">
+<!-- Introduction -->
+<div class="content-box pl-4 py-3 mb-4 rounded animation-fade" style="animation-delay: 0.2s">
+<p class="text-xl leading-relaxed text-gray-800">
                     傅里叶变换是一种将<span class="font-semibold text-blue-700">时域信号</span>（随时间变化的信号）转换为<span class="font-semibold text-blue-700">频域表示</span>（不同频率的叠加）的数学工具，
                     揭示了信号中隐藏的频率成分，为我们提供了观察信号的全新视角。
                 </p>
-            </div>
-
-            <!-- Mathematical Formula -->
-            <div class="math-formula px-5 py-3 mx-auto mt-2 mb-4 animation-fade" style="animation-delay: 0.4s">
-                <div class="flex items-center justify-between">
-                    <div class="mr-4">
-                        <h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-square-root-alt mr-2"></i>连续傅里叶变换</h3>
-                        <p class="text-lg font-serif">F(ω) = ∫<sub>-∞</sub><sup>∞</sup> f(t)e<sup>-jωt</sup> dt</p>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-calculator mr-2"></i>离散傅里叶变换</h3>
-                        <p class="text-lg font-serif">X[k] = Σ<sub>n=0</sub><sup>N-1</sup> x[n]e<sup>-j2πkn/N</sup></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visual Representation -->
-            <div class="flex items-center justify-center mb-4 animation-fade" style="animation-delay: 0.6s">
-                <div class="time-freq-container flex items-center justify-between w-full px-6">
-                    <div class="domain-box time-domain w-2/5 p-4 bg-blue-50 rounded-lg">
-                        <h3 class="text-xl font-bold text-blue-800 mb-2 text-center">时域 (Time Domain)</h3>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Fourier_transform_time_and_frequency_domains_%28small%29.gif"
-                             alt="时域信号" class="mx-auto h-36 object-contain">
-                        <div class="text-center mt-2 text-gray-700">
-                            <p>随时间变化的信号</p>
-                            <p class="text-sm text-gray-500 mt-1">f(t) 表示信号随时间t的变化</p>
-                        </div>
-                    </div>
-
-                    <div class="time-freq-arrow">
-                        <i class="fas fa-exchange-alt"></i>
-                    </div>
-
-                    <div class="domain-box freq-domain w-2/5 p-4 bg-blue-50 rounded-lg">
-                        <h3 class="text-xl font-bold text-blue-800 mb-2 text-center">频域 (Frequency Domain)</h3>
-                        <img src="https://www.ntiaudio.cn/wp-content/uploads/FFT-Time-Frequency-View-540.png"
-                             alt="频域表示" class="mx-auto h-36 object-contain">
-                        <div class="text-center mt-2 text-gray-700">
-                            <p>信号的频率组成</p>
-                            <p class="text-sm text-gray-500 mt-1">F(ω) 展示各频率ω上的能量分布</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Key Concepts -->
-            <div class="grid grid-cols-2 gap-4 mt-1 animation-fade" style="animation-delay: 0.8s">
-                <div class="concept-card p-3 rounded">
-                    <h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-lightbulb mr-2"></i>核心思想</h3>
-                    <p>任何周期信号都可以分解为一系列不同频率、振幅和相位的正弦波的叠加，类似于将一首交响乐分解为各种乐器的声音</p>
-                </div>
-
-                <div class="concept-card p-3 rounded">
-                    <h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-cogs mr-2"></i>数学意义</h3>
-                    <p>通过积分变换，将时域函数映射到频域，使复杂的时域问题在频域中变得简单，如将卷积运算转化为简单的乘法</p>
-                </div>
-
-                <div class="concept-card p-3 rounded">
-                    <h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-chart-line mr-2"></i>变换对象</h3>
-                    <p>可应用于连续信号（连续傅里叶变换）、离散信号（离散傅里叶变换）及有限采样序列（离散傅里叶变换DFT及其快速算法FFT）</p>
-                </div>
-
-                <div class="concept-card p-3 rounded">
-                    <h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-magic mr-2"></i>变换意义</h3>
-                    <p>揭示信号的频谱特性，使我们能够识别信号中的重要频率成分、滤除噪声、压缩信息，为信号处理奠定理论基础</p>
-                </div>
-            </div>
-
-            <!-- Footer Note -->
-            <div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1s">
-                <p>"大自然说话用的是数学语言，而其字母就是圆、三角形以及其他数学图形" — 伽利略</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+<!-- Mathematical Formula -->
+<div class="math-formula px-5 py-3 mx-auto mt-2 mb-4 animation-fade" style="animation-delay: 0.4s">
+<div class="flex items-center justify-between">
+<div class="mr-4">
+<h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-square-root-alt mr-2"></i>连续傅里叶变换</h3>
+<p class="text-lg font-serif">F(ω) = ∫<sub>-∞</sub><sup>∞</sup> f(t)e<sup>-jωt</sup> dt</p>
+</div>
+<div class="ml-4">
+<h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-calculator mr-2"></i>离散傅里叶变换</h3>
+<p class="text-lg font-serif">X[k] = Σ<sub>n=0</sub><sup>N-1</sup> x[n]e<sup>-j2πkn/N</sup></p>
+</div>
+</div>
+</div>
+<!-- Visual Representation -->
+<div class="flex items-center justify-center mb-4 animation-fade" style="animation-delay: 0.6s">
+<div class="time-freq-container flex items-center justify-between w-full px-6">
+<div class="domain-box time-domain w-2/5 p-4 bg-blue-50 rounded-lg">
+<h3 class="text-xl font-bold text-blue-800 mb-2 text-center">时域 (Time Domain)</h3>
+<img alt="时域信号" class="mx-auto h-36 object-contain" src="https://upload.wikimedia.org/wikipedia/commons/7/72/Fourier_transform_time_and_frequency_domains_%28small%29.gif"/>
+<div class="text-center mt-2 text-gray-700">
+<p>随时间变化的信号</p>
+<p class="text-sm text-gray-500 mt-1">f(t) 表示信号随时间t的变化</p>
+</div>
+</div>
+<div class="time-freq-arrow">
+<i class="fas fa-exchange-alt"></i>
+</div>
+<div class="domain-box freq-domain w-2/5 p-4 bg-blue-50 rounded-lg">
+<h3 class="text-xl font-bold text-blue-800 mb-2 text-center">频域 (Frequency Domain)</h3>
+<img alt="频域表示" class="mx-auto h-36 object-contain" src="https://www.ntiaudio.cn/wp-content/uploads/FFT-Time-Frequency-View-540.png"/>
+<div class="text-center mt-2 text-gray-700">
+<p>信号的频率组成</p>
+<p class="text-sm text-gray-500 mt-1">F(ω) 展示各频率ω上的能量分布</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Key Concepts -->
+<div class="grid grid-cols-2 gap-4 mt-1 animation-fade" style="animation-delay: 0.8s">
+<div class="concept-card p-3 rounded">
+<h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-lightbulb mr-2"></i>核心思想</h3>
+<p>任何周期信号都可以分解为一系列不同频率、振幅和相位的正弦波的叠加，类似于将一首交响乐分解为各种乐器的声音</p>
+</div>
+<div class="concept-card p-3 rounded">
+<h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-cogs mr-2"></i>数学意义</h3>
+<p>通过积分变换，将时域函数映射到频域，使复杂的时域问题在频域中变得简单，如将卷积运算转化为简单的乘法</p>
+</div>
+<div class="concept-card p-3 rounded">
+<h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-chart-line mr-2"></i>变换对象</h3>
+<p>可应用于连续信号（连续傅里叶变换）、离散信号（离散傅里叶变换）及有限采样序列（离散傅里叶变换DFT及其快速算法FFT）</p>
+</div>
+<div class="concept-card p-3 rounded">
+<h3 class="text-lg font-bold text-blue-700 mb-1"><i class="fas fa-magic mr-2"></i>变换意义</h3>
+<p>揭示信号的频谱特性，使我们能够识别信号中的重要频率成分、滤除噪声、压缩信息，为信号处理奠定理论基础</p>
+</div>
+</div>
+<!-- Footer Note -->
+<div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1s">
+<p>"大自然说话用的是数学语言，而其字母就是圆、三角形以及其他数学图形" — 伽利略</p>
+</div>
+</div>
+</div>
+<script>
         document.addEventListener("DOMContentLoaded", function() {
             renderMathInElement(document.body, {
                 delimiters: [
@@ -179,283 +467,253 @@
             });
         });
     </script><div class="slide rounded-lg overflow-hidden flex flex-col">
-        <!-- Header -->
-        <div class="header py-4 px-8 text-white animation-fade">
-            <h1 class="text-4xl font-bold">傅里叶变换的历史由来</h1>
-            <p class="text-xl mt-2">约瑟夫·傅里叶的贡献与发展历程</p>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 px-8 py-6 flex flex-col">
-            <!-- Fourier Introduction -->
-            <div class="flex items-start mb-6 animation-fade" style="animation-delay: 0.2s">
-                <div class="portrait rounded-lg overflow-hidden mr-6 w-1/4 flex-shrink-0">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Fourier2_-_restoration1.jpg/1200px-Fourier2_-_restoration1.jpg"
-                         alt="约瑟夫·傅里叶肖像" class="w-full object-cover">
-                    <div class="bg-blue-50 p-2 text-center">
-                        <p class="text-sm font-medium text-gray-700">约瑟夫·傅里叶 (1768-1830)</p>
-                        <p class="text-xs text-gray-500">法国数学家与物理学家</p>
-                    </div>
-                </div>
-
-                <div class="content-box pl-4 py-3 rounded w-3/4">
-                    <h2 class="text-2xl font-bold text-blue-700 mb-2">科学家与他的时代</h2>
-                    <p class="text-lg leading-snug text-gray-800 mb-3">
+<!-- Header -->
+<div class="header py-4 px-8 text-white animation-fade">
+<h1 class="text-4xl font-bold">傅里叶变换的历史由来</h1>
+<p class="text-xl mt-2">约瑟夫·傅里叶的贡献与发展历程</p>
+</div>
+<!-- Main Content -->
+<div class="flex-1 px-8 py-6 flex flex-col">
+<!-- Fourier Introduction -->
+<div class="flex items-start mb-6 animation-fade" style="animation-delay: 0.2s">
+<div class="portrait rounded-lg overflow-hidden mr-6 w-1/4 flex-shrink-0">
+<img alt="约瑟夫·傅里叶肖像" class="w-full object-cover" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Fourier2_-_restoration1.jpg/1200px-Fourier2_-_restoration1.jpg"/>
+<div class="bg-blue-50 p-2 text-center">
+<p class="text-sm font-medium text-gray-700">约瑟夫·傅里叶 (1768-1830)</p>
+<p class="text-xs text-gray-500">法国数学家与物理学家</p>
+</div>
+</div>
+<div class="content-box pl-4 py-3 rounded w-3/4">
+<h2 class="text-2xl font-bold text-blue-700 mb-2">科学家与他的时代</h2>
+<p class="text-lg leading-snug text-gray-800 mb-3">
                         约瑟夫·傅里叶出生于法国革命前夕的动荡时期，曾随拿破仑远征埃及，担任埃及研究院秘书长。在研究热传导问题时，他提出了一项划时代的数学方法——将任意周期函数表示为简单正弦函数的无穷级数。
                     </p>
-                    <div class="highlight-box p-3 rounded-r-lg">
-                        <p class="text-lg italic text-gray-700">
+<div class="highlight-box p-3 rounded-r-lg">
+<p class="text-lg italic text-gray-700">
                             "热学解析理论"(1822年)一书中，傅里叶首次系统阐述了他的变换理论，虽然当时因其严谨性受到拉格朗日、拉普拉斯等人质疑，但最终改变了数学史和科学史的进程。
                         </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Timeline -->
-            <h2 class="text-2xl font-bold text-blue-700 my-3 pl-2 animation-fade" style="animation-delay: 0.4s">
-                <i class="fas fa-history mr-2"></i>傅里叶分析的历史发展
+</div>
+</div>
+</div>
+<!-- Timeline -->
+<h2 class="text-2xl font-bold text-blue-700 my-3 pl-2 animation-fade" style="animation-delay: 0.4s">
+<i class="fas fa-history mr-2"></i>傅里叶分析的历史发展
             </h2>
-
-            <div class="timeline py-1 animation-fade" style="animation-delay: 0.6s">
-                <!-- Timeline Item 1 -->
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content timeline-left bg-blue-50">
-                        <h3 class="text-lg font-bold text-blue-800">1807年</h3>
-                        <p class="text-base">傅里叶在法国科学院提交论文，提出任何函数都可以用三角函数级数表示，奠定了傅里叶级数的基础</p>
-                    </div>
-                </div>
-
-                <!-- Timeline Item 2 -->
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content timeline-right bg-blue-50">
-                        <h3 class="text-lg font-bold text-blue-800">1822年</h3>
-                        <p class="text-base">出版《热的解析理论》，系统阐述了傅里叶级数及其在热传导问题中的应用，开创了数学物理方程的新方法</p>
-                    </div>
-                </div>
-
-                <!-- Timeline Item 3 -->
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content timeline-left bg-blue-50">
-                        <h3 class="text-lg font-bold text-blue-800">1867年</h3>
-                        <p class="text-base">数学家洛特·冯·赫姆霍兹拓展了傅里叶的工作，证明了傅里叶级数的收敛性，使理论更加严谨</p>
-                    </div>
-                </div>
-
-                <!-- Timeline Item 4 -->
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content timeline-right bg-blue-50">
-                        <h3 class="text-lg font-bold text-blue-800">20世纪初</h3>
-                        <p class="text-base">现代傅里叶分析理论形成，傅里叶变换从热学拓展到量子力学、通信工程等多领域，成为现代科学的基石</p>
-                    </div>
-                </div>
-
-                <!-- Timeline Item 5 -->
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content timeline-left bg-blue-50">
-                        <h3 class="text-lg font-bold text-blue-800">1965年</h3>
-                        <p class="text-base">库利和图基发表了快速傅里叶变换(FFT)算法，极大提高了计算效率，促进了傅里叶变换在数字信号处理中的广泛应用</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Historical Impact -->
-            <div class="flex items-center justify-between mt-4 mb-2 animation-fade" style="animation-delay: 0.8s">
-                <div class="highlight-box p-4 rounded-lg w-full">
-                    <h3 class="text-xl font-bold text-blue-700 mb-2">历史意义与学术争议</h3>
-                    <div class="flex items-start">
-                        <div class="pr-4 w-2/3">
-                            <p class="text-base text-gray-800">
+<div class="timeline py-1 animation-fade" style="animation-delay: 0.6s">
+<!-- Timeline Item 1 -->
+<div class="timeline-item">
+<div class="timeline-dot"></div>
+<div class="timeline-content timeline-left bg-blue-50">
+<h3 class="text-lg font-bold text-blue-800">1807年</h3>
+<p class="text-base">傅里叶在法国科学院提交论文，提出任何函数都可以用三角函数级数表示，奠定了傅里叶级数的基础</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="timeline-item">
+<div class="timeline-dot"></div>
+<div class="timeline-content timeline-right bg-blue-50">
+<h3 class="text-lg font-bold text-blue-800">1822年</h3>
+<p class="text-base">出版《热的解析理论》，系统阐述了傅里叶级数及其在热传导问题中的应用，开创了数学物理方程的新方法</p>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="timeline-item">
+<div class="timeline-dot"></div>
+<div class="timeline-content timeline-left bg-blue-50">
+<h3 class="text-lg font-bold text-blue-800">1867年</h3>
+<p class="text-base">数学家洛特·冯·赫姆霍兹拓展了傅里叶的工作，证明了傅里叶级数的收敛性，使理论更加严谨</p>
+</div>
+</div>
+<!-- Timeline Item 4 -->
+<div class="timeline-item">
+<div class="timeline-dot"></div>
+<div class="timeline-content timeline-right bg-blue-50">
+<h3 class="text-lg font-bold text-blue-800">20世纪初</h3>
+<p class="text-base">现代傅里叶分析理论形成，傅里叶变换从热学拓展到量子力学、通信工程等多领域，成为现代科学的基石</p>
+</div>
+</div>
+<!-- Timeline Item 5 -->
+<div class="timeline-item">
+<div class="timeline-dot"></div>
+<div class="timeline-content timeline-left bg-blue-50">
+<h3 class="text-lg font-bold text-blue-800">1965年</h3>
+<p class="text-base">库利和图基发表了快速傅里叶变换(FFT)算法，极大提高了计算效率，促进了傅里叶变换在数字信号处理中的广泛应用</p>
+</div>
+</div>
+</div>
+<!-- Historical Impact -->
+<div class="flex items-center justify-between mt-4 mb-2 animation-fade" style="animation-delay: 0.8s">
+<div class="highlight-box p-4 rounded-lg w-full">
+<h3 class="text-xl font-bold text-blue-700 mb-2">历史意义与学术争议</h3>
+<div class="flex items-start">
+<div class="pr-4 w-2/3">
+<p class="text-base text-gray-800">
                                 傅里叶的工作最初引发了数学界的巨大争议，因为它挑战了当时对"函数"概念的认识。他的理论促使数学家重新思考函数的连续性、可微性等基本概念，直接推动了实分析和泛函分析的发展。
                             </p>
-                            <p class="text-base text-gray-800 mt-2">
+<p class="text-base text-gray-800 mt-2">
                                 从热传导方程到现代信号处理，傅里叶的思想穿越两个世纪，成为连接经典数学与现代科学技术的桥梁，被誉为"历史上最有革命性的数学思想之一"。
                             </p>
-                        </div>
-                        <div class="w-1/3 flex justify-center">
-                            <div class="flex flex-col items-center justify-center">
-                                <i class="fas fa-quote-left text-5xl text-blue-200 mb-2"></i>
-                                <p class="text-base italic text-center text-gray-700">
+</div>
+<div class="w-1/3 flex justify-center">
+<div class="flex flex-col items-center justify-center">
+<i class="fas fa-quote-left text-5xl text-blue-200 mb-2"></i>
+<p class="text-base italic text-center text-gray-700">
                                     "傅里叶变换的美丽在于它将复杂问题简单化，将不可见转化为可见。"
                                 </p>
-                                <p class="text-sm text-gray-500 text-right w-full mt-1">— 现代数学评价</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Note -->
-            <div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1s">
-                <p>"数学是科学的女王，而数论是数学的女王。" — 高斯</p>
-            </div>
-        </div>
-    </div><div class="slide rounded-lg overflow-hidden flex flex-col">
-        <!-- Header -->
-        <div class="header py-4 px-8 text-white animation-fade">
-            <h1 class="text-4xl font-bold">傅里叶变换的数学原理</h1>
-            <p class="text-xl mt-2">基本公式与图形化解释</p>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 px-8 py-6 flex flex-col">
-            <!-- Introduction -->
-            <div class="animation-fade" style="animation-delay: 0.2s">
-                <p class="text-lg text-gray-800 mb-4">
+<p class="text-sm text-gray-500 text-right w-full mt-1">— 现代数学评价</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Note -->
+<div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1s">
+<p>"数学是科学的女王，而数论是数学的女王。" — 高斯</p>
+</div>
+</div>
+</div><div class="slide rounded-lg overflow-hidden flex flex-col">
+<!-- Header -->
+<div class="header py-4 px-8 text-white animation-fade">
+<h1 class="text-4xl font-bold">傅里叶变换的数学原理</h1>
+<p class="text-xl mt-2">基本公式与图形化解释</p>
+</div>
+<!-- Main Content -->
+<div class="flex-1 px-8 py-6 flex flex-col">
+<!-- Introduction -->
+<div class="animation-fade" style="animation-delay: 0.2s">
+<p class="text-lg text-gray-800 mb-4">
                     傅里叶变换的核心是将时域信号分解为频域中的正弦波组合，以下是傅里叶变换的数学表达与原理解析：
                 </p>
-            </div>
-
-            <!-- Formulas Section -->
-            <div class="grid grid-cols-2 gap-6 mb-4 animation-fade" style="animation-delay: 0.4s">
-                <!-- Continuous Fourier Transform -->
-                <div class="formula-card p-4">
-                    <h3 class="text-xl font-bold text-blue-700 mb-3"><i class="fas fa-integral mr-2"></i>连续傅里叶变换</h3>
-                    <div class="bg-white p-3 rounded-lg shadow-inner">
-                        <div class="formula-component p-2 rounded-lg">
-                            <p class="text-lg font-serif text-center">F(ω) = ∫<sub>-∞</sub><sup>∞</sup> f(t)e<sup>-jωt</sup> dt</p>
-                            <p class="text-sm text-gray-600 mt-1">正变换：从时域 f(t) 到频域 F(ω)</p>
-                        </div>
-
-                        <div class="formula-component p-2 rounded-lg mt-3">
-                            <p class="text-lg font-serif text-center">f(t) = <span class="text-sm">1</span>/<span class="text-sm">2π</span> ∫<sub>-∞</sub><sup>∞</sup> F(ω)e<sup>jωt</sup> dω</p>
-                            <p class="text-sm text-gray-600 mt-1">逆变换：从频域 F(ω) 回到时域 f(t)</p>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <h4 class="text-md font-semibold text-blue-600">核心要点：</h4>
-                        <ul class="text-sm text-gray-700 list-disc pl-5 mt-1">
-                            <li>j 为虚数单位，e<sup>-jωt</sup> 表示欧拉公式：cos(ωt) - j·sin(ωt)</li>
-                            <li>F(ω) 的模值 |F(ω)| 表示频率 ω 处的振幅谱</li>
-                            <li>F(ω) 的相角 arg[F(ω)] 表示频率 ω 处的相位谱</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Discrete Fourier Transform -->
-                <div class="formula-card p-4">
-                    <h3 class="text-xl font-bold text-blue-700 mb-3"><i class="fas fa-calculator mr-2"></i>离散傅里叶变换 (DFT)</h3>
-                    <div class="bg-white p-3 rounded-lg shadow-inner">
-                        <div class="formula-component p-2 rounded-lg">
-                            <p class="text-lg font-serif text-center">X[k] = Σ<sub>n=0</sub><sup>N-1</sup> x[n]e<sup>-j2πkn/N</sup></p>
-                            <p class="text-sm text-gray-600 mt-1">正变换：从离散时域序列 x[n] 到频域序列 X[k]</p>
-                        </div>
-
-                        <div class="formula-component p-2 rounded-lg mt-3">
-                            <p class="text-lg font-serif text-center">x[n] = <span class="text-sm">1</span>/<span class="text-sm">N</span> Σ<sub>k=0</sub><sup>N-1</sup> X[k]e<sup>j2πkn/N</sup></p>
-                            <p class="text-sm text-gray-600 mt-1">逆变换：从频域序列 X[k] 回到时域序列 x[n]</p>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <h4 class="text-md font-semibold text-blue-600">计算效率：</h4>
-                        <ul class="text-sm text-gray-700 list-disc pl-5 mt-1">
-                            <li>直接计算 DFT 需要 O(N²) 运算复杂度</li>
-                            <li>快速傅里叶变换 (FFT) 将复杂度降至 O(N·log N)</li>
-                            <li>FFT 是现代数字信号处理的基础算法之一</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visual Representation -->
-            <div class="flex items-stretch justify-between gap-6 mb-4 animation-fade" style="animation-delay: 0.6s">
-                <!-- Graph Explanation -->
-                <div class="w-7/12 bg-white p-4 rounded-lg shadow">
-                    <h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-chart-line mr-2"></i>图形化解释</h3>
-                    <div class="chart-container h-56">
-                        <canvas id="fourierChart"></canvas>
-                    </div>
-                    <div class="text-sm text-gray-600 mt-3">
-                        <p>上图展示了一个复杂信号（黑色）如何由多个不同频率的正弦波（彩色）组合而成。
+</div>
+<!-- Formulas Section -->
+<div class="grid grid-cols-2 gap-6 mb-4 animation-fade" style="animation-delay: 0.4s">
+<!-- Continuous Fourier Transform -->
+<div class="formula-card p-4">
+<h3 class="text-xl font-bold text-blue-700 mb-3"><i class="fas fa-integral mr-2"></i>连续傅里叶变换</h3>
+<div class="bg-white p-3 rounded-lg shadow-inner">
+<div class="formula-component p-2 rounded-lg">
+<p class="text-lg font-serif text-center">F(ω) = ∫<sub>-∞</sub><sup>∞</sup> f(t)e<sup>-jωt</sup> dt</p>
+<p class="text-sm text-gray-600 mt-1">正变换：从时域 f(t) 到频域 F(ω)</p>
+</div>
+<div class="formula-component p-2 rounded-lg mt-3">
+<p class="text-lg font-serif text-center">f(t) = <span class="text-sm">1</span>/<span class="text-sm">2π</span> ∫<sub>-∞</sub><sup>∞</sup> F(ω)e<sup>jωt</sup> dω</p>
+<p class="text-sm text-gray-600 mt-1">逆变换：从频域 F(ω) 回到时域 f(t)</p>
+</div>
+</div>
+<div class="mt-3">
+<h4 class="text-md font-semibold text-blue-600">核心要点：</h4>
+<ul class="text-sm text-gray-700 list-disc pl-5 mt-1">
+<li>j 为虚数单位，e<sup>-jωt</sup> 表示欧拉公式：cos(ωt) - j·sin(ωt)</li>
+<li>F(ω) 的模值 |F(ω)| 表示频率 ω 处的振幅谱</li>
+<li>F(ω) 的相角 arg[F(ω)] 表示频率 ω 处的相位谱</li>
+</ul>
+</div>
+</div>
+<!-- Discrete Fourier Transform -->
+<div class="formula-card p-4">
+<h3 class="text-xl font-bold text-blue-700 mb-3"><i class="fas fa-calculator mr-2"></i>离散傅里叶变换 (DFT)</h3>
+<div class="bg-white p-3 rounded-lg shadow-inner">
+<div class="formula-component p-2 rounded-lg">
+<p class="text-lg font-serif text-center">X[k] = Σ<sub>n=0</sub><sup>N-1</sup> x[n]e<sup>-j2πkn/N</sup></p>
+<p class="text-sm text-gray-600 mt-1">正变换：从离散时域序列 x[n] 到频域序列 X[k]</p>
+</div>
+<div class="formula-component p-2 rounded-lg mt-3">
+<p class="text-lg font-serif text-center">x[n] = <span class="text-sm">1</span>/<span class="text-sm">N</span> Σ<sub>k=0</sub><sup>N-1</sup> X[k]e<sup>j2πkn/N</sup></p>
+<p class="text-sm text-gray-600 mt-1">逆变换：从频域序列 X[k] 回到时域序列 x[n]</p>
+</div>
+</div>
+<div class="mt-3">
+<h4 class="text-md font-semibold text-blue-600">计算效率：</h4>
+<ul class="text-sm text-gray-700 list-disc pl-5 mt-1">
+<li>直接计算 DFT 需要 O(N²) 运算复杂度</li>
+<li>快速傅里叶变换 (FFT) 将复杂度降至 O(N·log N)</li>
+<li>FFT 是现代数字信号处理的基础算法之一</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Visual Representation -->
+<div class="flex items-stretch justify-between gap-6 mb-4 animation-fade" style="animation-delay: 0.6s">
+<!-- Graph Explanation -->
+<div class="w-7/12 bg-white p-4 rounded-lg shadow">
+<h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-chart-line mr-2"></i>图形化解释</h3>
+<div class="chart-container h-56">
+<canvas id="fourierChart"></canvas>
+</div>
+<div class="text-sm text-gray-600 mt-3">
+<p>上图展示了一个复杂信号（黑色）如何由多个不同频率的正弦波（彩色）组合而成。
                         傅里叶变换正是揭示了这些组成成分的频率、振幅和相位。</p>
-                    </div>
-                </div>
-
-                <!-- Mathematical Properties -->
-                <div class="w-5/12 flex flex-col">
-                    <h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-cogs mr-2"></i>重要数学性质</h3>
-
-                    <div class="flex-1 flex flex-col gap-2">
-                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.6s">
-                            <h4 class="text-md font-semibold text-blue-600">线性性质</h4>
-                            <p class="text-sm text-gray-700">α·f₁(t) + β·f₂(t) ⟷ α·F₁(ω) + β·F₂(ω)</p>
-                        </div>
-
-                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.7s">
-                            <h4 class="text-md font-semibold text-blue-600">时移性质</h4>
-                            <p class="text-sm text-gray-700">f(t-t₀) ⟷ F(ω)·e<sup>-jωt₀</sup></p>
-                        </div>
-
-                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.8s">
-                            <h4 class="text-md font-semibold text-blue-600">频移性质</h4>
-                            <p class="text-sm text-gray-700">f(t)·e<sup>jω₀t</sup> ⟷ F(ω-ω₀)</p>
-                        </div>
-
-                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.9s">
-                            <h4 class="text-md font-semibold text-blue-600">时域卷积定理</h4>
-                            <p class="text-sm text-gray-700">f₁(t) * f₂(t) ⟷ F₁(ω) · F₂(ω)</p>
-                            <p class="text-xs text-gray-500 mt-1">时域卷积对应频域相乘</p>
-                        </div>
-
-                        <div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 1s">
-                            <h4 class="text-md font-semibold text-blue-600">频域卷积定理</h4>
-                            <p class="text-sm text-gray-700">f₁(t) · f₂(t) ⟷ (1/2π) · F₁(ω) * F₂(ω)</p>
-                            <p class="text-xs text-gray-500 mt-1">时域相乘对应频域卷积</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fourier Transform Pairs -->
-            <div class="bg-blue-50 p-4 rounded-lg shadow mb-4 animation-fade" style="animation-delay: 0.8s">
-                <h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-exchange-alt mr-2"></i>经典傅里叶变换对</h3>
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="bg-white p-2 rounded shadow-sm">
-                        <p class="text-center text-sm font-medium">矩形脉冲 rect(t)</p>
-                        <p class="text-center text-sm">⟷</p>
-                        <p class="text-center text-sm font-medium">sinc 函数 (sin(ωT/2)/(ωT/2))</p>
-                    </div>
-                    <div class="bg-white p-2 rounded shadow-sm">
-                        <p class="text-center text-sm font-medium">高斯函数 e<sup>-at²</sup></p>
-                        <p class="text-center text-sm">⟷</p>
-                        <p class="text-center text-sm font-medium">高斯函数 (√(π/a))·e<sup>-ω²/(4a)</sup></p>
-                    </div>
-                    <div class="bg-white p-2 rounded shadow-sm">
-                        <p class="text-center text-sm font-medium">单位冲激函数 δ(t)</p>
-                        <p class="text-center text-sm">⟷</p>
-                        <p class="text-center text-sm font-medium">常数 1</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Key Insights -->
-            <div class="flex items-center justify-between bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg animation-fade" style="animation-delay: 1s">
-                <div class="w-3/5 pr-4">
-                    <h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-lightbulb mr-2"></i>深刻洞见</h3>
-                    <p class="text-base text-gray-800">
+</div>
+</div>
+<!-- Mathematical Properties -->
+<div class="w-5/12 flex flex-col">
+<h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-cogs mr-2"></i>重要数学性质</h3>
+<div class="flex-1 flex flex-col gap-2">
+<div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.6s">
+<h4 class="text-md font-semibold text-blue-600">线性性质</h4>
+<p class="text-sm text-gray-700">α·f₁(t) + β·f₂(t) ⟷ α·F₁(ω) + β·F₂(ω)</p>
+</div>
+<div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.7s">
+<h4 class="text-md font-semibold text-blue-600">时移性质</h4>
+<p class="text-sm text-gray-700">f(t-t₀) ⟷ F(ω)·e<sup>-jωt₀</sup></p>
+</div>
+<div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.8s">
+<h4 class="text-md font-semibold text-blue-600">频移性质</h4>
+<p class="text-sm text-gray-700">f(t)·e<sup>jω₀t</sup> ⟷ F(ω-ω₀)</p>
+</div>
+<div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 0.9s">
+<h4 class="text-md font-semibold text-blue-600">时域卷积定理</h4>
+<p class="text-sm text-gray-700">f₁(t) * f₂(t) ⟷ F₁(ω) · F₂(ω)</p>
+<p class="text-xs text-gray-500 mt-1">时域卷积对应频域相乘</p>
+</div>
+<div class="property-box p-3 rounded animation-slide-right" style="animation-delay: 1s">
+<h4 class="text-md font-semibold text-blue-600">频域卷积定理</h4>
+<p class="text-sm text-gray-700">f₁(t) · f₂(t) ⟷ (1/2π) · F₁(ω) * F₂(ω)</p>
+<p class="text-xs text-gray-500 mt-1">时域相乘对应频域卷积</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Fourier Transform Pairs -->
+<div class="bg-blue-50 p-4 rounded-lg shadow mb-4 animation-fade" style="animation-delay: 0.8s">
+<h3 class="text-lg font-bold text-blue-700 mb-3"><i class="fas fa-exchange-alt mr-2"></i>经典傅里叶变换对</h3>
+<div class="grid grid-cols-3 gap-3">
+<div class="bg-white p-2 rounded shadow-sm">
+<p class="text-center text-sm font-medium">矩形脉冲 rect(t)</p>
+<p class="text-center text-sm">⟷</p>
+<p class="text-center text-sm font-medium">sinc 函数 (sin(ωT/2)/(ωT/2))</p>
+</div>
+<div class="bg-white p-2 rounded shadow-sm">
+<p class="text-center text-sm font-medium">高斯函数 e<sup>-at²</sup></p>
+<p class="text-center text-sm">⟷</p>
+<p class="text-center text-sm font-medium">高斯函数 (√(π/a))·e<sup>-ω²/(4a)</sup></p>
+</div>
+<div class="bg-white p-2 rounded shadow-sm">
+<p class="text-center text-sm font-medium">单位冲激函数 δ(t)</p>
+<p class="text-center text-sm">⟷</p>
+<p class="text-center text-sm font-medium">常数 1</p>
+</div>
+</div>
+</div>
+<!-- Key Insights -->
+<div class="flex items-center justify-between bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg animation-fade" style="animation-delay: 1s">
+<div class="w-3/5 pr-4">
+<h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-lightbulb mr-2"></i>深刻洞见</h3>
+<p class="text-base text-gray-800">
                         傅里叶变换揭示了信号在时域和频域之间的对偶性，二者是同一信息的不同表现形式。它使我们可以在最适合的域中处理信号——许多复杂的时域操作（如卷积）在频域中变成简单的运算（如乘法）。这一特性使傅里叶变换成为信号处理、波动方程求解和量子力学中不可或缺的数学工具。
                     </p>
-                </div>
-                <div class="w-2/5 flex justify-center">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Fourier_transform_time_and_frequency_domains_%28small%29.gif"
-                         alt="时域频域表示" class="h-32 object-contain rounded shadow-lg">
-                </div>
-            </div>
-
-            <!-- Footer Quote -->
-            <div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1.2s">
-                <p>"在数学的花园里，傅里叶变换是最美丽的花朵之一。" — 拉普拉斯</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+<div class="w-2/5 flex justify-center">
+<img alt="时域频域表示" class="h-32 object-contain rounded shadow-lg" src="https://upload.wikimedia.org/wikipedia/commons/7/72/Fourier_transform_time_and_frequency_domains_%28small%29.gif"/>
+</div>
+</div>
+<!-- Footer Quote -->
+<div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1.2s">
+<p>"在数学的花园里，傅里叶变换是最美丽的花朵之一。" — 拉普拉斯</p>
+</div>
+</div>
+</div>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             // Render KaTeX formulas
             renderMathInElement(document.body, {
@@ -548,186 +806,164 @@
             });
         });
     </script><div class="slide rounded-lg overflow-hidden flex flex-col">
-        <!-- Header -->
-        <div class="header py-4 px-8 text-white animation-fade">
-            <h1 class="text-4xl font-bold">傅里叶变换的广泛应用场景</h1>
-            <p class="text-xl mt-2">从信号处理到图像分析的多领域应用</p>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 px-8 py-5 flex flex-col">
-            <!-- Introduction -->
-            <div class="animation-fade mb-4" style="animation-delay: 0.2s">
-                <p class="text-lg text-gray-800">
+<!-- Header -->
+<div class="header py-4 px-8 text-white animation-fade">
+<h1 class="text-4xl font-bold">傅里叶变换的广泛应用场景</h1>
+<p class="text-xl mt-2">从信号处理到图像分析的多领域应用</p>
+</div>
+<!-- Main Content -->
+<div class="flex-1 px-8 py-5 flex flex-col">
+<!-- Introduction -->
+<div class="animation-fade mb-4" style="animation-delay: 0.2s">
+<p class="text-lg text-gray-800">
                     傅里叶变换作为一种强大的数学工具，已深入应用于现代科学技术的各个领域，彻底改变了我们理解和处理信息的方式：
                 </p>
-            </div>
-
-            <!-- Applications Grid -->
-            <div class="grid grid-cols-2 gap-6 mb-3">
-                <!-- Signal Processing -->
-                <div class="app-card p-4 animation-fade" style="animation-delay: 0.3s">
-                    <div class="flex items-start">
-                        <div class="icon-box">
-                            <i class="fas fa-wave-square"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-blue-700">信号处理</h3>
-                            <p class="text-sm text-gray-600 mt-1">通过分析频谱成分，可以进行信号滤波、压缩和还原</p>
-
-                            <ul class="text-sm text-gray-700 list-disc pl-5 mt-2">
-                                <li>移除信号中的噪声（低通、高通和带通滤波器）</li>
-                                <li>音频压缩（MP3等压缩算法的基础）</li>
-                                <li>雷达和声纳信号分析</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="chart-container">
-                        <canvas id="signalChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Image Processing -->
-                <div class="app-card p-4 animation-fade" style="animation-delay: 0.4s">
-                    <div class="flex items-start">
-                        <div class="icon-box">
-                            <i class="fas fa-image"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-blue-700">图像处理</h3>
-                            <p class="text-sm text-gray-600 mt-1">将二维图像转换到频域，进行增强和分析</p>
-
-                            <ul class="text-sm text-gray-700 list-disc pl-5 mt-2">
-                                <li>图像压缩（JPEG格式的核心技术）</li>
-                                <li>图像增强和修复（去模糊、去噪声）</li>
-                                <li>边缘检测和特征提取</li>
-                                <li>医学图像处理（CT、MRI扫描）</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center mt-3">
-                        <div class="w-1/3">
-                            <img src="https://blog.hawkhai.com/assets/images/200926-dip-fourier-transform/40cf849e55ed95732a60b52d4019d609_r.jpg"
-                                 alt="图像频域表示" class="w-full h-auto rounded shadow">
-                        </div>
-                        <div class="w-1/3">
-                            <i class="fas fa-arrow-right text-blue-500 text-2xl"></i>
-                        </div>
-                        <div class="w-1/3">
-                            <img src="https://i-blog.csdnimg.cn/blog_migrate/d9ebc50fce49f9a0666a6eab67c267fb.jpeg"
-                                 alt="图像处理效果" class="w-full h-auto rounded shadow">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Communications -->
-                <div class="app-card p-4 animation-fade" style="animation-delay: 0.5s">
-                    <div class="flex items-start">
-                        <div class="icon-box">
-                            <i class="fas fa-broadcast-tower"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-blue-700">通信技术</h3>
-                            <p class="text-sm text-gray-600 mt-1">现代通信系统的基础</p>
-
-                            <ul class="text-sm text-gray-700 list-disc pl-5 mt-2">
-                                <li>调制解调技术（无线电、电视与手机信号）</li>
-                                <li>频分复用（OFDM - 4G/5G通信的关键技术）</li>
-                                <li>频谱分析与管理</li>
-                                <li>网络数据传输与WiFi</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-center mt-3">
-                        <div class="bg-blue-50 rounded-lg p-3 w-full">
-                            <div class="text-center">
-                                <span class="text-sm font-medium">OFDM 正交频分复用技术原理</span>
-                            </div>
-                            <img src="https://static.mianbaoban-assets.eet-china.com/2020/6/vIFFb2.png"
-                                 alt="OFDM原理" class="h-20 object-contain mx-auto mt-2">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Scientific Analysis -->
-                <div class="app-card p-4 animation-fade" style="animation-delay: 0.6s">
-                    <div class="flex items-start">
-                        <div class="icon-box">
-                            <i class="fas fa-atom"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-blue-700">科学研究</h3>
-                            <p class="text-sm text-gray-600 mt-1">在多个学科中的深入应用</p>
-
-                            <ul class="text-sm text-gray-700 list-disc pl-5 mt-2">
-                                <li>量子力学（波函数分析）</li>
-                                <li>光学（衍射和干涉现象）</li>
-                                <li>地震学（地震波分析）</li>
-                                <li>天文学（宇宙微波背景辐射分析）</li>
-                                <li>生物医学（脑电图、心电图分析）</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="bg-blue-50 rounded-lg p-2 mt-2">
-                        <div class="text-xs text-gray-600 text-center italic">
+</div>
+<!-- Applications Grid -->
+<div class="grid grid-cols-2 gap-6 mb-3">
+<!-- Signal Processing -->
+<div class="app-card p-4 animation-fade" style="animation-delay: 0.3s">
+<div class="flex items-start">
+<div class="icon-box">
+<i class="fas fa-wave-square"></i>
+</div>
+<div>
+<h3 class="text-xl font-bold text-blue-700">信号处理</h3>
+<p class="text-sm text-gray-600 mt-1">通过分析频谱成分，可以进行信号滤波、压缩和还原</p>
+<ul class="text-sm text-gray-700 list-disc pl-5 mt-2">
+<li>移除信号中的噪声（低通、高通和带通滤波器）</li>
+<li>音频压缩（MP3等压缩算法的基础）</li>
+<li>雷达和声纳信号分析</li>
+</ul>
+</div>
+</div>
+<div class="chart-container">
+<canvas id="signalChart"></canvas>
+</div>
+</div>
+<!-- Image Processing -->
+<div class="app-card p-4 animation-fade" style="animation-delay: 0.4s">
+<div class="flex items-start">
+<div class="icon-box">
+<i class="fas fa-image"></i>
+</div>
+<div>
+<h3 class="text-xl font-bold text-blue-700">图像处理</h3>
+<p class="text-sm text-gray-600 mt-1">将二维图像转换到频域，进行增强和分析</p>
+<ul class="text-sm text-gray-700 list-disc pl-5 mt-2">
+<li>图像压缩（JPEG格式的核心技术）</li>
+<li>图像增强和修复（去模糊、去噪声）</li>
+<li>边缘检测和特征提取</li>
+<li>医学图像处理（CT、MRI扫描）</li>
+</ul>
+</div>
+</div>
+<div class="flex justify-between items-center mt-3">
+<div class="w-1/3">
+<img alt="图像频域表示" class="w-full h-auto rounded shadow" src="https://blog.hawkhai.com/assets/images/200926-dip-fourier-transform/40cf849e55ed95732a60b52d4019d609_r.jpg"/>
+</div>
+<div class="w-1/3">
+<i class="fas fa-arrow-right text-blue-500 text-2xl"></i>
+</div>
+<div class="w-1/3">
+<img alt="图像处理效果" class="w-full h-auto rounded shadow" src="https://i-blog.csdnimg.cn/blog_migrate/d9ebc50fce49f9a0666a6eab67c267fb.jpeg"/>
+</div>
+</div>
+</div>
+<!-- Communications -->
+<div class="app-card p-4 animation-fade" style="animation-delay: 0.5s">
+<div class="flex items-start">
+<div class="icon-box">
+<i class="fas fa-broadcast-tower"></i>
+</div>
+<div>
+<h3 class="text-xl font-bold text-blue-700">通信技术</h3>
+<p class="text-sm text-gray-600 mt-1">现代通信系统的基础</p>
+<ul class="text-sm text-gray-700 list-disc pl-5 mt-2">
+<li>调制解调技术（无线电、电视与手机信号）</li>
+<li>频分复用（OFDM - 4G/5G通信的关键技术）</li>
+<li>频谱分析与管理</li>
+<li>网络数据传输与WiFi</li>
+</ul>
+</div>
+</div>
+<div class="flex justify-center mt-3">
+<div class="bg-blue-50 rounded-lg p-3 w-full">
+<div class="text-center">
+<span class="text-sm font-medium">OFDM 正交频分复用技术原理</span>
+</div>
+<img alt="OFDM原理" class="h-20 object-contain mx-auto mt-2" src="https://static.mianbaoban-assets.eet-china.com/2020/6/vIFFb2.png"/>
+</div>
+</div>
+</div>
+<!-- Scientific Analysis -->
+<div class="app-card p-4 animation-fade" style="animation-delay: 0.6s">
+<div class="flex items-start">
+<div class="icon-box">
+<i class="fas fa-atom"></i>
+</div>
+<div>
+<h3 class="text-xl font-bold text-blue-700">科学研究</h3>
+<p class="text-sm text-gray-600 mt-1">在多个学科中的深入应用</p>
+<ul class="text-sm text-gray-700 list-disc pl-5 mt-2">
+<li>量子力学（波函数分析）</li>
+<li>光学（衍射和干涉现象）</li>
+<li>地震学（地震波分析）</li>
+<li>天文学（宇宙微波背景辐射分析）</li>
+<li>生物医学（脑电图、心电图分析）</li>
+</ul>
+</div>
+</div>
+<div class="bg-blue-50 rounded-lg p-2 mt-2">
+<div class="text-xs text-gray-600 text-center italic">
                             "傅里叶变换的美在于它能通过数学视角揭示自然界中的频率模式，
                             从原子振动到星系旋转，无处不在。"
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Additional Applications -->
-            <div class="grid grid-cols-3 gap-4 mb-3 animation-fade" style="animation-delay: 0.7s">
-                <div class="bg-blue-50 p-3 rounded-lg flex items-center">
-                    <i class="fas fa-music text-blue-600 text-xl mr-3"></i>
-                    <div>
-                        <h4 class="text-md font-bold text-blue-700">音频处理</h4>
-                        <p class="text-xs text-gray-600">均衡器、音效处理、语音识别</p>
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 p-3 rounded-lg flex items-center">
-                    <i class="fas fa-microchip text-blue-600 text-xl mr-3"></i>
-                    <div>
-                        <h4 class="text-md font-bold text-blue-700">计算机视觉</h4>
-                        <p class="text-xs text-gray-600">人脸识别、目标检测、场景分析</p>
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 p-3 rounded-lg flex items-center">
-                    <i class="fas fa-chart-bar text-blue-600 text-xl mr-3"></i>
-                    <div>
-                        <h4 class="text-md font-bold text-blue-700">数据科学</h4>
-                        <p class="text-xs text-gray-600">时间序列分析、数据压缩、模式识别</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Summary -->
-            <div class="bg-gradient-to-r from-blue-100 to-white p-4 rounded-lg shadow-sm mt-1 animation-zoom" style="animation-delay: 0.8s">
-                <h3 class="text-lg font-bold text-blue-700 mb-2 flex items-center">
-                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+</div>
+</div>
+</div>
+<!-- Additional Applications -->
+<div class="grid grid-cols-3 gap-4 mb-3 animation-fade" style="animation-delay: 0.7s">
+<div class="bg-blue-50 p-3 rounded-lg flex items-center">
+<i class="fas fa-music text-blue-600 text-xl mr-3"></i>
+<div>
+<h4 class="text-md font-bold text-blue-700">音频处理</h4>
+<p class="text-xs text-gray-600">均衡器、音效处理、语音识别</p>
+</div>
+</div>
+<div class="bg-blue-50 p-3 rounded-lg flex items-center">
+<i class="fas fa-microchip text-blue-600 text-xl mr-3"></i>
+<div>
+<h4 class="text-md font-bold text-blue-700">计算机视觉</h4>
+<p class="text-xs text-gray-600">人脸识别、目标检测、场景分析</p>
+</div>
+</div>
+<div class="bg-blue-50 p-3 rounded-lg flex items-center">
+<i class="fas fa-chart-bar text-blue-600 text-xl mr-3"></i>
+<div>
+<h4 class="text-md font-bold text-blue-700">数据科学</h4>
+<p class="text-xs text-gray-600">时间序列分析、数据压缩、模式识别</p>
+</div>
+</div>
+</div>
+<!-- Summary -->
+<div class="bg-gradient-to-r from-blue-100 to-white p-4 rounded-lg shadow-sm mt-1 animation-zoom" style="animation-delay: 0.8s">
+<h3 class="text-lg font-bold text-blue-700 mb-2 flex items-center">
+<i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
                     傅里叶变换的跨学科影响
                 </h3>
-                <p class="text-base text-gray-800">
+<p class="text-base text-gray-800">
                     傅里叶变换从最初解决热传导问题，发展为现代信息科学的基石。这种数学工具让我们能够将复杂信号分解为基本组成部分，
                     在时域和频域之间自由切换，极大地推动了科学技术的发展，成为连接纯数学理论与实际工程应用的桥梁。
                 </p>
-            </div>
-
-            <!-- Footer Note -->
-            <div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1s">
-                <p>"最有效的数学工具往往能超越其最初的应用领域，傅里叶变换正是其中的杰出代表。"</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+<!-- Footer Note -->
+<div class="mt-auto pt-2 text-center text-gray-500 text-sm animation-fade" style="animation-delay: 1s">
+<p>"最有效的数学工具往往能超越其最初的应用领域，傅里叶变换正是其中的杰出代表。"</p>
+</div>
+</div>
+</div>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             // Create signal processing chart
             const ctx = document.getElementById('signalChart').getContext('2d');
@@ -822,129 +1058,119 @@
             });
         });
     </script><div class="slide rounded-lg overflow-hidden flex flex-col">
-        <!-- Header -->
-        <div class="header py-4 px-8 text-white animation-fade">
-            <h1 class="text-4xl font-bold">傅里叶变换的重要性</h1>
-            <p class="text-xl mt-2">现代科技的基石与未来发展的引擎</p>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 px-8 py-4 flex flex-col">
-            <!-- Impact Overview -->
-            <div class="animation-fade" style="animation-delay: 0.2s">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-blue-700">
-                        <i class="fas fa-star-half-alt mr-2"></i>傅里叶变换在现代科技中的影响
+<!-- Header -->
+<div class="header py-4 px-8 text-white animation-fade">
+<h1 class="text-4xl font-bold">傅里叶变换的重要性</h1>
+<p class="text-xl mt-2">现代科技的基石与未来发展的引擎</p>
+</div>
+<!-- Main Content -->
+<div class="flex-1 px-8 py-4 flex flex-col">
+<!-- Impact Overview -->
+<div class="animation-fade" style="animation-delay: 0.2s">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-2xl font-bold text-blue-700">
+<i class="fas fa-star-half-alt mr-2"></i>傅里叶变换在现代科技中的影响
                     </h2>
-                    <div class="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                        <i class="fas fa-lightbulb mr-1"></i>从理论数学到实际应用
+<div class="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+<i class="fas fa-lightbulb mr-1"></i>从理论数学到实际应用
                     </div>
-                </div>
-
-                <!-- Impact Chart -->
-                <div class="bg-white p-3 rounded-lg shadow-sm mb-4">
-                    <div class="chart-container">
-                        <canvas id="impactChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Impact Areas -->
-            <div class="grid grid-cols-3 gap-4 mb-4 animation-scale" style="animation-delay: 0.4s">
-                <div class="impact-card p-3">
-                    <div class="flex items-center mb-2">
-                        <div class="impact-icon">
-                            <i class="fas fa-microchip"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-blue-700">数字革命</h3>
-                    </div>
-                    <p class="text-sm text-gray-600">
+</div>
+<!-- Impact Chart -->
+<div class="bg-white p-3 rounded-lg shadow-sm mb-4">
+<div class="chart-container">
+<canvas id="impactChart"></canvas>
+</div>
+</div>
+</div>
+<!-- Impact Areas -->
+<div class="grid grid-cols-3 gap-4 mb-4 animation-scale" style="animation-delay: 0.4s">
+<div class="impact-card p-3">
+<div class="flex items-center mb-2">
+<div class="impact-icon">
+<i class="fas fa-microchip"></i>
+</div>
+<h3 class="text-lg font-bold text-blue-700">数字革命</h3>
+</div>
+<p class="text-sm text-gray-600">
                         傅里叶变换是数字信号处理的核心，支撑了现代计算机、智能手机和互联网技术的发展，没有它就没有当今的数字世界。
                     </p>
-                </div>
-
-                <div class="impact-card p-3">
-                    <div class="flex items-center mb-2">
-                        <div class="impact-icon">
-                            <i class="fas fa-satellite-dish"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-blue-700">通信变革</h3>
-                    </div>
-                    <p class="text-sm text-gray-600">
+</div>
+<div class="impact-card p-3">
+<div class="flex items-center mb-2">
+<div class="impact-icon">
+<i class="fas fa-satellite-dish"></i>
+</div>
+<h3 class="text-lg font-bold text-blue-700">通信变革</h3>
+</div>
+<p class="text-sm text-gray-600">
                         从4G/5G移动通信到卫星传输，傅里叶变换使高效率、大带宽的信息传输成为可能，彻底改变了人类交流方式。
                     </p>
-                </div>
-
-                <div class="impact-card p-3">
-                    <div class="flex items-center mb-2">
-                        <div class="impact-icon">
-                            <i class="fas fa-heartbeat"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-blue-700">医疗突破</h3>
-                    </div>
-                    <p class="text-sm text-gray-600">
+</div>
+<div class="impact-card p-3">
+<div class="flex items-center mb-2">
+<div class="impact-icon">
+<i class="fas fa-heartbeat"></i>
+</div>
+<h3 class="text-lg font-bold text-blue-700">医疗突破</h3>
+</div>
+<p class="text-sm text-gray-600">
                         医学成像（CT、MRI）、心电图分析等现代医疗技术都依赖于傅里叶变换，显著提高了疾病诊断和治疗的准确性。
                     </p>
-                </div>
-            </div>
-
-            <!-- Scientific Significance -->
-            <div class="bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg shadow-sm mb-4 animation-fade" style="animation-delay: 0.6s">
-                <h3 class="text-xl font-bold text-blue-700 mb-2 flex items-center">
-                    <i class="fas fa-atom mr-2 text-blue-500"></i>
+</div>
+</div>
+<!-- Scientific Significance -->
+<div class="bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg shadow-sm mb-4 animation-fade" style="animation-delay: 0.6s">
+<h3 class="text-xl font-bold text-blue-700 mb-2 flex items-center">
+<i class="fas fa-atom mr-2 text-blue-500"></i>
                     科学理论的基石
                 </h3>
-                <p class="text-base text-gray-700">
+<p class="text-base text-gray-700">
                     傅里叶变换不仅是一个数学工具，更是一种思维方式，它贯穿于量子力学、相对论、宇宙学等现代物理学理论，成为理解自然界基本规律的关键。通过将复杂现象分解为基本组成部分，它提供了简化科学问题的普适方法，被誉为"20世纪最重要的数学发现之一"。
                 </p>
-            </div>
-
-            <!-- Future Impact -->
-            <div class="flex items-stretch gap-4 animation-scale" style="animation-delay: 0.8s">
-                <div class="w-2/3 impact-card p-4">
-                    <h3 class="text-xl font-bold text-blue-700 mb-2">
-                        <i class="fas fa-rocket mr-2"></i>未来科技展望
+</div>
+<!-- Future Impact -->
+<div class="flex items-stretch gap-4 animation-scale" style="animation-delay: 0.8s">
+<div class="w-2/3 impact-card p-4">
+<h3 class="text-xl font-bold text-blue-700 mb-2">
+<i class="fas fa-rocket mr-2"></i>未来科技展望
                     </h3>
-                    <ul class="text-sm text-gray-700 space-y-2">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
-                            <span>人工智能中的深度学习算法优化，加速模型训练和推理</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
-                            <span>量子计算中的量子态分析与量子信息处理</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
-                            <span>新一代通信技术（6G）中的频谱资源优化与管理</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
-                            <span>气候模型与精准天气预报，提高对极端气象事件的预警能力</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="w-1/3 impact-card flex flex-col justify-center items-center text-center p-4">
-                    <i class="fas fa-lightbulb text-yellow-400 text-5xl mb-3 pulse"></i>
-                    <h3 class="text-xl font-bold text-blue-700 mb-2">关键启示</h3>
-                    <p class="text-sm text-gray-600">
+<ul class="text-sm text-gray-700 space-y-2">
+<li class="flex items-start">
+<i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+<span>人工智能中的深度学习算法优化，加速模型训练和推理</span>
+</li>
+<li class="flex items-start">
+<i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+<span>量子计算中的量子态分析与量子信息处理</span>
+</li>
+<li class="flex items-start">
+<i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+<span>新一代通信技术（6G）中的频谱资源优化与管理</span>
+</li>
+<li class="flex items-start">
+<i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+<span>气候模型与精准天气预报，提高对极端气象事件的预警能力</span>
+</li>
+</ul>
+</div>
+<div class="w-1/3 impact-card flex flex-col justify-center items-center text-center p-4">
+<i class="fas fa-lightbulb text-yellow-400 text-5xl mb-3 pulse"></i>
+<h3 class="text-xl font-bold text-blue-700 mb-2">关键启示</h3>
+<p class="text-sm text-gray-600">
                         傅里叶变换告诉我们，复杂系统往往可以分解为更简单的组成部分，这一思想已经超越了数学和物理学，成为解决复杂问题的普遍方法论。
                     </p>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="mt-auto pt-2 text-center animation-fade" style="animation-delay: 1s">
-                <h2 class="thank-you-text text-4xl font-bold mb-2">谢谢观看</h2>
-                <p class="text-sm text-gray-500">
+</div>
+</div>
+<!-- Footer -->
+<div class="mt-auto pt-2 text-center animation-fade" style="animation-delay: 1s">
+<h2 class="thank-you-text text-4xl font-bold mb-2">谢谢观看</h2>
+<p class="text-sm text-gray-500">
                     从约瑟夫·傅里叶到现在，200年的理论发展与应用创新持续改变着世界
                 </p>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+</div>
+</div>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             // Impact Chart
             const ctx = document.getElementById('impactChart').getContext('2d');
@@ -996,4 +1222,6 @@
                 }
             });
         });
-    </script></body></html>
+    </script>
+</body>
+</html>

@@ -76,7 +76,8 @@ def combine_html_files(
     exclude_pattern: str = "combined*.html",
     encoding: str = 'utf-8',
     title: Optional[str] = None,
-    lang: str = "zh-CN"
+    lang: str = "zh-CN",
+    enable_scrolling: bool = True
 ) -> None:
     """
     合并指定目录下的HTML文件
@@ -89,6 +90,7 @@ def combine_html_files(
         encoding: 文件编码，默认为'utf-8'
         title: 合并后文件的标题，默认为None
         lang: HTML语言属性，默认为"zh-CN"
+        enable_scrolling: 是否启用滚动功能，默认为True
     """
     # 获取所有匹配的html文件并排序
     try:
@@ -220,6 +222,39 @@ def combine_html_files(
             print(f"读取标题时出错: {str(e)}")
             title = "Combined HTML"
 
+    # 添加启用滚动的CSS
+    scrolling_css = """
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto !important;
+        }
+        .slide {
+            width: auto !important;
+            max-width: 1280px;
+            min-height: auto !important;
+            overflow: visible !important;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding-bottom: 20px;
+        }
+        /* 添加分隔线，使各部分内容更清晰 */
+        .slide + .slide {
+            border-top: 2px dashed #ccc;
+            padding-top: 20px;
+            margin-top: 40px;
+        }
+        /* 修复固定尺寸容器 */
+        .chart-container, .content-container, .image-container {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+        }
+    </style>
+    """ if enable_scrolling else ""
+
     # 创建合并后的HTML文档
     combined_html = f"""<!DOCTYPE html>
 <html lang="{lang}">
@@ -227,12 +262,17 @@ def combine_html_files(
     <meta charset="{encoding}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
+    {scrolling_css}
     {''.join(combined_head_elements)}
 </head>
 <body>
     {''.join(combined_body_content)}
 </body>
 </html>"""
+
+    # 如果启用滚动功能，修复CSS
+    if enable_scrolling:
+        combined_html = fix_css_for_scrolling(combined_html)
 
     # 写入合并后的文件
     try:
@@ -243,6 +283,41 @@ def combine_html_files(
 
     # 输出摘要信息
     print(f"摘要: 处理了 {len(html_files)} 个HTML文件，合并了 {len(combined_head_elements)} 个头部元素和 {len(combined_body_content)} 个body内容")
+
+def fix_css_for_scrolling(html_content: str) -> str:
+    """
+    修复CSS以确保HTML页面可以正常滚动
+
+    Args:
+        html_content: HTML内容字符串
+    Returns:
+        修复后的HTML内容
+    """
+    # 使用BeautifulSoup解析HTML
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # 查找所有style标签
+    style_tags = soup.find_all('style')
+
+    for style_tag in style_tags:
+        css_content = style_tag.string
+        if css_content:
+            # 修复可能阻止滚动的CSS属性
+            # 1. 修复overflow: hidden
+            css_content = re.sub(r'overflow\s*:\s*hidden', 'overflow: visible', css_content)
+
+            # 2. 移除固定高度的限制
+            css_content = re.sub(r'(body|html|\.slide)\s*{[^}]*height\s*:\s*\d+[^;]*;', r'\1 { height: auto;', css_content)
+            css_content = re.sub(r'(body|html|\.slide)\s*{[^}]*min-height\s*:\s*\d+[^;]*;', r'\1 { min-height: auto;', css_content)
+
+            # 3. 确保内容可以正常流动
+            css_content = re.sub(r'position\s*:\s*fixed', 'position: relative', css_content)
+
+            # 更新style标签内容
+            style_tag.string = css_content
+
+    # 返回修复后的HTML
+    return str(soup)
 
 if __name__ == "__main__":
     # 定制化运行示例
@@ -257,25 +332,29 @@ if __name__ == "__main__":
 
     combine_html_files(
         input_directory,
-        output_file
+        output_file,
+        enable_scrolling=True  # 启用滚动功能
     )
 
     """
-    # 示例2：高级用法 - 自定义文件匹配模式和排除模式
-    print("\n=== 示例2：高级用法 - 自定义文件匹配和排除 ===")
+    # 示例2：解决滚动问题 - 合并文件并确保可以滚动查看
+    print("\n=== 示例2：解决滚动问题 ===")
     input_directory = Path.cwd() / "FourierTransformation"
-    output_file = input_directory / "自定义合并.html"
+    output_file = input_directory / "scrollable_combined.html"
+
+    print(f"输入目录: {input_directory}")
+    print(f"输出文件: {output_file}")
 
     combine_html_files(
         input_directory,
         output_file,
-        file_pattern="Fourier*.html",         # 只合并以Fourier开头的HTML文件
-        exclude_pattern="*04*.html",          # 排除文件名包含04的文件
-        title="傅里叶变换系列课程",           # 自定义标题
-        lang="zh-CN"                          # 自定义语言
+        file_pattern="Fourier*.html",          # 只合并以Fourier开头的HTML文件
+        exclude_pattern="combined*.html",       # 排除已合并的文件
+        title="傅里叶变换系列（可滚动版本）",   # 自定义标题
+        enable_scrolling=True                   # 启用滚动功能
     )
 
-
+    
     # 示例3：按特定顺序合并文件
     print("\n=== 示例3：按特定顺序合并文件 ===")
     input_directory = Path.cwd() / "FourierTransformation"
@@ -294,6 +373,7 @@ if __name__ == "__main__":
     if files_to_combine:
         # 创建一个临时目录
         import tempfile
+        import shutil
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir_path = Path(temp_dir)
 
@@ -306,10 +386,10 @@ if __name__ == "__main__":
             combine_html_files(
                 temp_dir_path,
                 output_file,
-                title="按顺序合并的傅里叶变换课程"
+                title="按顺序合并的傅里叶变换课程",
+                enable_scrolling=True  # 启用滚动功能
             )
     else:
         print("未找到指定文件，无法按顺序合并")
-
     """
 

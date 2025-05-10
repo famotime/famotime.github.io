@@ -1,612 +1,49 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>马尔科夫模型：概念、历史与应用</title>
-    <style>
-        body {
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>马尔科夫模型：概念、历史与应用</title>
+<style>
+        html, body { height: auto;
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow-y: auto !important;
         }
         .slide {
-            width: 1280px;
-            min-height: 720px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: hidden;
+            width: auto !important;
+            max-width: 1280px;
+            min-height: auto !important;
+            overflow: visible !important;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding-bottom: 20px;
         }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
+        /* 添加分隔线，使各部分内容更清晰 */
+        .slide + .slide {
+            border-top: 2px dashed #ccc;
+            padding-top: 20px;
+            margin-top: 40px;
         }
-        .state-node {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* 修复固定尺寸容器 */
+        .chart-container, .content-container, .image-container {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
         }
-        .state-node:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-        .arrow {
-            position: absolute;
-            width: 100px;
-            height: 2px;
-            background-color: #1a56db;
-            transform-origin: left center;
-        }
-        .arrow::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: -4px;
-            width: 0;
-            height: 0;
-            border-top: 5px solid transparent;
-            border-bottom: 5px solid transparent;
-            border-left: 10px solid #1a56db;
-        }
-        .probability {
-            position: absolute;
-            background-color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            color: #1a56db;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-    </style><style>
+    </style>
+<style>
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
-        }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .limitation-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .limitation-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .warning-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-        .comparison-chart-container {
-            height: 250px;
-            width: 100%;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-        .alternative-item {
-            transition: transform 0.2s ease;
-        }
-        .alternative-item:hover {
-            transform: translateX(5px);
-        }
-    </style><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .app-card {
-            background: white;
-            border-radius: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            height: 100%;
-        }
-        .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .app-icon-bg {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .usage-chart-container {
-            height: 280px;
-            width: 100%;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-        .card-border-top {
-            height: 4px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-        }
-    </style><meta content="width=device-width, initial-scale=1.0" name="viewport"/><script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            overflow: visible;
             font-family: 'Arial', sans-serif;
         }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
+        .slide { height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
-            overflow: hidden;
-        }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .app-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-            height: 100%;
-        }
-        .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .app-header {
-            padding: 12px 16px;
-            color: white;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .app-content {
-            padding: 16px;
-        }
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-        .feature-icon {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 8px;
-            flex-shrink: 0;
-            font-size: 12px;
-        }
-        .example-tag {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            color: white;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-        .characteristic-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-right: 4px;
-            margin-bottom: 4px;
-            border: 1px solid;
-        }
-    </style><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-        }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .nlp-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-            height: 100%;
-        }
-        .nlp-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .card-header {
-            color: white;
-            font-weight: bold;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .example-tag {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            color: white;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        .feature-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            flex-shrink: 0;
-            font-size: 12px;
-        }
-        .word-prediction {
-            font-family: monospace;
-            padding: 8px;
-            border-radius: 4px;
-            background-color: #f8fafc;
-            margin-bottom: 8px;
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
-        }
-        .prediction-word {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 3px;
-            margin-right: 4px;
-            background-color: #e5e7eb;
-        }
-        .prediction-cursor {
-            display: inline-block;
-            width: 2px;
-            height: 16px;
-            background-color: #3b82f6;
-            animation: blink 1s step-end infinite;
-        }
-        .prediction-options {
-            display: none;
-            position: absolute;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 4px;
-            padding: 4px 0;
-            min-width: 100px;
-            z-index: 10;
-        }
-        .prediction-option {
-            padding: 4px 8px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background-color 0.2s;
-        }
-        .prediction-option:hover {
-            background-color: #f3f4f6;
-        }
-        .cursor-active .prediction-options {
-            display: block;
-        }
-        .hmm-diagram {
-            max-width: 100%;
-            margin: 0 auto;
-            height: 100px;
-        }
-        .pos-tag {
-            display: inline-block;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-size: 10px;
-            color: white;
-            margin-right: 2px;
-            margin-bottom: 2px;
-        }
-        .pos-n { background-color: #3b82f6; }
-        .pos-v { background-color: #10b981; }
-        .pos-adj { background-color: #f59e0b; }
-        .pos-adv { background-color: #8b5cf6; }
-        .pos-prep { background-color: #ef4444; }
-        .pos-pron { background-color: #6366f1; }
-        .pos-conj { background-color: #ec4899; }
-        .performance-chart-container {
-            height: 100px;
-            width: 100%;
-        }
-        .text-highlight {
-            position: relative;
-            display: inline-block;
-        }
-        .text-highlight::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background-color: rgba(59, 130, 246, 0.3);
-            border-radius: 2px;
-        }
-        .spell-incorrect {
-            text-decoration: wavy underline #ef4444;
-            position: relative;
-            cursor: pointer;
-        }
-        .spell-correction {
-            display: none;
-            position: absolute;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 4px;
-            padding: 4px 0;
-            min-width: 100px;
-            z-index: 10;
-            font-size: 12px;
-            left: 0;
-            top: 100%;
-        }
-        .spell-correction-option {
-            padding: 4px 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .spell-correction-option:hover {
-            background-color: #f3f4f6;
-        }
-        .spell-incorrect:hover .spell-correction {
-            display: block;
-        }
-        .animated-typing {
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 2px solid #3b82f6;
-            animation: typing 3.5s steps(30, end) infinite, blink-caret 0.75s step-end infinite;
-        }
-        .app-logo {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            margin-right: 10px;
-        }
-        .progress-gradient {
-            background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
-        }
-
-        @keyframes typing {
-            from { width: 0 }
-            50% { width: 100% }
-            90% { width: 100% }
-            to { width: 0 }
-        }
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: #3b82f6 }
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        .typewriter {
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: .15em solid #3b82f6;
-            margin: 0;
-            animation: typing 3.5s steps(30, end) infinite, blink-caret 0.75s step-end infinite;
-        }
-    </style><script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-        }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-        .section-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-        }
-        .section-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .feature-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-right: 4px;
-            margin-bottom: 4px;
-            border: 1px solid;
-        }
-        .app-example {
-            background: white;
-            border-radius: 8px;
-            padding: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease;
-        }
-        .app-example:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .pixel-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(6, 1fr);
-            gap: 2px;
-            width: 180px;
-            height: 180px;
-        }
-        .pixel {
-            background: #ddd;
-            border-radius: 2px;
-            transition: background-color 0.3s ease;
-        }
-        .pixel:hover {
-            background: #10b981;
-        }
-        .pixel-neighborhood {
-            background: #10b981;
-        }
-        .pixel-center {
-            background: #059669;
-            border: 2px solid #047857;
-        }
-        .neighborhood-indicator {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border: 2px dashed #10b981;
-            border-radius: 4px;
-            pointer-events: none;
-        }
-        .comparison-chart-container {
-            height: 200px;
-            width: 100%;
-        }
-        .process-arrow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform: rotate(90deg);
-            font-size: 24px;
-            color: #10b981;
-            padding: 5px;
-        }
-    </style><meta charset="utf-8"/><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-        }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
         .geometric-bg {
             position: absolute;
@@ -705,120 +142,12 @@
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
+            overflow: visible;
         }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
+        .slide { height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
-            overflow: hidden;
-        }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-        .speech-workflow {
-            position: relative;
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .workflow-step {
-            position: relative;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            padding: 15px;
-            margin-bottom: 15px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .workflow-step:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .workflow-connector {
-            position: absolute;
-            left: 50%;
-            height: 20px;
-            width: 2px;
-            background-color: #6366f1;
-            z-index: 1;
-        }
-        .workflow-connector::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: -4px;
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 8px solid #6366f1;
-        }
-        .step-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        .feature-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-right: 4px;
-            margin-bottom: 4px;
-            border: 1px solid;
-        }
-        .application-example {
-            background: white;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease;
-            display: flex;
-            align-items: center;
-        }
-        .application-example:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .app-logo {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-        }
-    </style><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
         .geometric-bg {
             position: absolute;
@@ -927,18 +256,698 @@
         .fade-in {
             opacity: 0;
         }
-    </style><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet"/><style>
+    </style><meta content="width=device-width, initial-scale=1.0" name="viewport"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><meta charset="utf-8"><style>
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow: visible;
+            font-family: 'Arial', sans-serif;
         }
-        .slide {
-            width: 1280px;
-            min-height: 720px;
+        .slide { height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .app-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: visible;
+            height: 100%;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .app-header {
+            padding: 12px 16px;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .app-content {
+            padding: 16px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .feature-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            color: white;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .characteristic-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+    </style><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+        }
+        .slide { height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .app-card {
+            background: white;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: visible;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .app-icon-bg {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .usage-chart-container {
+            height: 280px;
+            width: 100%;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .card-border-top {
+            height: 4px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+    </style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet"/><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+        }
+        .slide { height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .limitation-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .limitation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .warning-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .comparison-chart-container {
+            height: 250px;
+            width: 100%;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .alternative-item {
+            transition: transform 0.2s ease;
+        }
+        .alternative-item:hover {
+            transform: translateX(5px);
+        }
+    </style><script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide { height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: visible;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .app-example {
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+        .app-example:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            width: 180px;
+            height: 180px;
+        }
+        .pixel {
+            background: #ddd;
+            border-radius: 2px;
+            transition: background-color 0.3s ease;
+        }
+        .pixel:hover {
+            background: #10b981;
+        }
+        .pixel-neighborhood {
+            background: #10b981;
+        }
+        .pixel-center {
+            background: #059669;
+            border: 2px solid #047857;
+        }
+        .neighborhood-indicator {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #10b981;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+        .comparison-chart-container {
+            height: 200px;
+            width: 100%;
+        }
+        .process-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(90deg);
+            font-size: 24px;
+            color: #10b981;
+            padding: 5px;
+        }
+    </style><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide { height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .speech-workflow {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .workflow-step {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .workflow-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .workflow-connector {
+            position: absolute;
+            left: 50%;
+            height: 20px;
+            width: 2px;
+            background-color: #6366f1;
+            z-index: 1;
+        }
+        .workflow-connector::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 8px solid #6366f1;
+        }
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .application-example {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .application-example:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .app-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+    </style><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide { height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .nlp-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: visible;
+            height: 100%;
+        }
+        .nlp-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .card-header {
+            color: white;
+            font-weight: bold;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            color: white;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .word-prediction {
+            font-family: monospace;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #f8fafc;
+            margin-bottom: 8px;
+            overflow: visible;
+            white-space: nowrap;
+            position: relative;
+        }
+        .prediction-word {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 4px;
+            background-color: #e5e7eb;
+        }
+        .prediction-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 16px;
+            background-color: #3b82f6;
+            animation: blink 1s step-end infinite;
+        }
+        .prediction-options {
+            display: none;
+            position: absolute;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 4px 0;
+            min-width: 100px;
+            z-index: 10;
+        }
+        .prediction-option {
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+        .prediction-option:hover {
+            background-color: #f3f4f6;
+        }
+        .cursor-active .prediction-options {
+            display: block;
+        }
+        .hmm-diagram {
+            max-width: 100%;
+            margin: 0 auto;
+            height: 100px;
+        }
+        .pos-tag {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: white;
+            margin-right: 2px;
+            margin-bottom: 2px;
+        }
+        .pos-n { background-color: #3b82f6; }
+        .pos-v { background-color: #10b981; }
+        .pos-adj { background-color: #f59e0b; }
+        .pos-adv { background-color: #8b5cf6; }
+        .pos-prep { background-color: #ef4444; }
+        .pos-pron { background-color: #6366f1; }
+        .pos-conj { background-color: #ec4899; }
+        .performance-chart-container {
+            height: 100px;
+            width: 100%;
+        }
+        .text-highlight {
+            position: relative;
+            display: inline-block;
+        }
+        .text-highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: rgba(59, 130, 246, 0.3);
+            border-radius: 2px;
+        }
+        .spell-incorrect {
+            text-decoration: wavy underline #ef4444;
+            position: relative;
+            cursor: pointer;
+        }
+        .spell-correction {
+            display: none;
+            position: absolute;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 4px 0;
+            min-width: 100px;
+            z-index: 10;
+            font-size: 12px;
+            left: 0;
+            top: 100%;
+        }
+        .spell-correction-option {
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .spell-correction-option:hover {
+            background-color: #f3f4f6;
+        }
+        .spell-incorrect:hover .spell-correction {
+            display: block;
+        }
+        .animated-typing {
+            overflow: visible;
+            white-space: nowrap;
+            border-right: 2px solid #3b82f6;
+            animation: typing 3.5s steps(30, end) infinite, blink-caret 0.75s step-end infinite;
+        }
+        .app-logo {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+        .progress-gradient {
+            background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            50% { width: 100% }
+            90% { width: 100% }
+            to { width: 0 }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #3b82f6 }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .typewriter {
+            display: inline-block;
+            overflow: visible;
+            white-space: nowrap;
+            border-right: .15em solid #3b82f6;
+            margin: 0;
+            animation: typing 3.5s steps(30, end) infinite, blink-caret 0.75s step-end infinite;
+        }
+    </style><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+        }
+        .slide { height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .state-node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .state-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .arrow {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background-color: #1a56db;
+            transform-origin: left center;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #1a56db;
+        }
+        .probability {
+            position: absolute;
+            background-color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #1a56db;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style><script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+        }
+        .slide { height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
         }
         .geometric-bg {
             position: absolute;
@@ -1036,10 +1045,10 @@
         .fade-in {
             opacity: 0;
         }
-    </style><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-</head>
+    </style><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/>
+</meta></meta></head>
 <body>
-    <div class="slide flex flex-col items-center justify-center p-8 relative">
+<div class="slide flex flex-col items-center justify-center p-8 relative">
 <!-- 几何背景 -->
 <div class="geometric-bg">
 <svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">

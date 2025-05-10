@@ -33,41 +33,58 @@ def get_unique_head_elements(soup: BeautifulSoup) -> Set[str]:
         link_tags = [str(tag) for tag in soup.head.find_all('link') if tag is not None]
         script_tags = [str(tag) for tag in soup.head.find_all('script') if tag is not None]
         style_tags = [str(tag) for tag in soup.head.find_all('style') if tag is not None]
+        title_tags = [str(tag) for tag in soup.head.find_all('title') if tag is not None]
+
+        # 获取head中的其他元素（如base, noscript等）
+        other_tags = []
+        for tag in soup.head.children:
+            if tag.name and tag.name not in ['meta', 'link', 'script', 'style', 'title']:
+                other_tags.append(str(tag))
 
         # 合并所有标记
-        all_tags = meta_tags + link_tags + script_tags + style_tags
+        all_tags = meta_tags + link_tags + script_tags + style_tags + title_tags + other_tags
 
         # 添加到集合
         for tag in all_tags:
             if tag.strip():
                 head_elements.add(tag.strip())
 
-        print(f"提取了 {len(meta_tags)} 个meta标签, {len(link_tags)} 个link标签, {len(script_tags)} 个script标签, {len(style_tags)} 个style标签")
+        print(f"提取了 {len(meta_tags)} 个meta标签, {len(link_tags)} 个link标签, {len(script_tags)} 个script标签, {len(style_tags)} 个style标签, {len(title_tags)} 个title标签, {len(other_tags)} 个其他标签")
     except Exception as e:
         print(f"提取head元素时出错: {str(e)}")
 
     return head_elements
 
-def get_body_content(soup: BeautifulSoup) -> str:
+def get_body_content(soup: BeautifulSoup, file_name: str = "") -> str:
     """
-    从BeautifulSoup对象中提取body内容
+    从BeautifulSoup对象中提取body内容，不添加任何包装
 
     Args:
         soup: BeautifulSoup对象
+        file_name: 源文件名，用于标识内容来源（仅作记录用）
     Returns:
         body内容字符串
     """
-    if soup.body:
+    if not soup.body:
+        return ""
+
+    try:
+        # 提取body内容
+        content = ""
         try:
-            return soup.body.decode_contents().strip()
+            content = soup.body.decode_contents().strip()
         except (AttributeError, TypeError) as e:
             print(f"获取body内容时出错: {e}")
             # 尝试替代方法获取body内容
             try:
-                return ''.join(str(content) for content in soup.body.contents)
+                content = ''.join(str(content) for content in soup.body.contents)
             except Exception:
-                return str(soup.body)
-    return ""
+                content = str(soup.body)
+
+        return content
+    except Exception as e:
+        print(f"处理body内容时出错: {e}")
+        return ""
 
 def combine_html_files(
     input_dir: Path,
@@ -77,7 +94,9 @@ def combine_html_files(
     encoding: str = 'utf-8',
     title: Optional[str] = None,
     lang: str = "zh-CN",
-    enable_scrolling: bool = True
+    enable_scrolling: bool = True,
+    parser: str = 'html.parser',  # 添加解析器选项
+    include_toc: bool = False     # 控制是否包含目录，默认为False
 ) -> None:
     """
     合并指定目录下的HTML文件
@@ -91,7 +110,22 @@ def combine_html_files(
         title: 合并后文件的标题，默认为None
         lang: HTML语言属性，默认为"zh-CN"
         enable_scrolling: 是否启用滚动功能，默认为True
+        parser: HTML解析器类型，默认为'html.parser'，可选 'lxml', 'html5lib'
+        include_toc: 是否包含目录，默认为False
     """
+    # 检查并尝试导入更好的解析器
+    if parser != 'html.parser':
+        try:
+            if parser == 'lxml':
+                import lxml
+                print("使用lxml解析器")
+            elif parser == 'html5lib':
+                import html5lib
+                print("使用html5lib解析器")
+        except ImportError:
+            print(f"警告: {parser}解析器不可用，回退到html.parser")
+            parser = 'html.parser'
+
     # 获取所有匹配的html文件并排序
     try:
         html_files = sorted(list(input_dir.glob(file_pattern)))
@@ -135,6 +169,10 @@ def combine_html_files(
     combined_head_elements = set()
     combined_body_content = []
 
+    # 用于追踪已处理的脚本和样式，避免重复
+    processed_scripts = set()
+    processed_styles = set()
+
     # 处理每个HTML文件
     for i, html_file in enumerate(html_files):
         print(f"\n处理文件 {i+1}/{len(html_files)}: {html_file.name}")
@@ -150,10 +188,11 @@ def combine_html_files(
 
                 # 解析HTML
                 try:
-                    soup = BeautifulSoup(html_content, 'html.parser')
+                    soup = BeautifulSoup(html_content, parser)
                 except Exception as e:
                     print(f"HTML解析错误 {html_file.name}: {str(e)}")
-                    continue
+                    print(f"尝试使用基本解析器...")
+                    soup = BeautifulSoup(html_content, 'html.parser')
 
                 # 收集head元素
                 try:
@@ -165,7 +204,7 @@ def combine_html_files(
 
                 # 收集body内容
                 try:
-                    body_content = get_body_content(soup)
+                    body_content = get_body_content(soup, html_file.name)
                     if body_content:
                         combined_body_content.append(body_content)
                         print(f"成功提取 {html_file.name} 的body内容 ({len(body_content)} 字符)")
@@ -183,7 +222,7 @@ def combine_html_files(
                 try:
                     with html_file.open('r', encoding=alt_encoding) as f:
                         html_content = f.read()
-                        soup = BeautifulSoup(html_content, 'html.parser')
+                        soup = BeautifulSoup(html_content, parser)
                         print(f"使用 {alt_encoding} 编码成功读取")
 
                         # 收集head元素
@@ -192,7 +231,7 @@ def combine_html_files(
                         combined_head_elements.update(head_elements)
 
                         # 收集body内容
-                        body_content = get_body_content(soup)
+                        body_content = get_body_content(soup, html_file.name)
                         if body_content:
                             combined_body_content.append(body_content)
                             print(f"成功提取 {html_file.name} 的body内容")
@@ -211,7 +250,7 @@ def combine_html_files(
     if not title and html_files:
         try:
             with html_files[0].open('r', encoding=encoding) as f:
-                soup = BeautifulSoup(f.read(), 'html.parser')
+                soup = BeautifulSoup(f.read(), parser)
                 if soup.title and soup.title.string:
                     title = soup.title.string
                     print(f"使用第一个文件的标题: {title}")
@@ -222,7 +261,7 @@ def combine_html_files(
             print(f"读取标题时出错: {str(e)}")
             title = "Combined HTML"
 
-    # 添加启用滚动的CSS
+    # 添加启用滚动的CSS (简化版，不添加额外元素样式)
     scrolling_css = """
     <style>
         html, body {
@@ -230,27 +269,26 @@ def combine_html_files(
             margin: 0;
             padding: 0;
             overflow-y: auto !important;
+            overflow-x: hidden;
         }
-        .slide {
-            width: auto !important;
-            max-width: 1280px;
-            min-height: auto !important;
-            overflow: visible !important;
-            margin: 20px auto;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding-bottom: 20px;
+        /* 图片和多媒体元素响应式 */
+        img, video, canvas, svg, iframe {
+            max-width: 100%;
+            height: auto;
         }
-        /* 添加分隔线，使各部分内容更清晰 */
-        .slide + .slide {
-            border-top: 2px dashed #ccc;
-            padding-top: 20px;
-            margin-top: 40px;
+        /* 确保表格正确显示 */
+        table {
+            max-width: 100%;
+            overflow-x: auto;
+            display: block;
+            border-collapse: collapse;
         }
-        /* 修复固定尺寸容器 */
-        .chart-container, .content-container, .image-container {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
+        /* 确保代码块正确显示 */
+        pre, code {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
+            overflow-x: auto;
         }
     </style>
     """ if enable_scrolling else ""
@@ -286,7 +324,7 @@ def combine_html_files(
 
 def fix_css_for_scrolling(html_content: str) -> str:
     """
-    修复CSS以确保HTML页面可以正常滚动
+    修复CSS以确保HTML页面可以正常滚动，不添加额外元素
 
     Args:
         html_content: HTML内容字符串
@@ -303,18 +341,37 @@ def fix_css_for_scrolling(html_content: str) -> str:
         css_content = style_tag.string
         if css_content:
             # 修复可能阻止滚动的CSS属性
-            # 1. 修复overflow: hidden
+            # 1. 修复overflow属性
             css_content = re.sub(r'overflow\s*:\s*hidden', 'overflow: visible', css_content)
+            css_content = re.sub(r'overflow-y\s*:\s*hidden', 'overflow-y: auto', css_content)
+            css_content = re.sub(r'overflow-x\s*:\s*hidden', 'overflow-x: auto', css_content)
 
-            # 2. 移除固定高度的限制
-            css_content = re.sub(r'(body|html|\.slide)\s*{[^}]*height\s*:\s*\d+[^;]*;', r'\1 { height: auto;', css_content)
-            css_content = re.sub(r'(body|html|\.slide)\s*{[^}]*min-height\s*:\s*\d+[^;]*;', r'\1 { min-height: auto;', css_content)
+            # 2. 移除固定高度和宽度的限制
+            css_content = re.sub(r'(body|html|\.slide|\.container|\.content)\s*{([^}]*)height\s*:\s*\d+[^;]*;', r'\1 {\2height: auto;', css_content)
+            css_content = re.sub(r'(body|html|\.slide|\.container|\.content)\s*{([^}]*)min-height\s*:\s*\d+[^;]*;', r'\1 {\2min-height: auto;', css_content)
+            css_content = re.sub(r'(body|html|\.slide|\.container|\.content)\s*{([^}]*)max-height\s*:\s*\d+[^;]*;', r'\1 {\2max-height: none;', css_content)
 
             # 3. 确保内容可以正常流动
             css_content = re.sub(r'position\s*:\s*fixed', 'position: relative', css_content)
 
             # 更新style标签内容
             style_tag.string = css_content
+
+    # 修复可能存在的内联样式
+    for tag in soup.find_all(lambda t: t.has_attr('style')):
+        style_attr = tag['style']
+
+        # 应用相同的修复规则到内联样式
+        if 'overflow: hidden' in style_attr:
+            style_attr = style_attr.replace('overflow: hidden', 'overflow: visible')
+
+        if 'position: fixed' in style_attr:
+            style_attr = style_attr.replace('position: fixed', 'position: relative')
+
+        if 'height:' in style_attr and any(unit in style_attr for unit in ['px', 'vh', '%']):
+            style_attr = re.sub(r'height\s*:\s*\d+[^;]*;', 'height: auto;', style_attr)
+
+        tag['style'] = style_attr
 
     # 返回修复后的HTML
     return str(soup)
@@ -324,7 +381,7 @@ if __name__ == "__main__":
 
     # 示例1：基本用法 - 合并指定目录下的所有HTML文件
     print("\n=== 示例1：基本用法 ===")
-    input_directory = Path.cwd() / "马尔科夫模型"
+    input_directory = Path.cwd() / "MarkovModel"
     output_file = input_directory / "combined.html"
 
     print(f"输入目录: {input_directory}")
@@ -333,7 +390,8 @@ if __name__ == "__main__":
     combine_html_files(
         input_directory,
         output_file,
-        enable_scrolling=True  # 启用滚动功能
+        enable_scrolling=True,  # 启用滚动功能
+        include_toc=False       # 不包含目录
     )
 
     """
@@ -354,7 +412,7 @@ if __name__ == "__main__":
         enable_scrolling=True                   # 启用滚动功能
     )
 
-    
+
     # 示例3：按特定顺序合并文件
     print("\n=== 示例3：按特定顺序合并文件 ===")
     input_directory = Path.cwd() / "FourierTransformation"

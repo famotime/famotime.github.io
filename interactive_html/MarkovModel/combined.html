@@ -6,41 +6,42 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>马尔科夫模型：概念、历史与应用</title>
 <style>
-        html, body { height: auto;
+        html, body {
+            height: auto;
             margin: 0;
             padding: 0;
             overflow-y: auto !important;
+            overflow-x: auto;
         }
-        .slide {
-            width: auto !important;
-            max-width: 1280px;
-            min-height: auto !important;
-            overflow: visible !important;
-            margin: 20px auto;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding-bottom: 20px;
+        /* 图片和多媒体元素响应式 */
+        img, video, canvas, svg, iframe {
+            max-width: 100%;
+            height: auto;
         }
-        /* 添加分隔线，使各部分内容更清晰 */
-        .slide + .slide {
-            border-top: 2px dashed #ccc;
-            padding-top: 20px;
-            margin-top: 40px;
+        /* 确保表格正确显示 */
+        table {
+            max-width: 100%;
+            overflow-x: auto;
+            display: block;
+            border-collapse: collapse;
         }
-        /* 修复固定尺寸容器 */
-        .chart-container, .content-container, .image-container {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
+        /* 确保代码块正确显示 */
+        pre, code {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
+            overflow-x: auto;
         }
     </style>
-<style>
+<meta charset="utf-8"><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/><style>
         body {
             margin: 0;
             padding: 0;
             overflow: visible;
-            font-family: 'Arial', sans-serif;
         }
-        .slide { height: auto;
+        .slide {
+            width: 1280px;
+            min-height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
             overflow: visible;
@@ -54,288 +55,38 @@
             z-index: 0;
             opacity: 0.1;
         }
-        .fade-in {
-            opacity: 0;
-        }
-        .feature-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-right: 4px;
-            margin-bottom: 4px;
-            border: 1px solid;
-        }
-        .node {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            position: absolute;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            z-index: 2;
-        }
-        .node:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-        }
-        .edge {
-            position: absolute;
-            height: 2px;
-            background-color: #fbbf24;
-            transform-origin: 0 50%;
-            z-index: 1;
-        }
-        .edge::after {
-            content: '';
-            position: absolute;
-            right: -1px;
-            top: -4px;
-            width: 0;
-            height: 0;
-            border-top: 5px solid transparent;
-            border-bottom: 5px solid transparent;
-            border-left: 10px solid #fbbf24;
-        }
-        .concept-box {
+        .limitation-card {
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .concept-box:hover {
-            transform: translateY(-5px);
+        .limitation-card:hover {
+            transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        .page-rank-chart-container {
-            height: 200px;
-            width: 100%;
-            position: relative;
-        }
-        .application-card {
-            background: white;
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            height: 100%;
-        }
-        .application-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-        }
-        .app-icon {
+        .warning-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 40px;
             height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-        }
-    </style><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: visible;
-        }
-        .slide { height: auto;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: visible;
-        }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .concept-box {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .concept-box:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .markov-property {
-            border-left: 4px solid #3b82f6;
-        }
-        .transition-matrix {
-            width: 450px;
-            height: 300px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: relative;
-        }
-        .matrix-box {
-            width: 300px;
-            height: 200px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 2px;
-            margin: 0 auto;
-        }
-        .matrix-cell {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            background-color: #f0f7ff;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-        .matrix-cell:hover {
-            background-color: #dbeafe;
-        }
-        .graph-visualization {
-            width: 450px;
-            height: 300px;
-            position: relative;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .state-node {
-            width: 60px;
-            height: 60px;
             border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 22px;
-            position: absolute;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            background-color: #bfdbfe;
-            border: 2px solid #3b82f6;
-            color: #1e40af;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .comparison-chart-container {
+            height: 250px;
+            width: 100%;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .alternative-item {
             transition: transform 0.2s ease;
         }
-        .state-node:hover {
-            transform: scale(1.1);
-        }
-        .transition-arrow {
-            position: absolute;
-            height: 2px;
-            background-color: #3b82f6;
-            transform-origin: 0 50%;
-        }
-        .transition-arrow::after {
-            content: '';
-            position: absolute;
-            right: -1px;
-            top: -4px;
-            width: 0;
-            height: 0;
-            border-top: 5px solid transparent;
-            border-bottom: 5px solid transparent;
-            border-left: 10px solid #3b82f6;
-        }
-        .transition-label {
-            position: absolute;
-            background: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 12px;
-            border: 1px solid #e5e7eb;
-            color: #3b82f6;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-    </style><meta content="width=device-width, initial-scale=1.0" name="viewport"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><meta charset="utf-8"><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: visible;
-            font-family: 'Arial', sans-serif;
-        }
-        .slide { height: auto;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: visible;
-        }
-        .geometric-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .app-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: visible;
-            height: 100%;
-        }
-        .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .app-header {
-            padding: 12px 16px;
-            color: white;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .app-content {
-            padding: 16px;
-        }
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-        .feature-icon {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 8px;
-            flex-shrink: 0;
-            font-size: 12px;
-        }
-        .example-tag {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            color: white;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-        .characteristic-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-right: 4px;
-            margin-bottom: 4px;
-            border: 1px solid;
+        .alternative-item:hover {
+            transform: translateX(5px);
         }
     </style><style>
         body {
@@ -343,7 +94,9 @@
             padding: 0;
             overflow: visible;
         }
-        .slide { height: auto;
+        .slide {
+            width: 1280px;
+            min-height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
             overflow: visible;
@@ -392,13 +145,15 @@
             left: 0;
             width: 100%;
         }
-    </style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet"/><style>
+    </style><title>马尔科夫模型在语音识别中的应用</title><title>马尔科夫模型：概念</title><meta content="width=device-width, initial-scale=1.0" name="viewport"><script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/><title>马尔科夫模型：应用场景</title><style>
         body {
             margin: 0;
             padding: 0;
             overflow: visible;
         }
-        .slide { height: auto;
+        .slide {
+            width: 1280px;
+            min-height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
             overflow: visible;
@@ -412,146 +167,103 @@
             z-index: 0;
             opacity: 0.1;
         }
-        .limitation-card {
-            background: white;
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: #3b82f6;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 5px;
+        }
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid #3b82f6;
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+        .left {
+            left: 0;
+        }
+        .right {
+            left: 50%;
+        }
+        .left::after {
+            right: -10px;
+        }
+        .right::after {
+            left: -10px;
+        }
+        .content {
+            padding: 15px;
+            background-color: white;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .limitation-card:hover {
+        .content:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        .warning-icon {
+        .timeline-year {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            flex-shrink: 0;
         }
-        .comparison-chart-container {
-            height: 250px;
-            width: 100%;
-        }
-        .fade-in {
-            opacity: 0;
-        }
-        .alternative-item {
-            transition: transform 0.2s ease;
-        }
-        .alternative-item:hover {
-            transform: translateX(5px);
-        }
-    </style><script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script><style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: visible;
-            font-family: 'Arial', sans-serif;
-        }
-        .slide { height: auto;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            position: relative;
-            overflow: visible;
-        }
-        .geometric-bg {
+        .timeline-dot-line {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
+            width: 20px;
+            height: 2px;
+            background-color: #3b82f6;
+            top: 25px;
         }
-        .fade-in {
-            opacity: 0;
+        .left .timeline-dot-line {
+            right: 20px;
         }
-        .section-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: visible;
+        .right .timeline-dot-line {
+            left: 20px;
         }
-        .section-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .feature-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-right: 4px;
-            margin-bottom: 4px;
-            border: 1px solid;
-        }
-        .app-example {
-            background: white;
-            border-radius: 8px;
-            padding: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease;
-        }
-        .app-example:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .pixel-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(6, 1fr);
-            gap: 2px;
+        .markov-portrait {
             width: 180px;
             height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #dbeafe;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .pixel {
-            background: #ddd;
-            border-radius: 2px;
-            transition: background-color 0.3s ease;
+        .fade-in {
+            opacity: 0;
         }
-        .pixel:hover {
-            background: #10b981;
-        }
-        .pixel-neighborhood {
-            background: #10b981;
-        }
-        .pixel-center {
-            background: #059669;
-            border: 2px solid #047857;
-        }
-        .neighborhood-indicator {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border: 2px dashed #10b981;
-            border-radius: 4px;
-            pointer-events: none;
-        }
-        .comparison-chart-container {
-            height: 200px;
-            width: 100%;
-        }
-        .process-arrow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform: rotate(90deg);
-            font-size: 24px;
-            color: #10b981;
-            padding: 5px;
-        }
-    </style><style>
+    </style><title>马尔科夫模型：历史发展</title><title>马尔科夫模型的多领域应用详解</title><title>马尔科夫模型：概念、历史与应用</title><script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script><style>
         body {
             margin: 0;
             padding: 0;
             overflow: visible;
             font-family: 'Arial', sans-serif;
         }
-        .slide { height: auto;
+        .slide {
+            width: 1280px;
+            min-height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
             overflow: visible;
@@ -648,14 +360,233 @@
             justify-content: center;
             margin-right: 10px;
         }
-    </style><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/><style>
+    </style><title>马尔科夫模型在PageRank算法中的应用</title><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+        }
+        .slide {
+            width: 1280px;
+            min-height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .state-node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .state-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .arrow {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background-color: #1a56db;
+            transform-origin: left center;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #1a56db;
+        }
+        .probability {
+            position: absolute;
+            background-color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #1a56db;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+        }
+        .slide {
+            width: 1280px;
+            min-height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .concept-box {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+        .concept-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .markov-property {
+            border-left: 4px solid #3b82f6;
+        }
+        .transition-matrix {
+            width: 100%;
+            height: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .matrix-box {
+            width: 300px;
+            height: 200px;
+            display: grid;
+            grid-template-columns: 50px repeat(3, 1fr);
+            grid-template-rows: 50px repeat(3, 1fr);
+            gap: 2px;
+            margin: 0 auto;
+        }
+        .matrix-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .matrix-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e40af;
+            background-color: #dbeafe;
+            border-radius: 4px;
+        }
+        .matrix-title {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e40af;
+            background-color: #eff6ff;
+            border-radius: 4px;
+        }
+        .matrix-cell:hover {
+            background-color: #dbeafe;
+        }
+        .graph-visualization {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .state-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 22px;
+            position: absolute;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background-color: #bfdbfe;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+            transition: transform 0.2s ease;
+        }
+        .state-node:hover {
+            transform: scale(1.1);
+        }
+        .transition-arrow {
+            position: absolute;
+            height: 2px;
+            background-color: #3b82f6;
+            transform-origin: 0 50%;
+            z-index: 1;
+        }
+        .transition-arrow::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #3b82f6;
+        }
+        .transition-label {
+            position: absolute;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            border: 1px solid #e5e7eb;
+            color: #3b82f6;
+            z-index: 2;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style><style>
         body {
             margin: 0;
             padding: 0;
             overflow: visible;
             font-family: 'Arial', sans-serif;
         }
-        .slide { height: auto;
+        .slide {
+            width: 1280px;
+            min-height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
             overflow: visible;
@@ -872,13 +803,16 @@
             margin: 0;
             animation: typing 3.5s steps(30, end) infinite, blink-caret 0.75s step-end infinite;
         }
-    </style><style>
+    </style><title>马尔科夫模型在自然语言处理中的应用场景详解</title><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><title>马尔科夫模型：局限性与不适用场景</title><link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet"/><style>
         body {
             margin: 0;
             padding: 0;
             overflow: visible;
+            font-family: 'Arial', sans-serif;
         }
-        .slide { height: auto;
+        .slide {
+            width: 1280px;
+            min-height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
             overflow: visible;
@@ -892,59 +826,100 @@
             z-index: 0;
             opacity: 0.1;
         }
-        .state-node {
-            width: 80px;
-            height: 80px;
+        .fade-in {
+            opacity: 0;
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .node {
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             font-weight: bold;
-            font-size: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .state-node:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-        .arrow {
             position: absolute;
-            width: 100px;
-            height: 2px;
-            background-color: #1a56db;
-            transform-origin: left center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            z-index: 2;
         }
-        .arrow::after {
+        .node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        .edge {
+            position: absolute;
+            height: 2px;
+            background-color: #fbbf24;
+            transform-origin: 0 50%;
+            z-index: 1;
+        }
+        .edge::after {
             content: '';
             position: absolute;
-            right: 0;
+            right: -1px;
             top: -4px;
             width: 0;
             height: 0;
             border-top: 5px solid transparent;
             border-bottom: 5px solid transparent;
-            border-left: 10px solid #1a56db;
+            border-left: 10px solid #fbbf24;
         }
-        .probability {
-            position: absolute;
-            background-color: white;
-            padding: 2px 6px;
+        .concept-box {
+            background: white;
             border-radius: 10px;
-            font-size: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            color: #1a56db;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .fade-in {
-            opacity: 0;
+        .concept-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-    </style><script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script><style>
+        .page-rank-chart-container {
+            height: 200px;
+            width: 100%;
+            position: relative;
+        }
+        .application-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+        }
+        .application-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+    </style><style>
         body {
             margin: 0;
             padding: 0;
             overflow: visible;
+            font-family: 'Arial', sans-serif;
         }
-        .slide { height: auto;
+        .slide {
+            width: 1280px;
+            min-height: auto;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             position: relative;
             overflow: visible;
@@ -958,94 +933,168 @@
             z-index: 0;
             opacity: 0.1;
         }
-        .timeline {
-            position: relative;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .timeline::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            background-color: #3b82f6;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            margin-left: -3px;
-            border-radius: 5px;
-        }
-        .timeline-item {
-            padding: 10px 40px;
-            position: relative;
-            width: 50%;
-            box-sizing: border-box;
-        }
-        .timeline-item::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: white;
-            border: 4px solid #3b82f6;
-            border-radius: 50%;
-            top: 15px;
-            z-index: 1;
-        }
-        .left {
-            left: 0;
-        }
-        .right {
-            left: 50%;
-        }
-        .left::after {
-            right: -10px;
-        }
-        .right::after {
-            left: -10px;
-        }
-        .content {
-            padding: 15px;
-            background-color: white;
-            border-radius: 10px;
+        .app-card {
+            background: white;
+            border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: visible;
+            height: 100%;
         }
-        .content:hover {
-            transform: translateY(-3px);
+        .app-card:hover {
+            transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        .timeline-year {
+        .app-header {
+            padding: 12px 16px;
+            color: white;
             font-weight: bold;
-            color: #1e40af;
-            margin-bottom: 5px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
         }
-        .timeline-dot-line {
-            position: absolute;
-            width: 20px;
-            height: 2px;
-            background-color: #3b82f6;
-            top: 25px;
+        .app-content {
+            padding: 16px;
         }
-        .left .timeline-dot-line {
-            right: 20px;
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
         }
-        .right .timeline-dot-line {
-            left: 20px;
-        }
-        .markov-portrait {
-            width: 180px;
-            height: 180px;
+        .feature-icon {
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid #dbeafe;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            color: white;
         }
         .fade-in {
             opacity: 0;
         }
-    </style><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/>
+        .characteristic-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+    </style><title>马尔科夫模型在图像处理中的应用</title><style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+            font-family: 'Arial', sans-serif;
+        }
+        .slide {
+            width: 1280px;
+            min-height: auto;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            position: relative;
+            overflow: visible;
+        }
+        .geometric-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: visible;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .feature-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid;
+        }
+        .app-example {
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+        .app-example:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            width: 180px;
+            height: 180px;
+        }
+        .pixel {
+            background: #ddd;
+            border-radius: 2px;
+            transition: background-color 0.3s ease;
+        }
+        .pixel:hover {
+            background: #10b981;
+        }
+        .pixel-neighborhood {
+            background: #10b981;
+        }
+        .pixel-center {
+            background: #059669;
+            border: 2px solid #047857;
+        }
+        .neighborhood-indicator {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #10b981;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+        .comparison-chart-container {
+            height: 200px;
+            width: 100%;
+        }
+        .process-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(90deg);
+            font-size: 24px;
+            color: #10b981;
+            padding: 5px;
+        }
+    </style>
 </meta></meta></head>
 <body>
 <div class="slide flex flex-col items-center justify-center p-8 relative">
@@ -1066,7 +1115,7 @@
 <div class="w-32 h-1 bg-blue-600 mx-auto mb-4"></div>
 <h2 class="text-2xl text-gray-700 font-light">概念 · 历史 · 应用场景</h2>
 </div>
-<!-- 马尔科夫链状态转移图示 -->
+马尔科夫链状态转移图示
 <div class="relative mt-12 h-60 w-full max-w-2xl fade-in" id="markovChain">
 <!-- 状态节点 -->
 <div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute" id="stateA" style="top: 0; left: 50%; transform: translateX(-50%);">A</div>
@@ -1084,14 +1133,14 @@
             // 箭头连接和概率标签
             const arrowData = [
                 { from: "stateA", to: "stateA", label: "0.7", curve: true, offset: -40 },
-                { from: "stateA", to: "stateB", label: "0.2" },
-                { from: "stateA", to: "stateC", label: "0.1" },
-                { from: "stateB", to: "stateA", label: "0.3" },
+                { from: "stateA", to: "stateB", label: "0.1" },
+                { from: "stateA", to: "stateC", label: "0.2" },
+                { from: "stateB", to: "stateA", label: "0.2" },
                 { from: "stateB", to: "stateB", label: "0.5", curve: true, offset: -40 },
-                { from: "stateB", to: "stateC", label: "0.2" },
-                { from: "stateC", to: "stateA", label: "0.2" },
-                { from: "stateC", to: "stateB", label: "0.3" },
-                { from: "stateC", to: "stateC", label: "0.5", curve: true, offset: 40 }
+                { from: "stateB", to: "stateC", label: "0.3" },
+                { from: "stateC", to: "stateA", label: "0.3" },
+                { from: "stateC", to: "stateB", label: "0.4" },
+                { from: "stateC", to: "stateC", label: "0.3", curve: true, offset: 40 }
             ];
 
             function createArrows() {
@@ -1125,50 +1174,42 @@
                         selfLoop.style.borderRight = 'none';
                         selfLoop.style.borderRadius = '50% 0 0 0';
 
-                        if (data.offset > 0) {
-                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
-                            selfLoop.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
-                            selfLoop.style.transform = 'rotate(-90deg)';
-                        } else {
+                        if (data.from === "stateA") {
+                            // A节点自循环（顶部）
                             selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
                             selfLoop.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 45}px`;
                             selfLoop.style.transform = 'rotate(180deg)';
+                        } else if (data.from === "stateB") {
+                            // B节点自循环（左侧）
+                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            selfLoop.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 45}px`;
+                            selfLoop.style.transform = 'rotate(180deg)';
+                        } else if (data.from === "stateC") {
+                            // C节点自循环（右侧）
+                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            selfLoop.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
+                            selfLoop.style.transform = 'rotate(-90deg)';
                         }
 
                         markovChain.appendChild(selfLoop);
-
-                        // 添加箭头尖
-                        const arrowTip = document.createElement('div');
-                        arrowTip.style.position = 'absolute';
-                        arrowTip.style.width = '0';
-                        arrowTip.style.height = '0';
-                        arrowTip.style.borderTop = '6px solid transparent';
-                        arrowTip.style.borderBottom = '6px solid transparent';
-                        arrowTip.style.borderLeft = '10px solid #1a56db';
-
-                        if (data.offset > 0) {
-                            arrowTip.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 40}px`;
-                            arrowTip.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
-                            arrowTip.style.transform = 'rotate(0deg)';
-                        } else {
-                            arrowTip.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
-                            arrowTip.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 10}px`;
-                            arrowTip.style.transform = 'rotate(90deg)';
-                        }
-
-                        markovChain.appendChild(arrowTip);
 
                         // 概率标签
                         const probability = document.createElement('div');
                         probability.className = 'probability';
                         probability.textContent = data.label;
 
-                        if (data.offset > 0) {
-                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 20}px`;
-                            probability.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 25}px`;
-                        } else {
-                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top - 5}px`;
-                            probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 25}px`;
+                        if (data.from === "stateA") {
+                            // A节点标签（顶部）
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                            probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 40}px`;
+                        } else if (data.from === "stateB") {
+                            // B节点标签（左侧）
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                            probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 40}px`;
+                        } else if (data.from === "stateC") {
+                            // C节点标签（右侧）
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                            probability.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 10}px`;
                         }
 
                         markovChain.appendChild(probability);
@@ -1189,11 +1230,48 @@
                         probability.className = 'probability';
                         probability.textContent = data.label;
 
+                        // 调整特定位置，确保标签不重叠并清晰显示转化方向
                         const midX = fromCenterX + dx/2;
                         const midY = fromCenterY + dy/2;
 
-                        probability.style.top = `${midY - markovChain.getBoundingClientRect().top - 15}px`;
-                        probability.style.left = `${midX - markovChain.getBoundingClientRect().left - 10}px`;
+                        // 箭头角度
+                        const labelAngle = Math.atan2(dy, dx);
+
+                        // 标签偏移量
+                        const labelDistance = 15; // 标签距离线的垂直距离
+
+                        // 计算标签位置
+                        let offsetX, offsetY;
+
+                        // 根据连接关系调整标签位置
+                        if (data.from === "stateA" && data.to === "stateB") {
+                            // A到B：左下方
+                            offsetX = -45;
+                            offsetY = -10;
+                        } else if (data.from === "stateA" && data.to === "stateC") {
+                            // A到C：右下方
+                            offsetX = 15;
+                            offsetY = -5;
+                        } else if (data.from === "stateB" && data.to === "stateA") {
+                            // B到A：左上方
+                            offsetX = +10;
+                            offsetY = -10;
+                        } else if (data.from === "stateB" && data.to === "stateC") {
+                            // B到C：上方
+                            offsetX = 50;
+                            offsetY = -30;
+                        } else if (data.from === "stateC" && data.to === "stateA") {
+                            // C到A：右上方
+                            offsetX = -50;
+                            offsetY = -10;
+                        } else if (data.from === "stateC" && data.to === "stateB") {
+                            // C到B：上方
+                            offsetX = -80;
+                            offsetY = -30;
+                        }
+
+                        probability.style.top = `${midY - markovChain.getBoundingClientRect().top + offsetY}px`;
+                        probability.style.left = `${midX - markovChain.getBoundingClientRect().left + offsetX}px`;
 
                         markovChain.appendChild(probability);
                     }
@@ -1226,9 +1304,9 @@
 <div class="w-32 h-1 bg-blue-600 mx-auto"></div>
 </div>
 <div class="flex flex-row justify-between z-10">
-<!-- 左侧：概念和定义 -->
+<!-- 左侧内容区域 -->
 <div class="w-1/2 pr-6 flex flex-col space-y-6">
-<!-- 马尔科夫性质 -->
+<!-- 马尔科夫性质（1） -->
 <div class="concept-box p-5 markov-property fade-in" id="markov-property">
 <h3 class="text-xl font-bold text-blue-700 mb-3">
 <i class="fas fa-bookmark mr-2"></i>马尔科夫性质（无记忆性）
@@ -1236,14 +1314,47 @@
 <p class="text-gray-700 mb-4">
                         马尔科夫性质是指系统的未来状态仅依赖于当前状态，而与过去的历史状态无关。这种特性也被称为"无记忆性"。
                     </p>
-<div class="bg-blue-50 p-3 rounded-md border border-blue-200 fade-in" id="math-definition">
+<div class="bg-blue-50 p-3 rounded-md border border-blue-200 fade-in mt-auto" id="math-definition">
 <p class="text-center text-blue-800 font-semibold">数学定义</p>
 <div class="text-center py-2" id="markov-equation">
                             P(X<sub>n+1</sub>=j | X<sub>n</sub>=i, X<sub>n-1</sub>=i<sub>n-1</sub>,...,X<sub>0</sub>=i<sub>0</sub>) = P(X<sub>n+1</sub>=j | X<sub>n</sub>=i) = P<sub>ij</sub>
 </div>
 </div>
 </div>
-<!-- 马尔科夫链基本概念 -->
+<!-- 状态转移矩阵（2）- 移到左下角 -->
+<div class="transition-matrix p-4 fade-in" id="matrix">
+<h3 class="text-xl font-bold text-blue-700 mb-2 text-center">
+<i class="fas fa-table mr-2"></i>状态转移矩阵
+                    </h3>
+<div class="matrix-box my-4" id="transition-matrix">
+<div class="matrix-title">状态</div>
+<div class="matrix-header">A</div>
+<div class="matrix-header">B</div>
+<div class="matrix-header">C</div>
+<div class="matrix-header">A</div>
+<div class="matrix-cell" data-from="A" data-to="A">0.7</div>
+<div class="matrix-cell" data-from="A" data-to="B">0.1</div>
+<div class="matrix-cell" data-from="A" data-to="C">0.2</div>
+<div class="matrix-header">B</div>
+<div class="matrix-cell" data-from="B" data-to="A">0.2</div>
+<div class="matrix-cell" data-from="B" data-to="B">0.5</div>
+<div class="matrix-cell" data-from="B" data-to="C">0.3</div>
+<div class="matrix-header">C</div>
+<div class="matrix-cell" data-from="C" data-to="A">0.3</div>
+<div class="matrix-cell" data-from="C" data-to="B">0.4</div>
+<div class="matrix-cell" data-from="C" data-to="C">0.3</div>
+</div>
+<div class="text-center text-sm text-gray-600">
+                        P<sub>ij</sub> 表示从状态 i 到状态 j 的转移概率
+                    </div>
+<div class="text-center text-sm text-gray-700 mt-2">
+<span class="font-semibold">表格说明：</span> 左侧表示<span class="text-blue-600">起始状态</span>，上方表示<span class="text-blue-600">目标状态</span>
+</div>
+</div>
+</div>
+<!-- 右侧内容区域 -->
+<div class="w-1/2 pl-6 flex flex-col space-y-6">
+<!-- 马尔科夫链基本概念（3）- 移到右上角 -->
 <div class="concept-box p-5 fade-in" id="markov-basics">
 <h3 class="text-xl font-bold text-blue-700 mb-3">
 <i class="fas fa-link mr-2"></i>马尔科夫链基本概念
@@ -1255,50 +1366,206 @@
 <li><span class="font-semibold text-blue-600">初始分布(π<sub>0</sub>)</span>：系统初始状态的概率分布</li>
 </ul>
 </div>
-</div>
-<!-- 右侧：可视化和矩阵 -->
-<div class="w-1/2 pl-6 flex flex-col space-y-6">
-<!-- 状态转移矩阵 -->
-<div class="transition-matrix p-4 fade-in" id="matrix">
-<h3 class="text-xl font-bold text-blue-700 mb-2 text-center">
-<i class="fas fa-table mr-2"></i>状态转移矩阵
-                    </h3>
-<div class="matrix-box my-4" id="transition-matrix">
-<div class="matrix-cell" data-from="A" data-to="A">0.7</div>
-<div class="matrix-cell" data-from="A" data-to="B">0.2</div>
-<div class="matrix-cell" data-from="A" data-to="C">0.1</div>
-<div class="matrix-cell" data-from="B" data-to="A">0.3</div>
-<div class="matrix-cell" data-from="B" data-to="B">0.5</div>
-<div class="matrix-cell" data-from="B" data-to="C">0.2</div>
-<div class="matrix-cell" data-from="C" data-to="A">0.2</div>
-<div class="matrix-cell" data-from="C" data-to="B">0.3</div>
-<div class="matrix-cell" data-from="C" data-to="C">0.5</div>
-</div>
-<div class="text-center text-sm text-gray-600">
-                        P<sub>ij</sub> 表示从状态 i 到状态 j 的转移概率
-                    </div>
-</div>
-<!-- 马尔科夫链可视化 -->
+<!-- 马尔科夫链可视化（4） -->
 <div class="graph-visualization p-4 fade-in" id="visualization">
-<h3 class="text-xl font-bold text-blue-700 mb-2 text-center">
-<i class="fas fa-project-diagram mr-2"></i>马尔科夫链可视化
-                    </h3>
-<div class="relative h-full" id="markov-graph">
-<div class="state-node" id="stateA" style="top: 50px; left: 195px;">A</div>
-<div class="state-node" id="stateB" style="top: 180px; left: 105px;">B</div>
-<div class="state-node" id="stateC" style="top: 180px; left: 285px;">C</div>
-<!-- 箭头和标签将通过JavaScript生成 -->
+    <h3 class="text-xl font-bold text-blue-700 mb-2 text-center">
+        <i class="fas fa-project-diagram mr-2"></i>马尔科夫链可视化
+    </h3>
+    <div class="relative h-60 w-full max-w-2xl" id="markov-graph-2">
+        <!-- 状态节点 -->
+        <div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute w-12 h-12 rounded-full flex items-center justify-center" id="stateA2" style="top: 0; left: 50%; transform: translateX(-50%);">A</div>
+        <div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute w-12 h-12 rounded-full flex items-center justify-center" id="stateB2" style="bottom: 0; left: 20%;">B</div>
+        <div class="state-node bg-blue-100 border-2 border-blue-500 text-blue-700 absolute w-12 h-12 rounded-full flex items-center justify-center" id="stateC2" style="bottom: 0; right: 20%;">C</div>
+    </div>
 </div>
+
+<style>
+    .state-node {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        z-index: 2;
+    }
+
+    .arrow {
+        height: 2px;
+        background-color: #1a56db;
+        transform-origin: left center;
+        position: absolute;
+        z-index: 1;
+    }
+
+    .arrow::after {
+        content: '';
+        position: absolute;
+        right: -6px;
+        top: -4px;
+        border-left: 8px solid #1a56db;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+    }
+
+    .probability {
+        background-color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #1a56db;
+        z-index: 3;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function createArrowsForSecondGraph() {
+            const markovChain = document.getElementById('markov-graph-2');
+            if (!markovChain) return;
+
+            const arrowData = [
+                { from: "stateA2", to: "stateA2", label: "0.7", curve: true, offset: -40 },
+                { from: "stateA2", to: "stateB2", label: "0.1" },
+                { from: "stateA2", to: "stateC2", label: "0.2" },
+                { from: "stateB2", to: "stateA2", label: "0.2" },
+                { from: "stateB2", to: "stateB2", label: "0.5", curve: true, offset: -40 },
+                { from: "stateB2", to: "stateC2", label: "0.3" },
+                { from: "stateC2", to: "stateA2", label: "0.3" },
+                { from: "stateC2", to: "stateB2", label: "0.4" },
+                { from: "stateC2", to: "stateC2", label: "0.3", curve: true, offset: 40 }
+            ];
+
+            arrowData.forEach(data => {
+                const fromEl = document.getElementById(data.from);
+                const toEl = document.getElementById(data.to);
+
+                if (!fromEl || !toEl) return;
+
+                const fromRect = fromEl.getBoundingClientRect();
+                const toRect = toEl.getBoundingClientRect();
+
+                const fromCenterX = fromRect.left + fromRect.width/2;
+                const fromCenterY = fromRect.top + fromRect.height/2;
+                const toCenterX = toRect.left + toRect.width/2;
+                const toCenterY = toRect.top + toRect.height/2;
+
+                if (data.curve) {
+                    // 自循环箭头
+                    const selfLoop = document.createElement('div');
+                    selfLoop.style.position = 'absolute';
+                    selfLoop.style.width = '40px';
+                    selfLoop.style.height = '40px';
+                    selfLoop.style.border = '2px solid #1a56db';
+                    selfLoop.style.borderBottom = 'none';
+                    selfLoop.style.borderRight = 'none';
+                    selfLoop.style.borderRadius = '50% 0 0 0';
+
+                    if (data.from === "stateA2") {
+                        selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                        selfLoop.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 45}px`;
+                        selfLoop.style.transform = 'rotate(180deg)';
+                    } else if (data.from === "stateB2") {
+                        selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                        selfLoop.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 45}px`;
+                        selfLoop.style.transform = 'rotate(180deg)';
+                    } else if (data.from === "stateC2") {
+                        selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                        selfLoop.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
+                        selfLoop.style.transform = 'rotate(-90deg)';
+                    }
+
+                    markovChain.appendChild(selfLoop);
+
+                    // 概率标签
+                    const probability = document.createElement('div');
+                    probability.className = 'probability';
+                    probability.textContent = data.label;
+                    probability.style.position = 'absolute';
+
+                    if (data.from === "stateA2") {
+                        probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                        probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 40}px`;
+                    } else if (data.from === "stateB2") {
+                        probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                        probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 40}px`;
+                    } else if (data.from === "stateC2") {
+                        probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                        probability.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 10}px`;
+                    }
+
+                    markovChain.appendChild(probability);
+                } else {
+                    // 普通箭头
+                    const arrow = document.createElement('div');
+                    arrow.className = 'arrow absolute';
+
+                    const dx = toCenterX - fromCenterX;
+                    const dy = toCenterY - fromCenterY;
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    const length = Math.sqrt(dx*dx + dy*dy) - 80;
+
+                    arrow.style.top = `${fromCenterY - markovChain.getBoundingClientRect().top}px`;
+                    arrow.style.left = `${fromCenterX - markovChain.getBoundingClientRect().left}px`;
+                    arrow.style.width = `${length}px`;
+                    arrow.style.transform = `rotate(${angle}deg)`;
+
+                    markovChain.appendChild(arrow);
+
+                    // 概率标签
+                    const probability = document.createElement('div');
+                    probability.className = 'probability';
+                    probability.textContent = data.label;
+                    probability.style.position = 'absolute';
+
+                    const midX = fromCenterX + dx/2;
+                    const midY = fromCenterY + dy/2;
+
+                    let offsetX, offsetY;
+
+                    if (data.from === "stateA2" && data.to === "stateB2") {
+                        offsetX = -45;
+                        offsetY = -10;
+                    } else if (data.from === "stateA2" && data.to === "stateC2") {
+                        offsetX = 15;
+                        offsetY = -5;
+                    } else if (data.from === "stateB2" && data.to === "stateA2") {
+                        offsetX = 10;
+                        offsetY = -10;
+                    } else if (data.from === "stateB2" && data.to === "stateC2") {
+                        offsetX = 50;
+                        offsetY = -30;
+                    } else if (data.from === "stateC2" && data.to === "stateA2") {
+                        offsetX = -50;
+                        offsetY = -10;
+                    } else if (data.from === "stateC2" && data.to === "stateB2") {
+                        offsetX = -80;
+                        offsetY = -30;
+                    }
+
+                    probability.style.top = `${midY - markovChain.getBoundingClientRect().top + offsetY}px`;
+                    probability.style.left = `${midX - markovChain.getBoundingClientRect().left + offsetX}px`;
+
+                    markovChain.appendChild(probability);
+                }
+            });
+        }
+
+        // 延迟执行以确保DOM已完全加载
+        setTimeout(createArrowsForSecondGraph, 1000);
+    });
+</script>
 </div>
 </div>
 </div>
 <!-- 底部：核心特点总结 -->
 <div class="mt-auto pt-4 z-10">
-<div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 fade-in" id="summary">
+<div class="slide w-[1280px] bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 fade-in" id="summary">
 <h3 class="text-lg font-bold text-blue-700 mb-2">
 <i class="fas fa-lightbulb mr-2"></i>核心特点
                 </h3>
-<div class="flex flex-row justify-between">
+<div class="flex flex-row justify-between w-full">
 <div class="flex items-center">
 <i class="fas fa-random text-blue-500 text-2xl mr-3"></i>
 <p class="text-gray-700">状态转移只依赖<br/>当前状态</p>
@@ -1319,6 +1586,8 @@
 </div>
 </div>
 </div>
+</div>
+</div>
 <script>
         document.addEventListener("DOMContentLoaded", function() {
             // 创建马尔科夫链可视化的箭头和标签
@@ -1331,14 +1600,14 @@
                 // 定义转移连接
                 const transitions = [
                     { from: stateA, to: stateA, label: "0.7", selfLoop: true, angle: -45 },
-                    { from: stateA, to: stateB, label: "0.2" },
-                    { from: stateA, to: stateC, label: "0.1" },
-                    { from: stateB, to: stateA, label: "0.3" },
-                    { from: stateB, to: stateB, label: "0.5", selfLoop: true, angle: -135 },
-                    { from: stateB, to: stateC, label: "0.2" },
-                    { from: stateC, to: stateA, label: "0.2" },
-                    { from: stateC, to: stateB, label: "0.3" },
-                    { from: stateC, to: stateC, label: "0.5", selfLoop: true, angle: -315 }
+                    { from: stateA, to: stateB, label: "0.1" },
+                    { from: stateA, to: stateC, label: "0.2" },
+                    { from: stateB, to: stateA, label: "", selfLoop: true, angle: -135 },
+                    { from: stateB, to: stateB, label: "", selfLoop: true, angle: -135 },
+                    { from: stateB, to: stateC, label: "" },
+                    { from: stateC, to: stateA, label: "" },
+                    { from: stateC, to: stateB, label: "" },
+                    { from: stateC, to: stateC, label: "", selfLoop: true, angle: -315 }
                 ];
 
                 transitions.forEach(t => {
@@ -1380,13 +1649,24 @@
                         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
                         const radius = 30; // 节点半径
+
+                        // 判断是否为A-B之间的连线
+                        const isABConnection =
+                            ((t.from.id === 'stateA' && t.to.id === 'stateB') ||
+                             (t.from.id === 'stateB' && t.to.id === 'stateA'));
+
+                        // 为双向箭头添加偏移
+                        const offset = isABConnection ? 8 : 0;
+                        const perpX = -dy / Math.sqrt(dx * dx + dy * dy) * offset;
+                        const perpY = dx / Math.sqrt(dx * dx + dy * dy) * offset;
+
                         const fromAngle = angle * Math.PI / 180;
-                        const startX = fromX + Math.cos(fromAngle) * radius;
-                        const startY = fromY + Math.sin(fromAngle) * radius;
+                        const startX = fromX + Math.cos(fromAngle) * radius + perpX;
+                        const startY = fromY + Math.sin(fromAngle) * radius + perpY;
 
                         const toAngle = (angle + 180) * Math.PI / 180;
-                        const endX = toX + Math.cos(toAngle) * radius;
-                        const endY = toY + Math.sin(toAngle) * radius;
+                        const endX = toX + Math.cos(toAngle) * radius + perpX;
+                        const endY = toY + Math.sin(toAngle) * radius + perpY;
 
                         const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
 
@@ -1399,12 +1679,14 @@
                         graph.appendChild(arrow);
 
                         // 添加标签
-                        const label = document.createElement('div');
-                        label.className = 'transition-label';
-                        label.textContent = t.label;
-                        label.style.top = (startY + (endY - startY) / 2 - 10) + 'px';
-                        label.style.left = (startX + (endX - startX) / 2 - 10) + 'px';
-                        graph.appendChild(label);
+                        if (t.label) {  // 只为非空标签创建元素
+                            const label = document.createElement('div');
+                            label.className = 'transition-label';
+                            label.textContent = t.label;
+                            label.style.top = (startY + (endY - startY) / 2 - 10) + 'px';
+                            label.style.left = (startX + (endX - startX) / 2 - 10) + 'px';
+                            graph.appendChild(label);
+                        }
                     }
                 });
             }
@@ -1560,6 +1842,8 @@
 <p class="text-gray-700">
                             马尔科夫模型的发展历程体现了科学理论如何通过不断拓展和适应新问题而保持活力
                         </p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1784,6 +2068,8 @@
 </div>
 </div>
 </div>
+</div>
+</div>
 <!-- 底部：不同类型的马尔科夫模型与应用关系 -->
 <div class="mt-auto z-10 fade-in" id="models-summary">
 <div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500">
@@ -1825,6 +2111,8 @@
 <div>
 <h4 class="font-semibold text-red-700 text-sm">马尔科夫决策过程</h4>
 <p class="text-xs text-gray-600">强化学习、机器人路径规划、游戏AI</p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -2434,6 +2722,7 @@
 </div>
 </div>
 </div>
+</div>
 <!-- 底部总结 -->
 <div class="mt-4 z-10 fade-in" id="summary">
 <div class="bg-blue-50 p-3 rounded-lg border-t-4 border-blue-500">
@@ -2654,6 +2943,7 @@
 </div>
 </div>
 </div>
+</div>
 <script>
         document.addEventListener("DOMContentLoaded", function() {
             // GSAP动画
@@ -2759,25 +3049,26 @@
 <!-- 右侧：网页链接图和应用案例 -->
 <div class="w-1/2">
 <!-- 网页链接演示 -->
-<div class="concept-box p-4 mb-4 fade-in h-80" id="pagerank-demo">
+<div class="concept-box p-4 mb-4 fade-in h-96" id="pagerank-demo">
 <h3 class="font-bold text-gray-700 text-lg mb-2">网页链接马尔科夫模型示意图</h3>
-<div class="relative h-64 bg-gray-50 rounded-lg" id="network-graph">
+<div class="relative h-80 bg-gray-50 rounded-lg" id="network-graph">
 <!-- 网页节点 -->
-<div class="node bg-red-100 text-red-600 border-2 border-red-300" id="page-A" style="top: 40px; left: 200px;">A</div>
-<div class="node bg-blue-100 text-blue-600 border-2 border-blue-300" id="page-B" style="top: 150px; left: 80px;">B</div>
-<div class="node bg-green-100 text-green-600 border-2 border-green-300" id="page-C" style="top: 150px; left: 320px;">C</div>
-<div class="node bg-purple-100 text-purple-600 border-2 border-purple-300" id="page-D" style="top: 60px; left: 380px;">D</div>
-<div class="node bg-yellow-100 text-yellow-600 border-2 border-yellow-300" id="page-E" style="top: 240px; left: 200px;">E</div>
+<div class="node bg-red-100 text-red-600 border-2 border-red-300" id="page-A" style="top: 30px; left: 200px;">A</div>
+<div class="node bg-blue-100 text-blue-600 border-2 border-blue-300" id="page-B" style="top: 120px; left: 80px;">B</div>
+<div class="node bg-green-100 text-green-600 border-2 border-green-300" id="page-C" style="top: 120px; left: 320px;">C</div>
+<div class="node bg-purple-100 text-purple-600 border-2 border-purple-300" id="page-D" style="top: 40px; left: 380px;">D</div>
+<div class="node bg-yellow-100 text-yellow-600 border-2 border-yellow-300" id="page-E" style="top: 200px; left: 200px;">E</div>
 <!-- 链接边将通过JavaScript绘制 -->
-</div>
-<div class="flex justify-center mt-2 gap-8">
-<div class="text-sm">
+<!-- 解释文字放在图形内底部 -->
+<div class="absolute bottom-4 left-0 right-0 flex justify-center gap-8">
+<div class="text-sm bg-white shadow-sm px-3 py-1.5 rounded border border-yellow-200">
 <span class="font-bold text-yellow-600">重要页面</span>
 <div class="text-xs text-gray-600">更多入链，得到更高PageRank值</div>
 </div>
-<div class="text-sm">
+<div class="text-sm bg-white shadow-sm px-3 py-1.5 rounded border border-gray-200">
 <span class="font-bold text-gray-600">权重传递</span>
 <div class="text-xs text-gray-600">重要页面的出链传递更多权重</div>
+</div>
 </div>
 </div>
 </div>

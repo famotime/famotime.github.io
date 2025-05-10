@@ -192,26 +192,28 @@
             <!-- 右侧：网页链接图和应用案例 -->
             <div class="w-1/2">
                 <!-- 网页链接演示 -->
-                <div class="concept-box p-4 mb-4 fade-in h-80" id="pagerank-demo">
+                <div class="concept-box p-4 mb-4 fade-in h-96" id="pagerank-demo">
                     <h3 class="font-bold text-gray-700 text-lg mb-2">网页链接马尔科夫模型示意图</h3>
-                    <div class="relative h-64 bg-gray-50 rounded-lg" id="network-graph">
+                    <div class="relative h-80 bg-gray-50 rounded-lg" id="network-graph">
                         <!-- 网页节点 -->
-                        <div class="node bg-red-100 text-red-600 border-2 border-red-300" style="top: 40px; left: 200px;" id="page-A">A</div>
-                        <div class="node bg-blue-100 text-blue-600 border-2 border-blue-300" style="top: 150px; left: 80px;" id="page-B">B</div>
-                        <div class="node bg-green-100 text-green-600 border-2 border-green-300" style="top: 150px; left: 320px;" id="page-C">C</div>
-                        <div class="node bg-purple-100 text-purple-600 border-2 border-purple-300" style="top: 60px; left: 380px;" id="page-D">D</div>
-                        <div class="node bg-yellow-100 text-yellow-600 border-2 border-yellow-300" style="top: 240px; left: 200px;" id="page-E">E</div>
+                        <div class="node bg-red-100 text-red-600 border-2 border-red-300" style="top: 30px; left: 200px;" id="page-A">A</div>
+                        <div class="node bg-blue-100 text-blue-600 border-2 border-blue-300" style="top: 120px; left: 80px;" id="page-B">B</div>
+                        <div class="node bg-green-100 text-green-600 border-2 border-green-300" style="top: 120px; left: 320px;" id="page-C">C</div>
+                        <div class="node bg-purple-100 text-purple-600 border-2 border-purple-300" style="top: 40px; left: 380px;" id="page-D">D</div>
+                        <div class="node bg-yellow-100 text-yellow-600 border-2 border-yellow-300" style="top: 200px; left: 200px;" id="page-E">E</div>
 
                         <!-- 链接边将通过JavaScript绘制 -->
-                    </div>
-                    <div class="flex justify-center mt-2 gap-8">
-                        <div class="text-sm">
-                            <span class="font-bold text-yellow-600">重要页面</span>
-                            <div class="text-xs text-gray-600">更多入链，得到更高PageRank值</div>
-                        </div>
-                        <div class="text-sm">
-                            <span class="font-bold text-gray-600">权重传递</span>
-                            <div class="text-xs text-gray-600">重要页面的出链传递更多权重</div>
+
+                        <!-- 解释文字放在图形内底部 -->
+                        <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-8">
+                            <div class="text-sm bg-white shadow-sm px-3 py-1.5 rounded border border-yellow-200">
+                                <span class="font-bold text-yellow-600">重要页面</span>
+                                <div class="text-xs text-gray-600">更多入链，得到更高PageRank值</div>
+                            </div>
+                            <div class="text-sm bg-white shadow-sm px-3 py-1.5 rounded border border-gray-200">
+                                <span class="font-bold text-gray-600">权重传递</span>
+                                <div class="text-xs text-gray-600">重要页面的出链传递更多权重</div>
+                            </div>
                         </div>
                     </div>
                 </div>

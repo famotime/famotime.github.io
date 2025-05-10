@@ -120,14 +120,14 @@
             // 箭头连接和概率标签
             const arrowData = [
                 { from: "stateA", to: "stateA", label: "0.7", curve: true, offset: -40 },
-                { from: "stateA", to: "stateB", label: "0.2" },
-                { from: "stateA", to: "stateC", label: "0.1" },
-                { from: "stateB", to: "stateA", label: "0.3" },
+                { from: "stateA", to: "stateB", label: "0.1" },
+                { from: "stateA", to: "stateC", label: "0.2" },
+                { from: "stateB", to: "stateA", label: "0.2" },
                 { from: "stateB", to: "stateB", label: "0.5", curve: true, offset: -40 },
-                { from: "stateB", to: "stateC", label: "0.2" },
-                { from: "stateC", to: "stateA", label: "0.2" },
-                { from: "stateC", to: "stateB", label: "0.3" },
-                { from: "stateC", to: "stateC", label: "0.5", curve: true, offset: 40 }
+                { from: "stateB", to: "stateC", label: "0.3" },
+                { from: "stateC", to: "stateA", label: "0.3" },
+                { from: "stateC", to: "stateB", label: "0.4" },
+                { from: "stateC", to: "stateC", label: "0.3", curve: true, offset: 40 }
             ];
 
             function createArrows() {
@@ -161,50 +161,42 @@
                         selfLoop.style.borderRight = 'none';
                         selfLoop.style.borderRadius = '50% 0 0 0';
 
-                        if (data.offset > 0) {
-                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
-                            selfLoop.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
-                            selfLoop.style.transform = 'rotate(-90deg)';
-                        } else {
+                        if (data.from === "stateA") {
+                            // A节点自循环（顶部）
                             selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
                             selfLoop.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 45}px`;
                             selfLoop.style.transform = 'rotate(180deg)';
+                        } else if (data.from === "stateB") {
+                            // B节点自循环（左侧）
+                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            selfLoop.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 45}px`;
+                            selfLoop.style.transform = 'rotate(180deg)';
+                        } else if (data.from === "stateC") {
+                            // C节点自循环（右侧）
+                            selfLoop.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
+                            selfLoop.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
+                            selfLoop.style.transform = 'rotate(-90deg)';
                         }
 
                         markovChain.appendChild(selfLoop);
-
-                        // 添加箭头尖
-                        const arrowTip = document.createElement('div');
-                        arrowTip.style.position = 'absolute';
-                        arrowTip.style.width = '0';
-                        arrowTip.style.height = '0';
-                        arrowTip.style.borderTop = '6px solid transparent';
-                        arrowTip.style.borderBottom = '6px solid transparent';
-                        arrowTip.style.borderLeft = '10px solid #1a56db';
-
-                        if (data.offset > 0) {
-                            arrowTip.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 40}px`;
-                            arrowTip.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 5}px`;
-                            arrowTip.style.transform = 'rotate(0deg)';
-                        } else {
-                            arrowTip.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top}px`;
-                            arrowTip.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 10}px`;
-                            arrowTip.style.transform = 'rotate(90deg)';
-                        }
-
-                        markovChain.appendChild(arrowTip);
 
                         // 概率标签
                         const probability = document.createElement('div');
                         probability.className = 'probability';
                         probability.textContent = data.label;
 
-                        if (data.offset > 0) {
-                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 20}px`;
-                            probability.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 25}px`;
-                        } else {
-                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top - 5}px`;
-                            probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 25}px`;
+                        if (data.from === "stateA") {
+                            // A节点标签（顶部）
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                            probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 40}px`;
+                        } else if (data.from === "stateB") {
+                            // B节点标签（左侧）
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                            probability.style.left = `${fromRect.left - markovChain.getBoundingClientRect().left - 40}px`;
+                        } else if (data.from === "stateC") {
+                            // C节点标签（右侧）
+                            probability.style.top = `${fromRect.top - markovChain.getBoundingClientRect().top + 8}px`;
+                            probability.style.left = `${fromRect.right - markovChain.getBoundingClientRect().left + 10}px`;
                         }
 
                         markovChain.appendChild(probability);
@@ -225,11 +217,48 @@
                         probability.className = 'probability';
                         probability.textContent = data.label;
 
+                        // 调整特定位置，确保标签不重叠并清晰显示转化方向
                         const midX = fromCenterX + dx/2;
                         const midY = fromCenterY + dy/2;
 
-                        probability.style.top = `${midY - markovChain.getBoundingClientRect().top - 15}px`;
-                        probability.style.left = `${midX - markovChain.getBoundingClientRect().left - 10}px`;
+                        // 箭头角度
+                        const labelAngle = Math.atan2(dy, dx);
+
+                        // 标签偏移量
+                        const labelDistance = 15; // 标签距离线的垂直距离
+
+                        // 计算标签位置
+                        let offsetX, offsetY;
+
+                        // 根据连接关系调整标签位置
+                        if (data.from === "stateA" && data.to === "stateB") {
+                            // A到B：左下方
+                            offsetX = -45;
+                            offsetY = -10;
+                        } else if (data.from === "stateA" && data.to === "stateC") {
+                            // A到C：右下方
+                            offsetX = 15;
+                            offsetY = -5;
+                        } else if (data.from === "stateB" && data.to === "stateA") {
+                            // B到A：左上方
+                            offsetX = +10;
+                            offsetY = -10;
+                        } else if (data.from === "stateB" && data.to === "stateC") {
+                            // B到C：上方
+                            offsetX = 50;
+                            offsetY = -30;
+                        } else if (data.from === "stateC" && data.to === "stateA") {
+                            // C到A：右上方
+                            offsetX = -50;
+                            offsetY = -10;
+                        } else if (data.from === "stateC" && data.to === "stateB") {
+                            // C到B：上方
+                            offsetX = -80;
+                            offsetY = -30;
+                        }
+
+                        probability.style.top = `${midY - markovChain.getBoundingClientRect().top + offsetY}px`;
+                        probability.style.left = `${midX - markovChain.getBoundingClientRect().left + offsetX}px`;
 
                         markovChain.appendChild(probability);
                     }

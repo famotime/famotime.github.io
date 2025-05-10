@@ -10,5 +10,5 @@
 
 ## Web Service Demo
 
-[ShowMeOnline](https://show_me_online.github.io/)
+[ShowMeOnline](https://shiny-syrniki-60a841.netlify.app/)
 

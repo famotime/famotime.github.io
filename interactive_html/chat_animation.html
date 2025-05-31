@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>如果把世界领导人放在一个聊天群里……</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自定义滚动条样式 (可选) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .chat-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: 0px; /* Adjusted to align with the bottom of the bubble */
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        .chat-bubble-left::before {
+            left: -8px; /* Position the tail to the left */
+            border-width: 0px 10px 10px 0; /* Triangle shape for left tail */
+            border-color: transparent #e2e8f0 transparent transparent; /* Tailwind's bg-slate-200 */
+        }
+        .chat-bubble-right::before {
+            right: -8px; /* Position the tail to the right */
+            border-width: 0px 0 10px 10px; /* Triangle shape for right tail */
+            border-color: transparent transparent transparent #dcfce7; /* Tailwind's bg-green-100 */
+        }
+        /*确保头像和气泡对齐*/
+        .message-container {
+            display: flex;
+            align-items: flex-end; /* Align items to the bottom */
+            margin-bottom: 10px;
+        }
+        .message-container.justify-end {
+            justify-content: flex-end;
+        }
+         .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem; /* For emoji avatars */
+            background-color: #e5e7eb; /* gray-200, fallback for images */
+            color: #374151; /* gray-700, for emoji avatars */
+            margin-bottom: 5px; /* Spacing for the tail */
+            overflow: hidden; /* Ensure image stays within bounds */
+        }
+        .avatar-left {
+            margin-right: 10px;
+        }
+        .avatar-right {
+            margin-left: 10px;
+            order: 1; /* Ensure avatar is to the right of the bubble */
+        }
+        /* 使SVG图标在按钮中垂直居中，并给予一些padding */
+        .icon-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem; /* 8px padding */
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex flex-col items-center justify-center min-h-screen p-4 font-sans">
+
+    <div class="w-full max-w-md bg-white rounded-lg shadow-xl">
+        <div class="bg-slate-700 text-white p-4 rounded-t-lg">
+            <h1 id="chatTitle" class="text-xl font-semibold text-center">世界领导人聊天室 🌍</h1>
+        </div>
+        <div id="chat-window" class="h-96 p-4 overflow-y-auto space-y-2 bg-slate-50">
+            </div>
+        <div class="p-3 border-t bg-slate-100 rounded-b-lg">
+            <div class="flex items-center">
+                <input type="text" id="messagePlaceholder" placeholder="消息..." class="flex-grow p-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-slate-500" disabled>
+                <button id="sendButton" class="bg-slate-600 text-white p-2 rounded-r-md hover:bg-slate-700 transition-colors">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="controls-area" class="w-full max-w-md mt-4 p-3 bg-white rounded-lg shadow-xl">
+        <div class="flex items-center justify-between space-x-2">
+            <button id="restartButton" class="icon-button bg-slate-500 text-white rounded-md hover:bg-slate-600 transition-colors shadow mr-1" title="从头播放">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+            </button>
+            <button id="playPauseButton" class="icon-button bg-slate-500 text-white rounded-md hover:bg-slate-600 transition-colors shadow mr-2" title="暂停">
+                <svg id="playPauseIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path id="pauseIcon" stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                </svg>
+            </button>
+            <div class="flex items-center flex-grow space-x-2">
+                <input type="range" id="speedControl" min="0.2" max="3" step="0.1" value="1" class="w-32 align-middle accent-slate-600 h-5" title="播放速度">
+                <span id="speedValueDisplay" class="text-sm text-slate-700 w-10 inline-block text-center">1.0x</span>
+            </div>
+            <button id="langToggleButton" class="icon-button bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors shadow ml-2" title="切换英文">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 0c2.5 2.5 2.5 7.5 0 10m0 0c-2.5-2.5-2.5-7.5 0-10m0 10c-2.5 2.5-7.5 2.5-10 0m10 0c2.5 2.5 7.5 2.5 10 0" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // UI 文本翻译
+        const uiTranslations = {
+            zh: {
+                chatTitle: "世界领导人聊天室 🌍",
+                messagePlaceholder: "消息...",
+                sendButton: "发送",
+                tooltipRestart: "从头播放",
+                tooltipLangToggle: "切换到英文" // Tooltip for action: "Switch to English"
+            },
+            en: {
+                chatTitle: "World Leaders Chatroom 🌍",
+                messagePlaceholder: "Message...",
+                sendButton: "Send",
+                tooltipRestart: "Play from Start",
+                tooltipLangToggle: "Switch to Chinese" // Tooltip for action: "Switch to Chinese"
+            }
+        };
+
+        // 聊天消息数据 (中英文用户和消息)
+        const chatMessages = [
+            { type: 'action', text: { zh: '泽连斯基 加入了群聊', en: 'Volodymyr Zelensky joined the group' }, align: 'center' },
+            { type: 'message', user: { zh: '泽连斯基', en: 'Volodymyr Zelensky' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '大家好!', en: 'Hi everybody!' }, align: 'right' },
+            { type: 'message', user: { zh: '法国', en: 'France' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/fr.svg', text: { zh: 'Bonjour!', en: 'Bonjour!' }, align: 'left' },
+            { type: 'message', user: { zh: '德国', en: 'Germany' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/de.svg', text: { zh: 'Guten Abend', en: 'Guten Abend' }, align: 'left' },
+            { type: 'message', user: { zh: '西班牙', en: 'Spain' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/es.svg', text: { zh: 'Hola!', en: 'Hola!' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '欢迎! 很高兴见到你。', en: 'Welcome! We\'re glad to see you.' }, align: 'left' },
+            { type: 'action', text: { zh: 'Petro Poroshenko 退出了群聊', en: 'Petro Poroshenko left the group' }, align: 'center' },
+            { type: 'message', user: { zh: '英国', en: 'England' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/gb.svg', text: { zh: 'IdgkfjLK FSfns ldkGjs K (*&^ Ind', en: 'IdgkfjLK FSfns ldkGjs K (*&^ Ind' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '?', en: '?' }, align: 'left' },
+            { type: 'message', user: { zh: '德国', en: 'Germany' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/de.svg', text: { zh: '?', en: '?' }, align: 'left' },
+            { type: 'message', user: { zh: '法国', en: 'France' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/fr.svg', text: { zh: '?', en: '?' }, align: 'left' },
+            { type: 'message', user: { zh: '英国 (哈里王子)', en: 'England (Prince Harry)' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/gb.svg', text: { zh: '不好意思。我是哈里王子。祖母想写道她很高兴见到大家。', en: 'Excuse me. This is Prince Harry. Grandmother wanted to write that she is very happy to see everyone.' }, align: 'left' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '这个群的管理员是谁?', en: 'Who is administrator of this group?' }, align: 'right' },
+            { type: 'message', user: { zh: '俄罗斯', en: 'Russia' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ru.svg', text: { zh: '是我!', en: 'I am!' }, align: 'left' },
+            { type: 'message', user: { zh: '中国', en: 'China' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/cn.svg', text: { zh: '是我!', en: 'I am!' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '你想得美!', en: 'You wish!' }, align: 'left' },
+            { type: 'action', text: { zh: '管理员将 Russia 和 China 移出了群聊', en: 'Administrator removed Russia and China from the group' }, align: 'center' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '泽连斯基, 我们必须谈谈。我们想在乌克兰投资几十亿美元。', en: 'Volodymyr, we must talk. We want to invest several billion dollars in Ukraine.' }, align: 'left' },
+            { type: 'action', text: { zh: '波罗申科 回到了群聊', en: 'Poroshenko returned to the group' }, align: 'center' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '你建议在哪个领域投资? 农业还是冶金?', en: 'In which area you advise to invest? Into agriculture, or into metallurgy?' }, align: 'left' },
+            { type: 'message', user: { zh: '波罗申科', en: 'Poroshenko' }, avatar: '🍫', text: { zh: '最好是巧克力生产。', en: 'Better into chocolate production.' }, align: 'left' },
+            { type: 'action', text: { zh: '朝鲜 加入了群聊', en: 'North Korea joined the group' }, align: 'center' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '恭喜朝鲜开始有互联网了!', en: 'Congratulations on the start of Internet in North Korea!' }, align: 'right' },
+            { type: 'message', user: { zh: '朝鲜', en: 'North Korea' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/kp.svg', text: { zh: '谢谢，但我其实是跑到韩国五分钟(才上的网)。', en: 'Thank you but - I actually ran over to South Korea for five minutes.' }, align: 'left' },
+            { type: 'message', user: { zh: '韩国', en: 'South Korea' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/kr.svg', text: { zh: '😊', en: '😊' }, align: 'left' },
+            { type: 'message', user: { zh: '朝鲜', en: 'North Korea' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/kp.svg', text: { zh: '看这贴纸多棒。🚀🚀🚀', en: 'See what great stickers. 🚀🚀🚀' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '贴纸很棒，但你不必发给我。', en: 'Great stickers but you don\'t have to send them to me' }, align: 'left' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '我们想讨论一下信贷问题...', en: 'We would like to discuss the credit issue...' }, align: 'right' },
+            { type: 'action', text: { zh: 'IMF 退出了群聊', en: 'IMF left the group' }, align: 'center' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '我们什么时候可以偿还那笔贷款?', en: 'When can we pay back the tranch?' }, align: 'right' },
+            { type: 'action', text: { zh: 'IMF 回到了群聊', en: 'IMF returned to the group' }, align: 'center' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '...然后再获得一笔新的?', en: '...and receive a new one?' }, align: 'right' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '您真是位美丽的女士...', en: 'You are such a beautiful lady...' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '抱歉，发错群了...', en: 'Sorry, wrong chat...' }, align: 'left' },
+            { type: 'action', text: { zh: 'USA 删除了消息', en: 'USA deleted the message' }, align: 'center' },
+            { type: 'message', user: { zh: '俄罗斯', en: 'Russia' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ru.svg', text: { zh: '我们想讨论一下吞并问题。', en: 'We want to discuss the annexation issue.' }, align: 'left' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '说吧!', en: 'Go ahead!' }, align: 'right' },
+            { type: 'message', user: { zh: '俄罗斯', en: 'Russia' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ru.svg', text: { zh: '你们觉得如果我们吞并半个英国怎么样?', en: 'What do you think if we annex half of Great Britain?' }, align: 'left' },
+            { type: 'message', user: { zh: '法国', en: 'France' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/fr.svg', text: { zh: '我们将实施制裁。', en: 'We will impose sanctions.' }, align: 'left' },
+            { type: 'message', user: { zh: '德国', en: 'Germany' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/de.svg', text: { zh: '我们将实施制裁。', en: 'We will impose sanctions.' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '我们将实施制裁。', en: 'We will impose sanctions.' }, align: 'left' },
+            { type: 'message', user: { zh: '俄罗斯', en: 'Russia' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ru.svg', text: { zh: '所以没有人反对是吧。', en: 'So nobody has anything against it' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '我们买下格陵兰岛。', en: 'We buy Greenland.' }, align: 'left' },
+            { type: 'message', user: { zh: '丹麦', en: 'Denmark' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/dk.svg', text: { zh: '格陵兰岛概不出售。', en: 'Greenland is not for sale.' }, align: 'left' },
+            { type: 'message', user: { zh: '中国', en: 'China' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/cn.svg', text: { zh: '我们可以复制一个，然后用十分之一的价格卖给你!?', en: 'We can create a copy and sell it to you 10 times cheaper!?' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '小心。今天俄罗斯黑客黑了我的账户。', en: 'Careful. Today Russian hackers cracked my account' }, align: 'left' },
+            { type: 'message', user: { zh: '俄罗斯黑客', en: 'Russian Hackers' }, avatar: '👨‍💻', text: { zh: '不，不是我们。', en: 'No, it\'s not us.' }, align: 'left' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '我发起一个挑战。我们都自拍一张发到这里来。', en: 'I put out a challenge. Let\'s all make a selfie and send it here.' }, align: 'right' },
+            { type: 'message', user: { zh: '白俄罗斯', en: 'Belarus' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/by.svg', text: { zh: '什么????', en: 'What????' }, align: 'left' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '🔗 挑战, 🔗 自拍', en: '🔗 Challenge, 🔗 Selfie' }, align: 'right' },
+            { type: 'message', user: { zh: '白俄罗斯', en: 'Belarus' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/by.svg', text: { zh: '好的，明白了。', en: 'OK, understood.' }, align: 'left' },
+            { type: 'message', user: { zh: '乌克兰', en: 'Ukraine' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/ua.svg', text: { zh: '🧑', en: '🧑' }, align: 'right' },
+            { type: 'message', user: { zh: '法国', en: 'France' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/fr.svg', text: { zh: '👦', en: '👦' }, align: 'left' },
+            { type: 'message', user: { zh: '美国', en: 'USA' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/us.svg', text: { zh: '👱', en: '👱' }, align: 'left' },
+            { type: 'message', user: { zh: '白俄罗斯', en: 'Belarus' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/by.svg', text: { zh: '👨‍🦳', en: '👨‍🦳' }, align: 'left' },
+            { type: 'message', user: { zh: '白俄罗斯', en: 'Belarus' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/by.svg', text: { zh: '哦! 该死。', en: 'Oh! Damn.' }, align: 'left' },
+            { type: 'message', user: { zh: '白俄罗斯', en: 'Belarus' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/by.svg', text: { zh: '等一下。👨', en: 'Wait a second. 👨' }, align: 'left' },
+            { type: 'message', user: { zh: '芬兰', en: 'Finland' }, avatar: 'https://hatscripts.github.io/circle-flags/flags/fi.svg', text: { zh: '嗨!!!!', en: 'Hi!!!!' }, align: 'left' },
+            { type: 'message', user: { zh: 'IMF', en: 'IMF' }, avatar: '🏦', text: { zh: '我们恢复在线了。', en: 'We are back online.' }, align: 'left' },
+        ];
+
+        const chatWindowEl = document.getElementById('chat-window');
+        const speedControl = document.getElementById('speedControl');
+        const speedValueDisplay = document.getElementById('speedValueDisplay');
+        const restartButton = document.getElementById('restartButton');
+        const langToggleButton = document.getElementById('langToggleButton');
+        const playPauseButton = document.getElementById('playPauseButton');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+
+        const uiChatTitle = document.getElementById('chatTitle');
+        const uiMessagePlaceholder = document.getElementById('messagePlaceholder');
+        const uiSendButton = document.getElementById('sendButton');
+
+        let messageIndex = 0;
+        const baseMessageDelay = 1500;
+        let currentAnimationTimeoutId = null;
+        let currentLanguage = 'en';
+        let isPaused = false;
+
+        function updateUIText() {
+            const translations = uiTranslations[currentLanguage];
+            uiChatTitle.textContent = translations.chatTitle;
+            uiMessagePlaceholder.setAttribute('placeholder', translations.messagePlaceholder);
+            uiSendButton.textContent = translations.sendButton;
+            restartButton.setAttribute('title', translations.tooltipRestart);
+            langToggleButton.setAttribute('title', translations.tooltipLangToggle);
+            playPauseButton.setAttribute('title', isPaused ? (currentLanguage === 'zh' ? '播放' : 'Play') : (currentLanguage === 'zh' ? '暂停' : 'Pause'));
+            speedControl.setAttribute('title', currentLanguage === 'zh' ? '播放速度' : 'Speed');
+        }
+
+        function addMessageToChat(msg) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('message-container', 'w-full', 'flex', 'items-end');
+
+            const textToDisplay = msg.text[currentLanguage] || msg.text['zh'];
+            // Get user name based on current language
+            const userNameToDisplay = (msg.user && typeof msg.user === 'object') ? (msg.user[currentLanguage] || msg.user['zh']) : msg.user;
+
+
+            if (msg.type === 'system' || msg.type === 'action') {
+                messageWrapper.classList.add('justify-center', 'my-2');
+                const systemMessageDiv = document.createElement('div');
+                systemMessageDiv.classList.add('text-xs', 'text-slate-500', 'bg-slate-200', 'px-3', 'py-1', 'rounded-full');
+                systemMessageDiv.textContent = textToDisplay;
+                messageWrapper.appendChild(systemMessageDiv);
+            } else {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('chat-bubble', 'relative', 'max-w-xs', 'lg:max-w-md', 'px-4', 'py-2', 'rounded-lg', 'shadow');
+
+                const senderNameDiv = document.createElement('div');
+                senderNameDiv.classList.add('text-xs', 'font-semibold', 'mb-1');
+                senderNameDiv.textContent = userNameToDisplay; // Use translated user name
+
+                const messageTextDiv = document.createElement('p');
+                messageTextDiv.classList.add('text-sm');
+                messageTextDiv.innerHTML = textToDisplay;
+
+                const avatarDiv = document.createElement('div');
+                avatarDiv.classList.add('avatar');
+
+                if (typeof msg.avatar === 'string' && (msg.avatar.startsWith('http') || msg.avatar.includes('.svg') || msg.avatar.includes('.png') || msg.avatar.includes('.jpg'))) {
+                    const img = document.createElement('img');
+                    img.src = msg.avatar;
+                    img.alt = userNameToDisplay; // Use translated user name for alt text
+                    img.classList.add('w-full', 'h-full', 'object-cover');
+                    img.onerror = () => {
+                        avatarDiv.textContent = userNameToDisplay ? userNameToDisplay.charAt(0).toUpperCase() : '';
+                        avatarDiv.style.backgroundColor = '#cbd5e1';
+                    };
+                    avatarDiv.appendChild(img);
+                } else {
+                    avatarDiv.textContent = msg.avatar || (userNameToDisplay ? userNameToDisplay.charAt(0).toUpperCase() : '');
+                }
+
+                if (msg.align === 'right') {
+                    messageWrapper.classList.add('justify-end');
+                    messageDiv.classList.add('bg-green-100', 'text-slate-800', 'chat-bubble-right');
+                    senderNameDiv.classList.add('text-green-700', 'text-right');
+                    avatarDiv.classList.add('avatar-right', 'bg-green-200');
+                    messageDiv.appendChild(senderNameDiv);
+                    messageDiv.appendChild(messageTextDiv);
+                    messageWrapper.appendChild(messageDiv);
+                    messageWrapper.appendChild(avatarDiv);
+
+                } else {
+                    messageWrapper.classList.add('justify-start');
+                    messageDiv.classList.add('bg-slate-200', 'text-slate-800', 'chat-bubble-left');
+                    senderNameDiv.classList.add('text-slate-600');
+                    avatarDiv.classList.add('avatar-left', 'bg-slate-300');
+                    messageDiv.appendChild(senderNameDiv);
+                    messageDiv.appendChild(messageTextDiv);
+                    messageWrapper.appendChild(avatarDiv);
+                    messageWrapper.appendChild(messageDiv);
+                }
+            }
+            chatWindowEl.appendChild(messageWrapper);
+            chatWindowEl.scrollTop = chatWindowEl.scrollHeight;
+        }
+
+        function displayNextMessage() {
+            if (currentAnimationTimeoutId) {
+                clearTimeout(currentAnimationTimeoutId);
+            }
+            if (messageIndex < chatMessages.length) {
+                addMessageToChat(chatMessages[messageIndex]);
+                messageIndex++;
+                const currentSpeed = parseFloat(speedControl.value) || 1;
+                const actualDelay = baseMessageDelay / currentSpeed;
+                if (!isPaused) {
+                    currentAnimationTimeoutId = setTimeout(displayNextMessage, actualDelay);
+                } else {
+                    currentAnimationTimeoutId = null;
+                }
+            } else {
+                currentAnimationTimeoutId = null;
+            }
+        }
+
+        function restartAnimation() {
+            if (currentAnimationTimeoutId) {
+                clearTimeout(currentAnimationTimeoutId);
+                currentAnimationTimeoutId = null;
+            }
+            chatWindowEl.innerHTML = '';
+            messageIndex = 0;
+            displayNextMessage();
+        }
+
+        function playAnimation() {
+            if (!isPaused && !currentAnimationTimeoutId) {
+                displayNextMessage();
+            } else if (isPaused) {
+                isPaused = false;
+                updatePlayPauseIcon();
+                displayNextMessage();
+            }
+        }
+
+        function pauseAnimation() {
+            isPaused = true;
+            if (currentAnimationTimeoutId) {
+                clearTimeout(currentAnimationTimeoutId);
+                currentAnimationTimeoutId = null;
+            }
+            updatePlayPauseIcon();
+        }
+
+        function updatePlayPauseIcon() {
+            playPauseIcon.innerHTML = isPaused
+                ? '<path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.25l13.5 6.75-13.5 6.75V5.25z" />' // 播放
+                : '<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />'; // 暂停
+            playPauseButton.setAttribute('title', isPaused ? (currentLanguage === 'zh' ? '播放' : 'Play') : (currentLanguage === 'zh' ? '暂停' : 'Pause'));
+        }
+
+        speedControl.addEventListener('input', () => {
+            const speed = parseFloat(speedControl.value).toFixed(1);
+            speedValueDisplay.textContent = `${speed}x`;
+        });
+
+        restartButton.addEventListener('click', () => {
+            isPaused = false;
+            updatePlayPauseIcon();
+            restartAnimation();
+        });
+
+        langToggleButton.addEventListener('click', () => {
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            updateUIText();
+            restartAnimation();
+        });
+
+        playPauseButton.addEventListener('click', () => {
+            if (isPaused) {
+                isPaused = false;
+                updatePlayPauseIcon();
+                displayNextMessage();
+            } else {
+                pauseAnimation();
+            }
+        });
+
+        updateUIText();
+        updatePlayPauseIcon();
+        speedValueDisplay.textContent = `${parseFloat(speedControl.value).toFixed(1)}x`;
+        displayNextMessage();
+    </script>
+
+</body>
+</html>

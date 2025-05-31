@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>博客分析仪表盘</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <!-- vis-network -->
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>博客列表交互式分析报告</h1>
+  </header>
+  <main>
+    <section id="time-trends">
+      <h2>1. 时间趋势</h2>
+      <div id="monthlyPostsChart" class="chart"></div>
+      <div id="cumulativeMetricsChart" class="chart"></div>
+    </section>
+    <section id="distributions">
+      <h2>2. 分布 & Top10</h2>
+      <div class="grid">
+        <div>
+          <div id="readDist" class="chart"></div>
+          <div id="readTop10" class="table-container"></div>
+        </div>
+        <div>
+          <div id="likeDist" class="chart"></div>
+          <div id="likeTop10" class="table-container"></div>
+        </div>
+        <div>
+          <div id="commentDist" class="chart"></div>
+          <div id="commentTop10" class="table-container"></div>
+        </div>
+        <div>
+          <div id="shareDist" class="chart"></div>
+          <div id="shareTop10" class="table-container"></div>
+        </div>
+      </div>
+    </section>
+    <section id="correlation">
+      <h2>3. 指标相关性矩阵</h2>
+      <div id="corrMatrix" class="chart"></div>
+    </section>
+    <section id="network">
+      <h2>4. 引用关系网络</h2>
+      <div id="networkVis" class="network"></div>
+      <div id="networkMetrics" class="metrics"></div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
